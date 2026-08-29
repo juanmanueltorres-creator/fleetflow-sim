@@ -1,0 +1,88 @@
+{
+  "source": {
+    "dataset": "Amazon Last Mile Routing Research Challenge",
+    "license": "CC BY-NC 4.0",
+    "sample": "High",
+    "methodVersion": "1"
+  },
+  "summary": {
+    "routesAnalyzed": 2718,
+    "stopsAnalyzed": 379444,
+    "packagesAnalyzed": 651562
+  },
+  "distributions": {
+    "stopsPerRoute": {
+      "min": 37,
+      "p10": 93,
+      "p25": 117,
+      "p50": 143,
+      "p75": 164,
+      "p90": 181,
+      "max": 221
+    },
+    "packagesPerStop": {
+      "min": 1,
+      "p10": 1,
+      "p25": 1,
+      "p50": 1,
+      "p75": 2,
+      "p90": 3,
+      "max": 78
+    },
+    "serviceSecondsPerStop": {
+      "min": 4,
+      "p10": 36,
+      "p25": 50,
+      "p50": 78,
+      "p75": 137.10000000000002,
+      "p90": 242,
+      "max": 5584.800000000004
+    },
+    "travelSecondsBetweenStops": {
+      "min": 0,
+      "p10": 10.3,
+      "p25": 21.2,
+      "p50": 42.6,
+      "p75": 75.1,
+      "p90": 124,
+      "max": 5751.2
+    },
+    "timeWindowProbability": 0.06834737141712612,
+    "timeWindowWidthMinutes": {
+      "min": 60,
+      "p10": 420,
+      "p25": 420,
+      "p50": 480,
+      "p75": 480,
+      "p90": 540,
+      "max": 1439
+    },
+    "packageVolumeCm3": {
+      "min": 0.207,
+      "p10": 1228.92,
+      "p25": 2995.4700000000003,
+      "p50": 5741.924,
+      "p75": 13297.312,
+      "p90": 25924.632,
+      "max": 300522.6
+    },
+    "vehicleCapacityCm3": {
+      "min": 3114853.25,
+      "p10": 3313071,
+      "p25": 3313071,
+      "p50": 3313071,
+      "p75": 4247527,
+      "p90": 4247527,
+      "max": 4247527
+    },
+    "departureMinuteOfDayUtc": {
+      "min": 648,
+      "p10": 788,
+      "p25": 856,
+      "p50": 900,
+      "p75": 944,
+      "p90": 974,
+      "max": 1096
+    }
+  }
+}
