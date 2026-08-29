@@ -1,4 +1,4 @@
-name: Prepare route asset
+name: Prepare route assets
 
 on:
   workflow_dispatch:
@@ -16,8 +16,14 @@ jobs:
         with:
           node-version: 22
       - run: npm run prepare:routes
+      - run: npm run prepare:routes:calibrated
       - uses: actions/upload-artifact@v4
         with:
           name: coca-coqui-routes
           path: public/data/coca-coqui-routes.geojson
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cordoba-calibrated-routes
+          path: public/data/cordoba-calibrated-routes.geojson
           if-no-files-found: error
