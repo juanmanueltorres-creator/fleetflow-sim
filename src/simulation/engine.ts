@@ -47,41 +47,30 @@ function bearingAtDistance(
 }
 
 function buildTravelLegs(route: RoutePlan, distances: number[]): TravelLeg[] {
-  const [first, second, third] = route.stops
-  if (!first || !second || !third) {
-    throw new Error(`Route ${route.id} must contain exactly three stops in V0`)
+  if (route.stops.length === 0) {
+    throw new Error(`Route ${route.id} requires at least one stop`)
   }
 
+  const outbound: TravelLeg[] = route.stops.map((stop, index) => ({
+    startMinute:
+      index === 0
+        ? route.departureMinute
+        : route.stops[index - 1].plannedDepartureMinute,
+    endMinute: stop.plannedArrivalMinute,
+    startDistanceKm: distances[index],
+    endDistanceKm: distances[index + 1],
+    nextStopId: stop.storeId,
+    status: 'EN_ROUTE',
+  }))
+  const lastStop = route.stops[route.stops.length - 1]
+
   return [
+    ...outbound,
     {
-      startMinute: route.departureMinute,
-      endMinute: first.plannedArrivalMinute,
-      startDistanceKm: distances[0],
-      endDistanceKm: distances[1],
-      nextStopId: first.storeId,
-      status: 'EN_ROUTE',
-    },
-    {
-      startMinute: first.plannedDepartureMinute,
-      endMinute: second.plannedArrivalMinute,
-      startDistanceKm: distances[1],
-      endDistanceKm: distances[2],
-      nextStopId: second.storeId,
-      status: 'EN_ROUTE',
-    },
-    {
-      startMinute: second.plannedDepartureMinute,
-      endMinute: third.plannedArrivalMinute,
-      startDistanceKm: distances[2],
-      endDistanceKm: distances[3],
-      nextStopId: third.storeId,
-      status: 'EN_ROUTE',
-    },
-    {
-      startMinute: third.plannedDepartureMinute,
+      startMinute: lastStop.plannedDepartureMinute,
       endMinute: route.returnMinute,
-      startDistanceKm: distances[3],
-      endDistanceKm: distances[4],
+      startDistanceKm: distances[route.stops.length],
+      endDistanceKm: distances[route.stops.length + 1],
       nextStopId: null,
       status: 'RETURNING',
     },
