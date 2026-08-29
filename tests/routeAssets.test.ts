@@ -1,10 +1,12 @@
 import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import type { FeatureCollection, LineString } from 'geojson'
 import type { RouteGeometryProperties } from '../src/map/routeAssets'
 
+const assetPath = resolve(process.cwd(), 'public/data/coca-coqui-routes.geojson')
 const asset = JSON.parse(
-  readFileSync(new URL('../public/data/coca-coqui-routes.geojson', import.meta.url), 'utf8'),
+  readFileSync(assetPath, 'utf8'),
 ) as FeatureCollection<LineString, RouteGeometryProperties>
 
 describe('static Coca Coqui route asset', () => {
