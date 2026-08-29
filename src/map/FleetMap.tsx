@@ -1,5 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import maplibregl, { type GeoJSONSource, type Map as MapLibreMap } from 'maplibre-gl'
+import {
+  AttributionControl,
+  Map as MapLibreMap,
+  NavigationControl,
+  type GeoJSONSource,
+} from 'maplibre-gl'
 import type { FeatureCollection, Point } from 'geojson'
 import type { FleetScenario, FleetSnapshot } from '../domain/types'
 import { fleetSnapshotToGeoJson } from './fleetGeoJson'
@@ -63,7 +68,7 @@ export function FleetMap({ scenario, routes, snapshot }: FleetMapProps) {
   useEffect(() => {
     if (!containerRef.current) return
 
-    const map = new maplibregl.Map({
+    const map = new MapLibreMap({
       container: containerRef.current,
       style: MAP_STYLE,
       center: MAP_CENTER,
@@ -72,9 +77,9 @@ export function FleetMap({ scenario, routes, snapshot }: FleetMapProps) {
     })
 
     mapRef.current = map
-    map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'bottom-right')
+    map.addControl(new NavigationControl({ showCompass: false }), 'bottom-right')
     map.addControl(
-      new maplibregl.AttributionControl({
+      new AttributionControl({
         compact: true,
         customAttribution: 'Routes and map context © OpenStreetMap contributors',
       }),
