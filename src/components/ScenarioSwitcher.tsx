@@ -1,3 +1,4 @@
+import './ScenarioSwitcher.css'
 import {
   getScenarioDefinition,
   SCENARIO_IDS,
