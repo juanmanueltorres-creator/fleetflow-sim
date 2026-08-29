@@ -9,7 +9,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "prepare:routes": "node scripts/prepare-routes.mjs",
-    "calibrate:amazon": "node scripts/calibrate-amazon.mjs"
+    "calibrate:amazon": "node scripts/calibrate-amazon.mjs",
+    "generate:calibrated": "node scripts/generate-calibrated-scenario.mjs --profile src/scenario/calibration/amazon-last-mile-v1.json --output src/scenario/generated/cordoba-calibrated-v1.json --seed fleetflow-cordoba-v0.4"
   },
   "dependencies": {
     "@turf/along": "7.4.0",
