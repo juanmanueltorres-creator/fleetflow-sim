@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   AttributionControl,
+  LngLatBounds,
   Map as MapLibreMap,
   NavigationControl,
   type GeoJSONSource,
@@ -24,6 +25,17 @@ interface FleetMapProps {
   routes: RouteGeometryCollection
   snapshot: FleetSnapshot
 }
+
+const ROUTE_COLOR_EXPRESSION = [
+  'match',
+  ['get', 'truckId'],
+  'truck-01', '#72c7e8',
+  'truck-02', '#d2b173',
+  'truck-03', '#efe4d0',
+  'truck-04', '#b9874d',
+  'truck-05', '#8f2d2d',
+  '#8f8171',
+] as const
 
 function storeGeoJson(scenario: FleetScenario): FeatureCollection<Point> {
   return {
@@ -55,6 +67,26 @@ function depotGeoJson(scenario: FleetScenario): FeatureCollection<Point> {
   }
 }
 
+function routeBounds(routes: RouteGeometryCollection): LngLatBounds {
+  const bounds = new LngLatBounds()
+
+  for (const feature of routes.features) {
+    for (const coordinate of feature.geometry.coordinates) {
+      bounds.extend([coordinate[0], coordinate[1]])
+    }
+  }
+
+  return bounds
+}
+
+function fitPadding() {
+  if (typeof window !== 'undefined' && window.innerWidth >= 1180) {
+    return { top: 120, right: 350, bottom: 72, left: 390 }
+  }
+
+  return { top: 150, right: 48, bottom: 120, left: 48 }
+}
+
 export function FleetMap({ scenario, routes, snapshot }: FleetMapProps) {
   const containerRef = useRef<HTMLDivElement | null>(null)
   const mapRef = useRef<MapLibreMap | null>(null)
@@ -77,13 +109,13 @@ export function FleetMap({ scenario, routes, snapshot }: FleetMapProps) {
     })
 
     mapRef.current = map
-    map.addControl(new NavigationControl({ showCompass: false }), 'bottom-right')
+    map.addControl(new NavigationControl({ showCompass: false }), 'bottom-left')
     map.addControl(
       new AttributionControl({
         compact: true,
         customAttribution: 'Routes and map context © OpenStreetMap contributors',
       }),
-      'bottom-right',
+      'bottom-left',
     )
 
     map.on('load', () => {
@@ -100,18 +132,9 @@ export function FleetMap({ scenario, routes, snapshot }: FleetMapProps) {
         type: 'line',
         source: SOURCE_ROUTES,
         paint: {
-          'line-width': 3,
-          'line-opacity': 0.72,
-          'line-color': [
-            'match',
-            ['get', 'truckId'],
-            'truck-01', '#55c2ff',
-            'truck-02', '#a78bfa',
-            'truck-03', '#34d399',
-            'truck-04', '#fbbf24',
-            'truck-05', '#fb7185',
-            '#94a3b8',
-          ],
+          'line-width': 2.6,
+          'line-opacity': 0.68,
+          'line-color': ROUTE_COLOR_EXPRESSION,
         },
       })
 
@@ -120,10 +143,10 @@ export function FleetMap({ scenario, routes, snapshot }: FleetMapProps) {
         type: 'circle',
         source: SOURCE_STORES,
         paint: {
-          'circle-radius': 5,
-          'circle-color': '#f8fafc',
-          'circle-stroke-width': 2,
-          'circle-stroke-color': '#111827',
+          'circle-radius': 4.5,
+          'circle-color': '#efe4d0',
+          'circle-stroke-width': 1.5,
+          'circle-stroke-color': '#5f4226',
         },
       })
 
@@ -132,30 +155,54 @@ export function FleetMap({ scenario, routes, snapshot }: FleetMapProps) {
         type: 'circle',
         source: SOURCE_DEPOT,
         paint: {
-          'circle-radius': 9,
-          'circle-color': '#111827',
-          'circle-stroke-width': 3,
-          'circle-stroke-color': '#f8fafc',
+          'circle-radius': 8.5,
+          'circle-color': '#d2b173',
+          'circle-stroke-width': 2.5,
+          'circle-stroke-color': '#fff3dc',
         },
       })
 
       map.addLayer({
-        id: 'fleet-truck-symbols',
-        type: 'symbol',
+        id: 'fleet-truck-halo',
+        type: 'circle',
         source: SOURCE_TRUCKS,
-        layout: {
-          'text-field': '▲',
-          'text-size': 22,
-          'text-allow-overlap': true,
-          'text-ignore-placement': true,
-          'text-rotation-alignment': 'map',
-          'text-rotate': ['get', 'bearing'],
-        },
         paint: {
-          'text-color': '#111827',
-          'text-halo-color': '#ffffff',
-          'text-halo-width': 2,
+          'circle-radius': [
+            'match',
+            ['get', 'status'],
+            'UNLOADING', 14,
+            'DONE', 9,
+            12,
+          ],
+          'circle-color': ROUTE_COLOR_EXPRESSION,
+          'circle-opacity': 0.22,
+          'circle-blur': 0.45,
         },
+      })
+
+      map.addLayer({
+        id: 'fleet-truck-core',
+        type: 'circle',
+        source: SOURCE_TRUCKS,
+        paint: {
+          'circle-radius': [
+            'match',
+            ['get', 'status'],
+            'UNLOADING', 7.5,
+            'DONE', 5,
+            6.5,
+          ],
+          'circle-color': ROUTE_COLOR_EXPRESSION,
+          'circle-stroke-width': 2,
+          'circle-stroke-color': '#070706',
+        },
+      })
+
+      map.resize()
+      map.fitBounds(routeBounds(routes), {
+        padding: fitPadding(),
+        maxZoom: 13.2,
+        duration: 0,
       })
 
       setMapReady(true)
