@@ -49,6 +49,7 @@ const definitions: Record<ScenarioId, ScenarioDefinition> = {
       shortLabel: 'ESCENARIO CALIBRADO',
       summary: 'Comportamiento derivado de datos operacionales públicos. Ubicaciones y recorridos adaptados a Córdoba.',
       sourceName: 'Amazon Last Mile Routing Research Challenge',
+      sourceUrl: 'https://registry.opendata.aws/amazon-last-mile-challenges/',
       sourceLicense: 'CC BY-NC 4.0',
       methodVersion: '1',
       syntheticElements: [
