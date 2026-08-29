@@ -6,8 +6,8 @@
     "executor_capacity_cm3": 100000,
     "route_score": "High",
     "stops": {
-      "ST": { "lat": 1, "lng": 1, "type": "Station", "zone_id": null },
-      "AA": { "lat": 1.01, "lng": 1.01, "type": "Dropoff", "zone_id": "A-1" },
+      "ST": { "lat": 1, "lng": 1, "type": "Station", "zone_id": NaN },
+      "AA": { "lat": 1.01, "lng": 1.01, "type": "Dropoff", "zone_id": "NaN-zone-kept-as-text" },
       "BB": { "lat": 1.02, "lng": 1.02, "type": "Dropoff", "zone_id": "A-2" },
       "CC": { "lat": 1.03, "lng": 1.03, "type": "Dropoff", "zone_id": "A-3" }
     }
