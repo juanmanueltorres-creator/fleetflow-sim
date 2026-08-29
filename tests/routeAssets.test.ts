@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import type { FeatureCollection, LineString } from 'geojson'
@@ -14,6 +14,9 @@ const assetPath = resolve(process.cwd(), 'public/data/coca-coqui-routes.geojson'
 const asset = JSON.parse(
   readFileSync(assetPath, 'utf8'),
 ) as FeatureCollection<LineString, RouteGeometryProperties>
+
+const calibratedAssetPath = resolve(process.cwd(), 'public/data/cordoba-calibrated-routes.geojson')
+const calibratedScenarioPath = resolve(process.cwd(), 'src/scenario/generated/cordoba-calibrated-v1.json')
 
 const variableScenario: FleetScenario = {
   id: 'geometry-test',
@@ -102,6 +105,24 @@ describe('static Coca Coqui route asset', () => {
         )
       }
     })
+  })
+})
+
+describe('static calibrated Cordoba route asset', () => {
+  it('contains one road route per calibrated vehicle with stops plus two waypoints', () => {
+    expect(existsSync(calibratedAssetPath)).toBe(true)
+    expect(existsSync(calibratedScenarioPath)).toBe(true)
+    if (!existsSync(calibratedAssetPath) || !existsSync(calibratedScenarioPath)) return
+
+    const scenario = JSON.parse(readFileSync(calibratedScenarioPath, 'utf8')) as FleetScenario
+    const collection = JSON.parse(readFileSync(calibratedAssetPath, 'utf8')) as RouteGeometryCollection
+    const index = routeAssets.routeCollectionToIndex(collection, scenario)
+
+    expect(Object.keys(index)).toHaveLength(8)
+    for (const route of scenario.routes) {
+      expect(index[route.geometryId].properties.truckId).toBe(route.truckId)
+      expect(index[route.geometryId].properties.waypointDistancesKm).toHaveLength(route.stops.length + 2)
+    }
   })
 })
 
