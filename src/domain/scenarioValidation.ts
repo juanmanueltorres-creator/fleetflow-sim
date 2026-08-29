@@ -14,10 +14,6 @@ export function validateScenario(scenario: FleetScenario): string[] {
       continue
     }
 
-    if (route.distanceKm <= 0) {
-      errors.push(`Route ${route.id} must have positive distance`)
-    }
-
     let previousMinute = route.departureMinute
     let assignedDemandKg = 0
 
