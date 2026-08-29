@@ -3,6 +3,9 @@ import { createRoot } from 'react-dom/client'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import App from './App'
 import './app.css'
+import { configureMapLibreWorker } from './map/mapWorker'
+
+configureMapLibreWorker()
 
 const root = document.getElementById('root')
 
