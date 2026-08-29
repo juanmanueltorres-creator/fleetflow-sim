@@ -42,7 +42,7 @@ function buildWaypointDistances(legs) {
 
 async function prepareRoute({ truckId, coordinates }) {
   const coordinatePath = coordinates.map(([longitude, latitude]) => `${longitude},${latitude}`).join(';')
-  const url = `${baseUrl}/route/v1/driving/${coordinatePath}?overview=full&geometries=geojson&steps=false`
+  const url = `${baseUrl}/route/v1/driving/${coordinatePath}?overview=simplified&geometries=geojson&steps=false`
   const response = await fetch(url, {
     headers: { 'user-agent': 'fleetflow-sim route preparation' },
   })
@@ -96,5 +96,5 @@ const collection = {
 }
 
 await mkdir(dirname(outputPath), { recursive: true })
-await writeFile(outputPath, `${JSON.stringify(collection, null, 2)}\n`, 'utf8')
+await writeFile(outputPath, `${JSON.stringify(collection)}\n`, 'utf8')
 console.log(`Prepared ${features.length} static road routes at ${outputPath}`)
