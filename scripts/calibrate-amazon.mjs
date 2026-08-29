@@ -25,10 +25,57 @@ function parseArgs(argv) {
   return { inputDir: resolve(inputDir), output: resolve(output) }
 }
 
+function isJsonTokenBoundary(character) {
+  return character === undefined || /[\s,:{}\[\]]/.test(character)
+}
+
+function normalizeAmazonJson(text) {
+  let output = ''
+  let inString = false
+  let escaping = false
+
+  for (let index = 0; index < text.length; index += 1) {
+    const character = text[index]
+
+    if (inString) {
+      output += character
+      if (escaping) {
+        escaping = false
+      } else if (character === '\\') {
+        escaping = true
+      } else if (character === '"') {
+        inString = false
+      }
+      continue
+    }
+
+    if (character === '"') {
+      inString = true
+      output += character
+      continue
+    }
+
+    if (
+      text.startsWith('NaN', index)
+      && isJsonTokenBoundary(text[index - 1])
+      && isJsonTokenBoundary(text[index + 3])
+    ) {
+      output += 'null'
+      index += 2
+      continue
+    }
+
+    output += character
+  }
+
+  return output
+}
+
 function readJson(path) {
   if (!existsSync(path)) throw new Error(`Missing required input file: ${path}`)
   try {
-    return JSON.parse(readFileSync(path, 'utf8'))
+    const source = readFileSync(path, 'utf8')
+    return JSON.parse(normalizeAmazonJson(source))
   } catch (error) {
     throw new Error(`Could not parse ${path}: ${error instanceof Error ? error.message : String(error)}`)
   }
