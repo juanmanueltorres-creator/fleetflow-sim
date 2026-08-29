@@ -1,0 +1,26 @@
+{
+  "RouteID_HIGH_TEST": {
+    "station_code": "TEST1",
+    "date_YYYY_MM_DD": "2018-01-01",
+    "departure_time_utc": "06:15:00",
+    "executor_capacity_cm3": 100000,
+    "route_score": "High",
+    "stops": {
+      "ST": { "lat": 1, "lng": 1, "type": "Station", "zone_id": null },
+      "AA": { "lat": 1.01, "lng": 1.01, "type": "Dropoff", "zone_id": "A-1" },
+      "BB": { "lat": 1.02, "lng": 1.02, "type": "Dropoff", "zone_id": "A-2" },
+      "CC": { "lat": 1.03, "lng": 1.03, "type": "Dropoff", "zone_id": "A-3" }
+    }
+  },
+  "RouteID_LOW_TEST": {
+    "station_code": "TEST2",
+    "date_YYYY_MM_DD": "2018-01-02",
+    "departure_time_utc": "23:59:00",
+    "executor_capacity_cm3": 999999999,
+    "route_score": "Low",
+    "stops": {
+      "ST": { "lat": 2, "lng": 2, "type": "Station", "zone_id": null },
+      "ZZ": { "lat": 2.1, "lng": 2.1, "type": "Dropoff", "zone_id": "Z-9" }
+    }
+  }
+}
