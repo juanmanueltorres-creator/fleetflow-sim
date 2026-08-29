@@ -19,4 +19,6 @@ npm test
 npm run build
 ```
 
+CI validates the test suite and production build on every push.
+
 Implementation design and plan live under `docs/superpowers/`.
