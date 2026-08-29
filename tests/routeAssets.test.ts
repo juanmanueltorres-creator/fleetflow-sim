@@ -150,8 +150,46 @@ describe('scenario-driven route geometry', () => {
       .toThrow(/stops \+ 2/i)
   })
 
-  it('fails closed when waypoint distances are not strictly increasing', () => {
-    expect(() => routeAssets.routeCollectionToIndex(makeVariableCollection([0, 1.2, 1.2, 3.1]), variableScenario))
-      .toThrow(/strictly increasing/i)
+  it('rejects duplicate geometry ids in the active scenario', () => {
+    const scenario = structuredClone(variableScenario)
+    scenario.trucks.push({
+      id: 'truck-b',
+      label: 'Truck B',
+      capacity: { kind: 'MASS', capacityKg: 500 },
+      fuelConsumptionLPer100Km: 18,
+    })
+    scenario.routes.push({
+      ...structuredClone(scenario.routes[0]),
+      id: 'route-b',
+      truckId: 'truck-b',
+      geometryId: 'route-test',
+    })
+
+    const collection = makeVariableCollection()
+    collection.features[0].properties.truckId = 'truck-b'
+
+    expect(() => routeAssets.routeCollectionToIndex(collection, scenario))
+      .toThrow(/duplicate.*geometry|geometry.*duplicate/i)
+  })
+
+  it('accepts zero-distance legs between colocated stops', () => {
+    expect(() => routeAssets.routeCollectionToIndex(
+      makeVariableCollection([0, 1.2, 1.2, 3.1]),
+      variableScenario,
+    )).not.toThrow()
+  })
+
+  it('fails closed when waypoint distances decrease', () => {
+    expect(() => routeAssets.routeCollectionToIndex(
+      makeVariableCollection([0, 1.2, 1.1, 3.1]),
+      variableScenario,
+    )).toThrow(/non-decreasing/i)
+  })
+
+  it('fails closed when final route distance is not positive', () => {
+    expect(() => routeAssets.routeCollectionToIndex(
+      makeVariableCollection([0, 0, 0, 0]),
+      variableScenario,
+    )).toThrow(/positive distance/i)
   })
 })
