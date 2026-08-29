@@ -1,0 +1,83 @@
+import { fireEvent, render, screen } from '@testing-library/react'
+import { describe, expect, it, vi } from 'vitest'
+import { FleetPanel } from '../src/components/FleetPanel'
+import { KpiPanel } from '../src/components/KpiPanel'
+import { SimulationClock } from '../src/components/SimulationClock'
+import { SimulationControls } from '../src/components/SimulationControls'
+import type { FleetSnapshot } from '../src/domain/types'
+import { cocaCoquiScenario } from '../src/scenario/cocaCoquiScenario'
+import type { FleetMetrics } from '../src/simulation/metrics'
+
+const snapshot: FleetSnapshot = {
+  simulationMinute: 30,
+  trucks: cocaCoquiScenario.trucks.map((truck, index) => ({
+    truckId: truck.id,
+    position: cocaCoquiScenario.depot.position,
+    bearing: 0,
+    status: index === 0 ? 'EN_ROUTE' : 'AT_DEPOT',
+    currentStopId: null,
+    nextStopId: index === 0 ? 'store-03' : `store-${String(index * 3 + 1).padStart(2, '0')}`,
+    routeProgress: index === 0 ? 0.5 : 0,
+    cargoKg: 1000,
+    completedDeliveries: index === 0 ? 2 : 0,
+    distanceTravelledKm: index === 0 ? 5 : 0,
+    estimatedFuelUsedL: index === 0 ? 0.9 : 0,
+  })),
+}
+
+const metrics: FleetMetrics = {
+  completedDeliveries: 7,
+  totalDeliveries: 15,
+  activeTrucks: 5,
+  plannedDistanceKm: 71,
+  estimatedFuelUsedL: 4.25,
+}
+
+describe('simulation dashboard components', () => {
+  it('shows the accelerated clock and running state', () => {
+    render(<SimulationClock minute={27} isPlaying />)
+    expect(screen.getByText('06:27')).toBeInTheDocument()
+    expect(screen.getByText('Running')).toBeInTheDocument()
+  })
+
+  it('emits play, reset and speed actions', () => {
+    const onPlayPause = vi.fn()
+    const onReset = vi.fn()
+    const onSpeedChange = vi.fn()
+
+    render(
+      <SimulationControls
+        isPlaying={false}
+        speed={60}
+        onPlayPause={onPlayPause}
+        onReset={onReset}
+        onSpeedChange={onSpeedChange}
+      />,
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: 'Play simulation' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Reset simulation' }))
+    fireEvent.change(screen.getByLabelText('Simulation speed'), { target: { value: '30' } })
+
+    expect(onPlayPause).toHaveBeenCalledOnce()
+    expect(onReset).toHaveBeenCalledOnce()
+    expect(onSpeedChange).toHaveBeenCalledWith(30)
+  })
+
+  it('shows concise fleet KPIs with estimated fuel wording', () => {
+    render(<KpiPanel metrics={metrics} />)
+    expect(screen.getByText('7 / 15')).toBeInTheDocument()
+    expect(screen.getByText('5 / 5')).toBeInTheDocument()
+    expect(screen.getByText('71.0 km')).toBeInTheDocument()
+    expect(screen.getByText('4.3 L')).toBeInTheDocument()
+    expect(screen.getByText('Estimated fuel used')).toBeInTheDocument()
+  })
+
+  it('shows truck status and next planned stop', () => {
+    render(<FleetPanel scenario={cocaCoquiScenario} snapshot={snapshot} />)
+    expect(screen.getByText('Truck 01')).toBeInTheDocument()
+    expect(screen.getByText('En route')).toBeInTheDocument()
+    expect(screen.getByText('Next · Local 03')).toBeInTheDocument()
+    expect(screen.getByText('2 / 3 delivered')).toBeInTheDocument()
+  })
+})
