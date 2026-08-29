@@ -1,5 +1,6 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
+import { streamJsonObjectEntries } from './lib/stream-json-object.mjs'
 
 const REQUIRED_FILES = [
   'route_data.json',
@@ -23,62 +24,6 @@ function parseArgs(argv) {
     throw new Error('Usage: node scripts/calibrate-amazon.mjs --input-dir <dir> --output <file>')
   }
   return { inputDir: resolve(inputDir), output: resolve(output) }
-}
-
-function isJsonTokenBoundary(character) {
-  return character === undefined || /[\s,:{}\[\]]/.test(character)
-}
-
-function normalizeAmazonJson(text) {
-  let output = ''
-  let inString = false
-  let escaping = false
-
-  for (let index = 0; index < text.length; index += 1) {
-    const character = text[index]
-
-    if (inString) {
-      output += character
-      if (escaping) {
-        escaping = false
-      } else if (character === '\\') {
-        escaping = true
-      } else if (character === '"') {
-        inString = false
-      }
-      continue
-    }
-
-    if (character === '"') {
-      inString = true
-      output += character
-      continue
-    }
-
-    if (
-      text.startsWith('NaN', index)
-      && isJsonTokenBoundary(text[index - 1])
-      && isJsonTokenBoundary(text[index + 3])
-    ) {
-      output += 'null'
-      index += 2
-      continue
-    }
-
-    output += character
-  }
-
-  return output
-}
-
-function readJson(path) {
-  if (!existsSync(path)) throw new Error(`Missing required input file: ${path}`)
-  try {
-    const source = readFileSync(path, 'utf8')
-    return JSON.parse(normalizeAmazonJson(source))
-  } catch (error) {
-    throw new Error(`Could not parse ${path}: ${error instanceof Error ? error.message : String(error)}`)
-  }
 }
 
 function quantile(sorted, p) {
@@ -120,15 +65,14 @@ function packageVolumeCm3(pkg) {
   return depth * height * width
 }
 
-function collectRouteFacts(inputDir) {
-  const routeData = readJson(join(inputDir, 'route_data.json'))
+async function collectRouteFacts(inputDir) {
   const selectedRoutes = new Map()
   const stopsPerRoute = []
   const vehicleCapacityCm3 = []
   const departureMinuteOfDayUtc = []
   let stopsAnalyzed = 0
 
-  for (const [routeId, route] of Object.entries(routeData)) {
+  for await (const [routeId, route] of streamJsonObjectEntries(join(inputDir, 'route_data.json'))) {
     if (route?.route_score !== 'High') continue
     const dropoffIds = Object.entries(route.stops ?? {})
       .filter(([, stop]) => stop?.type === 'Dropoff')
@@ -150,27 +94,27 @@ function collectRouteFacts(inputDir) {
   return { selectedRoutes, stopsPerRoute, vehicleCapacityCm3, departureMinuteOfDayUtc, stopsAnalyzed }
 }
 
-function collectPackageFacts(inputDir, selectedRoutes) {
-  const packageData = readJson(join(inputDir, 'package_data.json'))
+async function collectPackageFacts(inputDir, selectedRoutes) {
   const packagesPerStop = []
   const serviceSecondsPerStop = []
   const packageVolumes = []
   const timeWindowWidths = []
+  const seenRoutes = new Set()
   let packagesAnalyzed = 0
   let windowedStops = 0
 
-  for (const [routeId, { dropoffIds }] of selectedRoutes) {
-    const routePackages = packageData[routeId]
-    if (!routePackages) throw new Error(`Missing package data for High route ${routeId}`)
+  for await (const [routeId, routePackages] of streamJsonObjectEntries(join(inputDir, 'package_data.json'))) {
+    const selected = selectedRoutes.get(routeId)
+    if (!selected) continue
+    seenRoutes.add(routeId)
 
-    for (const stopId of dropoffIds) {
-      const packages = routePackages[stopId] ?? {}
+    for (const stopId of selected.dropoffIds) {
+      const packages = routePackages?.[stopId] ?? {}
       const packageEntries = Object.values(packages)
       packagesPerStop.push(packageEntries.length)
       packagesAnalyzed += packageEntries.length
 
       let serviceSeconds = 0
-      let hasWindow = false
       const starts = []
       const ends = []
 
@@ -184,14 +128,13 @@ function collectPackageFacts(inputDir, selectedRoutes) {
         const start = utcMillis(pkg?.time_window?.start_time_utc)
         const end = utcMillis(pkg?.time_window?.end_time_utc)
         if (start !== null && end !== null) {
-          hasWindow = true
           starts.push(start)
           ends.push(end)
         }
       }
 
       serviceSecondsPerStop.push(serviceSeconds)
-      if (hasWindow) {
+      if (starts.length > 0 && ends.length > 0) {
         windowedStops += 1
         const strictStart = Math.max(...starts)
         const strictEnd = Math.min(...ends)
@@ -199,6 +142,10 @@ function collectPackageFacts(inputDir, selectedRoutes) {
         if (widthMinutes > 0) timeWindowWidths.push(widthMinutes)
       }
     }
+  }
+
+  for (const routeId of selectedRoutes.keys()) {
+    if (!seenRoutes.has(routeId)) throw new Error(`Missing package data for High route ${routeId}`)
   }
 
   return {
@@ -211,11 +158,12 @@ function collectPackageFacts(inputDir, selectedRoutes) {
   }
 }
 
-function collectSequences(inputDir, selectedRoutes) {
-  const sequenceData = readJson(join(inputDir, 'actual_sequences.json'))
+async function collectSequences(inputDir, selectedRoutes) {
   const observedSequences = new Map()
-  for (const routeId of selectedRoutes.keys()) {
-    const actual = sequenceData[routeId]?.actual
+
+  for await (const [routeId, sequence] of streamJsonObjectEntries(join(inputDir, 'actual_sequences.json'))) {
+    if (!selectedRoutes.has(routeId)) continue
+    const actual = sequence?.actual
     if (!actual) throw new Error(`Missing actual sequence for High route ${routeId}`)
     observedSequences.set(
       routeId,
@@ -224,21 +172,26 @@ function collectSequences(inputDir, selectedRoutes) {
         .map(([stopId]) => stopId),
     )
   }
+
+  for (const routeId of selectedRoutes.keys()) {
+    if (!observedSequences.has(routeId)) throw new Error(`Missing actual sequence for High route ${routeId}`)
+  }
   return observedSequences
 }
 
-function collectTravelFacts(inputDir, observedSequences) {
-  const travelData = readJson(join(inputDir, 'travel_times.json'))
+async function collectTravelFacts(inputDir, observedSequences) {
   const travelSecondsBetweenStops = []
+  const seenRoutes = new Set()
 
-  for (const [routeId, stopSequence] of observedSequences) {
-    const matrix = travelData[routeId]
-    if (!matrix) throw new Error(`Missing travel times for High route ${routeId}`)
+  for await (const [routeId, matrix] of streamJsonObjectEntries(join(inputDir, 'travel_times.json'))) {
+    const stopSequence = observedSequences.get(routeId)
+    if (!stopSequence) continue
+    seenRoutes.add(routeId)
 
     for (let index = 0; index < stopSequence.length - 1; index += 1) {
       const from = stopSequence[index]
       const to = stopSequence[index + 1]
-      const seconds = Number(matrix[from]?.[to])
+      const seconds = Number(matrix?.[from]?.[to])
       if (!Number.isFinite(seconds) || seconds < 0) {
         throw new Error(`Missing travel time for High route ${routeId}: ${from} -> ${to}`)
       }
@@ -246,19 +199,22 @@ function collectTravelFacts(inputDir, observedSequences) {
     }
   }
 
+  for (const routeId of observedSequences.keys()) {
+    if (!seenRoutes.has(routeId)) throw new Error(`Missing travel times for High route ${routeId}`)
+  }
   return travelSecondsBetweenStops
 }
 
-function main() {
+async function main() {
   const { inputDir, output } = parseArgs(process.argv.slice(2))
   for (const file of REQUIRED_FILES) {
     if (!existsSync(join(inputDir, file))) throw new Error(`Missing required input file: ${file}`)
   }
 
-  const routeFacts = collectRouteFacts(inputDir)
-  const packageFacts = collectPackageFacts(inputDir, routeFacts.selectedRoutes)
-  const observedSequences = collectSequences(inputDir, routeFacts.selectedRoutes)
-  const travelSecondsBetweenStops = collectTravelFacts(inputDir, observedSequences)
+  const routeFacts = await collectRouteFacts(inputDir)
+  const packageFacts = await collectPackageFacts(inputDir, routeFacts.selectedRoutes)
+  const observedSequences = await collectSequences(inputDir, routeFacts.selectedRoutes)
+  const travelSecondsBetweenStops = await collectTravelFacts(inputDir, observedSequences)
 
   const profile = {
     source: {
@@ -290,4 +246,4 @@ function main() {
   console.log(`Amazon calibration profile written to ${output}`)
 }
 
-main()
+await main()
