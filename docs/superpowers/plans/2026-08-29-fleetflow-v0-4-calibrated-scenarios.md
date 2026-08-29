@@ -4,7 +4,7 @@
 
 **Goal:** Make `Córdoba Last-Mile · Calibrado` the default FleetFlow experience with 8 vehicles, exactly 60 stops and parcel semantics calibrated from the public Amazon Last Mile Routing Research Challenge dataset, while preserving `Coca Coqui · Legacy V0` as a selectable baseline.
 
-**Architecture:** Generalize the existing domain, route geometry and simulation engine so they no longer assume five routes or three stops. Keep raw third-party data outside the repository; an offline calibration script emits a small versioned profile, a seeded generator emits the Córdoba scenario, and a route-preparation script emits checked-in road geometry. A scenario registry selects one coherent bundle — scenario, route asset and provenance — and the existing map/dashboard consume only the active bundle.
+**Architecture:** Generalize domain, route geometry and simulation so they no longer assume five routes or three stops. Raw third-party data stays outside the repo; an offline calibration script emits a compact profile, a seeded generator emits the Córdoba scenario, and offline route preparation emits checked-in road GeoJSON. A scenario registry selects one coherent bundle — scenario, route asset and provenance — for the existing map/dashboard.
 
 **Tech Stack:** React 19.1.1, TypeScript 5.7.2, Vite 6.1.0, Vitest 3.0.5, MapLibre GL 6.6.0, Turf 7.4.0, Node.js 22 scripts, public OSRM only during offline route preparation.
 
@@ -12,60 +12,48 @@
 
 ## Global Constraints
 
-- `cordoba-calibrated` is the default scenario on a fresh page load.
-- Calibrated scale is exactly **8 vehicles / 60 stops** and **90–110 packages**; generator target is 100 packages.
-- `coca-coqui-legacy` remains fully functional at **5 vehicles / 15 stops**.
-- Raw Amazon data is never committed, bundled by Vite, fetched by the browser, or required by CI/Pages.
-- Amazon source material is CC BY-NC 4.0; code remains MIT and derived data is explicitly excluded from the MIT grant in `DATA_LICENSES.md`.
-- Córdoba coordinates and displayed roads are project-authored/synthetic context; the UI never calls them real Amazon or Mercado Libre routes.
-- No runtime routing request. Both scenarios use checked-in GeoJSON route assets.
-- No traffic incidents, failed deliveries, driver absence, breakdowns, reassignment, OR-Tools or dynamic replanning in V0.4.
-- Keep `Store` as the internal place entity name in V0.4 to avoid an unrelated rename; user-facing copy says parada/entrega where appropriate.
-- Route geometry is the single source of truth for route distance; `RoutePlan.distanceKm` is removed to prevent JSON/GeoJSON drift.
-- Every task uses RED → GREEN tests and ends with a focused commit.
+- `cordoba-calibrated` is the fresh-load default.
+- Calibrated scenario is exactly **8 vehicles / 60 stops / 100 packages**. The approved 90–110 range is therefore satisfied deterministically.
+- Legacy remains exactly **5 vehicles / 15 stops**.
+- Raw Amazon files are never committed, bundled, browser-fetched, required by CI or published by Pages.
+- Amazon source material is CC BY-NC 4.0; FleetFlow code remains MIT. `DATA_LICENSES.md` explicitly excludes the derived profile from the MIT grant and preserves source attribution/terms.
+- Displayed Córdoba coordinates/roads are project-authored context. The UI never claims they are Amazon or Mercado Libre operations.
+- No runtime routing request. Both scenario route assets are checked into `public/data/`.
+- V0.4 excludes incidents, failed attempts, absences, breakdowns, reassignment, OR-Tools and dynamic replanning.
+- Keep internal entity name `Store` in V0.4; user-facing language may say parada/entrega.
+- Route geometry is the single source of route distance; remove `RoutePlan.distanceKm`.
+- CI remains network-free: `npm test` + `npm run build` validate checked-in generated artifacts.
+- Every task uses RED → GREEN and ends with a focused commit.
 
 ---
 
 ## Planned File Structure
 
 ### Domain/runtime
-
 - `src/domain/types.ts` — generic cargo, delivery-window and snapshot contracts.
-- `src/domain/cargo.ts` — cargo aggregation/subtraction/format-neutral helpers.
-- `src/domain/scenarioValidation.ts` — scenario-level invariants for both cargo modes.
-- `src/map/routeAssets.ts` — dynamic route/waypoint geometry validation and distance lookup.
-- `src/simulation/engine.ts` — N-stop simulation engine.
-- `src/simulation/metrics.ts` — metrics derived from active scenario + route geometry.
+- `src/domain/cargo.ts` — cargo aggregation/subtraction/utilization helpers.
+- `src/domain/scenarioValidation.ts` — invariants for MASS and PARCELS.
+- `src/map/routeAssets.ts` — dynamic route/waypoint validation and distance lookup.
+- `src/simulation/engine.ts` — N-stop engine.
+- `src/simulation/metrics.ts` — metrics from scenario + geometry.
 
 ### Calibration/scenario
-
-- `src/scenario/calibration/types.ts` — checked-in calibration profile contract.
-- `src/scenario/calibration/amazon-last-mile-v1.json` — compact derived profile; no raw routes/packages.
-- `src/scenario/generated/cordoba-calibrated-v1.json` — deterministic 8-vehicle/60-stop scenario.
-- `src/scenario/cocaCoquiScenario.ts` — Legacy V0 migrated to generic cargo contracts.
-- `src/scenario/scenarioRegistry.ts` — scenario definitions, default ID and provenance.
+- `src/scenario/calibration/types.ts` — calibration profile contract.
+- `src/scenario/calibration/amazon-last-mile-v1.json` — compact derived profile only.
+- `src/scenario/generated/cordoba-calibrated-v1.json` — deterministic 8/60/100 scenario.
+- `src/scenario/cocaCoquiScenario.ts` — Legacy migrated to generic cargo contracts.
+- `src/scenario/scenarioRegistry.ts` — definitions, default ID and provenance.
 
 ### Offline scripts
+- `scripts/calibrate-amazon.mjs` — external official JSON → compact quantiles.
+- `scripts/generate-calibrated-scenario.mjs` — seeded profile → Córdoba scenario.
+- `scripts/prepare-routes.mjs` — scenario JSON → OSRM → static GeoJSON.
+- `scripts/fixtures/amazon-mini/*` — project-authored synthetic schema fixtures only.
 
-- `scripts/calibrate-amazon.mjs` — read official raw JSON outside repo and write compact quantile profile.
-- `scripts/generate-calibrated-scenario.mjs` — seeded Córdoba scenario generator.
-- `scripts/prepare-routes.mjs` — generic JSON-scenario → OSRM → GeoJSON route preparation.
-- `scripts/fixtures/amazon-mini/*` — project-authored synthetic files matching Amazon schema for parser tests only.
-
-### UI
-
-- `src/components/ScenarioSwitcher.tsx` — connected-rail segmented scenario control.
-- `src/components/ScenarioProvenance.tsx` — compact provenance + progressive disclosure.
-- `src/components/FleetPanel.tsx` — generic vehicle/cargo copy.
-- `src/components/KpiPanel.tsx` — generic vehicle wording.
-- `src/map/mapPointDetails.ts` — MASS/PARCELS point details and generic depot copy.
-- `src/App.tsx` — active scenario state, route loading, reset on switch.
-- `src/app.css` — switcher/provenance styling inside the existing connected frame.
-
-### Tests/docs
-
-- Extend existing `tests/routeAssets.test.ts`, `tests/simulationEngine.test.ts`, `tests/scenarioValidation.test.ts`, `tests/dashboardComponents.test.tsx`, `tests/mapPointDetails.test.ts`, `tests/metrics.test.ts`, `tests/appSmoke.test.tsx`.
-- Create `tests/calibrationScript.test.ts`, `tests/calibratedScenario.test.ts`, `tests/scenarioRegistry.test.ts`, `tests/scenarioSwitching.test.tsx`.
+### UI/tests/docs
+- Create `src/components/ScenarioSwitcher.tsx`, `src/components/ScenarioProvenance.tsx`.
+- Modify `src/components/FleetPanel.tsx`, `src/components/KpiPanel.tsx`, `src/map/mapPointDetails.ts`, `src/App.tsx`, `src/app.css`.
+- Extend current tests and create `tests/calibrationScript.test.ts`, `tests/calibratedScenario.test.ts`, `tests/scenarioRegistry.test.ts`, `tests/scenarioSwitching.test.tsx`.
 - Update `README.md`; create `DATA_LICENSES.md`.
 
 ---
@@ -84,43 +72,34 @@
 - Modify: `tests/simulationEngine.test.ts`
 
 **Interfaces:**
-- Produces: `routeCollectionToIndex(collection: RouteGeometryCollection, scenario: FleetScenario): RouteGeometryIndex`
-- Produces: `routeDistanceKm(feature: RouteGeometryFeature): number`
-- Changes: `RouteGeometryProperties.waypointDistancesKm` from fixed tuple to `number[]`.
-- Changes: remove `RoutePlan.distanceKm`; all runtime distance comes from geometry.
-- Changes: `deriveFleetMetrics(scenario, snapshot, geometries)` receives the active geometry index.
+- Produces `routeCollectionToIndex(collection: RouteGeometryCollection, scenario: FleetScenario): RouteGeometryIndex`.
+- Produces `routeDistanceKm(feature: RouteGeometryFeature): number`.
+- `RouteGeometryProperties.waypointDistancesKm` becomes `number[]`.
+- `RoutePlan.distanceKm` is removed.
+- `deriveFleetMetrics(scenario, snapshot, geometries)` receives `RouteGeometryIndex`.
 
-- [ ] **Step 1: Write failing route-geometry tests for variable route counts and waypoint counts**
+- [ ] **Step 1: Write failing variable-geometry tests**
 
-Add tests that build a one-route scenario with two stops and geometry distances `[0, 1.2, 2.4, 3.1]`.
+Build a one-route/two-stop fixture with distances `[0, 1.2, 2.4, 3.1]`:
 
 ```ts
 const index = routeCollectionToIndex(collection, scenario)
 expect(index['route-test']).toBeDefined()
 expect(routeDistanceKm(index['route-test'])).toBeCloseTo(3.1)
-```
-
-Add fail-closed assertions:
-
-```ts
 expect(() => routeCollectionToIndex(badCount, scenario)).toThrow(/geometry ids/i)
 expect(() => routeCollectionToIndex(badWaypoints, scenario)).toThrow(/stops \+ 2/i)
 expect(() => routeCollectionToIndex(nonMonotonic, scenario)).toThrow(/strictly increasing/i)
 ```
 
-- [ ] **Step 2: Run RED test**
-
-Run:
+- [ ] **Step 2: Run RED**
 
 ```bash
 npm test -- tests/routeAssets.test.ts
 ```
 
-Expected: FAIL because the current function requires exactly five features and exactly five waypoint distances.
+Expected: FAIL because current code requires exactly five features/five distances.
 
 - [ ] **Step 3: Generalize `routeAssets.ts`**
-
-Use the active scenario to validate geometry IDs and waypoint cardinality:
 
 ```ts
 export interface RouteGeometryProperties {
@@ -130,7 +109,9 @@ export interface RouteGeometryProperties {
 
 export function routeDistanceKm(feature: RouteGeometryFeature): number {
   const distances = feature.properties.waypointDistancesKm
-  return distances[distances.length - 1] ?? 0
+  const distance = distances[distances.length - 1]
+  if (distance === undefined || distance <= 0) throw new Error(`Route ${feature.id} has no positive distance`)
+  return distance
 }
 
 export function routeCollectionToIndex(
@@ -142,12 +123,15 @@ export function routeCollectionToIndex(
     throw new Error('Route geometry ids must match the active scenario')
   }
 
+  const seen = new Set<string>()
   const entries = collection.features.map((feature) => {
     if (typeof feature.id !== 'string' || feature.geometry.type !== 'LineString') {
       throw new Error('Every route geometry requires a string id and LineString')
     }
     const route = expected.get(feature.id)
-    if (!route) throw new Error(`Unexpected route geometry ${feature.id}`)
+    if (!route || seen.has(feature.id)) throw new Error(`Unexpected or duplicate route geometry ${feature.id}`)
+    seen.add(feature.id)
+    if (feature.properties.truckId !== route.truckId) throw new Error(`Route ${route.id} truck id mismatch`)
 
     const distances = feature.properties.waypointDistancesKm
     if (distances.length !== route.stops.length + 2) {
@@ -164,11 +148,9 @@ export function routeCollectionToIndex(
 }
 ```
 
-- [ ] **Step 4: Remove duplicated `RoutePlan.distanceKm` and switch engine distance to geometry**
+- [ ] **Step 4: Remove duplicated scenario distance and use geometry in engine**
 
-In `src/domain/types.ts`, remove `distanceKm` from `RoutePlan` and remove the five values from `cocaCoquiScenario.ts`.
-
-In `engine.ts`:
+Remove `distanceKm` from `RoutePlan` and from every Legacy route. In `engine.ts`:
 
 ```ts
 const totalGeometryDistanceKm = routeDistanceKm(geometry)
@@ -189,20 +171,24 @@ export function deriveFleetMetrics(
     return total + routeDistanceKm(geometry)
   }, 0)
 
-  return { /* existing fields */, plannedDistanceKm }
+  return {
+    completedDeliveries: snapshot.trucks.reduce((total, truck) => total + truck.completedDeliveries, 0),
+    totalDeliveries: scenario.stores.length,
+    activeTrucks: snapshot.trucks.filter((truck) => ACTIVE_STATUSES.has(truck.status)).length,
+    plannedDistanceKm,
+    estimatedFuelUsedL: snapshot.trucks.reduce((total, truck) => total + truck.estimatedFuelUsedL, 0),
+  }
 }
 ```
 
-Update `App.tsx` to pass the current route index.
+Update `App.tsx` to pass the active route index.
 
-- [ ] **Step 6: Run focused GREEN tests and build**
+- [ ] **Step 6: Run GREEN and build**
 
 ```bash
 npm test -- tests/routeAssets.test.ts tests/metrics.test.ts tests/simulationEngine.test.ts
 npm run build
 ```
-
-Expected: PASS; Legacy still reports approximately its existing planned distance from checked-in geometry.
 
 - [ ] **Step 7: Commit**
 
@@ -220,48 +206,51 @@ git commit -m "refactor: make route geometry scenario driven"
 - Modify: `tests/simulationEngine.test.ts`
 
 **Interfaces:**
-- Consumes: dynamic `waypointDistancesKm: number[]` from Task 1.
-- Produces: unchanged public `getFleetSnapshot(scenario, geometries, simulationMinute)` signature, but supports any non-empty stop count.
+- Consumes dynamic waypoint arrays from Task 1.
+- Keeps public `getFleetSnapshot(scenario, geometries, simulationMinute)` signature.
 
-- [ ] **Step 1: Add a reusable N-stop test fixture and failing tests**
+- [ ] **Step 1: Add N-stop fixtures/tests**
 
-Create a local test helper that can produce routes with 1, 6 and 10 stops. Assert travel, unloading and return behavior for the 6-stop route:
+Create a test helper for 1, 3, 6, 8 and 10 stops. For six stops:
 
 ```ts
 const fixture = makeScenarioWithStops(6)
 expect(getFleetSnapshot(fixture.scenario, fixture.geometries, 0).trucks[0].status).toBe('EN_ROUTE')
-expect(getFleetSnapshot(fixture.scenario, fixture.geometries, fixture.stops[3].plannedArrivalMinute).trucks[0].currentStopId)
-  .toBe(fixture.stops[3].storeId)
+expect(
+  getFleetSnapshot(
+    fixture.scenario,
+    fixture.geometries,
+    fixture.stops[3].plannedArrivalMinute,
+  ).trucks[0].currentStopId,
+).toBe(fixture.stops[3].storeId)
 expect(getFleetSnapshot(fixture.scenario, fixture.geometries, fixture.route.returnMinute).trucks[0].status)
   .toBe('DONE')
 ```
 
-Also assert 1, 3, 6, 8 and 10 stop routes do not throw when queried through their valid timelines.
-
-- [ ] **Step 2: Run RED test**
+- [ ] **Step 2: Run RED**
 
 ```bash
 npm test -- tests/simulationEngine.test.ts
 ```
 
-Expected: FAIL with the current `must contain exactly three stops in V0` error.
+Expected: current `exactly three stops` failure.
 
-- [ ] **Step 3: Replace fixed `first/second/third` travel legs with generated legs**
+- [ ] **Step 3: Generate travel legs programmatically**
 
 ```ts
 function buildTravelLegs(route: RoutePlan, distances: number[]): TravelLeg[] {
   if (route.stops.length === 0) throw new Error(`Route ${route.id} requires at least one stop`)
 
-  const outbound = route.stops.map((stop, index) => ({
+  const outbound: TravelLeg[] = route.stops.map((stop, index) => ({
     startMinute: index === 0 ? route.departureMinute : route.stops[index - 1].plannedDepartureMinute,
     endMinute: stop.plannedArrivalMinute,
     startDistanceKm: distances[index],
     endDistanceKm: distances[index + 1],
     nextStopId: stop.storeId,
-    status: 'EN_ROUTE' as const,
+    status: 'EN_ROUTE',
   }))
-
   const lastStop = route.stops[route.stops.length - 1]
+
   return [
     ...outbound,
     {
@@ -270,22 +259,20 @@ function buildTravelLegs(route: RoutePlan, distances: number[]): TravelLeg[] {
       startDistanceKm: distances[route.stops.length],
       endDistanceKm: distances[route.stops.length + 1],
       nextStopId: null,
-      status: 'RETURNING' as const,
+      status: 'RETURNING',
     },
   ]
 }
 ```
 
-Keep unloading lookup dynamic with `unloadingStopIndex + 1`.
+Keep unloading distance at `waypointDistances[unloadingStopIndex + 1]`.
 
-- [ ] **Step 4: Run focused GREEN tests**
+- [ ] **Step 4: Run GREEN/build**
 
 ```bash
 npm test -- tests/simulationEngine.test.ts tests/routeAssets.test.ts
 npm run build
 ```
-
-Expected: PASS for Legacy three-stop routes and all new fixture sizes.
 
 - [ ] **Step 5: Commit**
 
@@ -313,7 +300,6 @@ git commit -m "refactor: support arbitrary route stop counts"
 - Modify: `tests/mapPointDetails.test.ts`
 
 **Interfaces:**
-- Produces:
 
 ```ts
 export type StopCargo =
@@ -329,14 +315,9 @@ export type RemainingCargo =
   | { kind: 'PARCELS'; packageCount: number; volumeCm3: number; utilizationPct: number }
 ```
 
-- `Store` keeps `serviceMinutes` and gains optional `timeWindow?: { startMinute: number; endMinute: number }`.
-- `PlannedStop` owns `cargo: StopCargo`.
-- `Truck` owns `capacity: VehicleCapacity`.
-- `TruckSnapshot` replaces `cargoKg` with `remainingCargo`.
+`Store` removes `demandKg`, keeps `serviceMinutes`, and gains optional `timeWindow?: { startMinute: number; endMinute: number }`. `PlannedStop` owns `cargo`; `Truck` owns `capacity`; `TruckSnapshot` owns `remainingCargo`.
 
-- [ ] **Step 1: Write failing cargo validation tests**
-
-Add one valid parcel scenario and invalid mixed-kind/capacity scenarios:
+- [ ] **Step 1: Write RED cargo validation tests**
 
 ```ts
 expect(validateScenario(parcelScenario)).toEqual([])
@@ -344,29 +325,49 @@ expect(validateScenario(overCapacityParcelScenario)).toContainEqual(expect.strin
 expect(validateScenario(massStopWithParcelTruck)).toContainEqual(expect.stringMatching(/cargo mode/i))
 ```
 
-- [ ] **Step 2: Run RED validation test**
+- [ ] **Step 2: Run RED**
 
 ```bash
 npm test -- tests/scenarioValidation.test.ts
 ```
 
-Expected: FAIL because the domain only knows `demandKg` / `capacityKg`.
-
-- [ ] **Step 3: Add cargo helpers**
-
-Implement exhaustive helpers in `src/domain/cargo.ts`:
+- [ ] **Step 3: Implement cargo helpers exactly**
 
 ```ts
-export function cargoFitsCapacity(stops: PlannedStop[], capacity: VehicleCapacity): boolean { /* exhaustive by kind */ }
-export function initialCargo(stops: PlannedStop[], capacity: VehicleCapacity): RemainingCargo { /* sums kg or parcel count+volume */ }
-export function remainingCargoAfter(stops: PlannedStop[], completedCount: number, capacity: VehicleCapacity): RemainingCargo { /* subtracts delivered cargo */ }
+function clampPct(value: number): number {
+  return Math.min(100, Math.max(0, value))
+}
+
+export function initialCargo(stops: PlannedStop[], capacity: VehicleCapacity): RemainingCargo {
+  if (capacity.kind === 'MASS') {
+    if (stops.some((stop) => stop.cargo.kind !== 'MASS')) throw new Error('Route cargo mode must match vehicle capacity')
+    const quantityKg = stops.reduce((sum, stop) => sum + (stop.cargo.kind === 'MASS' ? stop.cargo.quantityKg : 0), 0)
+    return { kind: 'MASS', quantityKg, utilizationPct: clampPct((quantityKg / capacity.capacityKg) * 100) }
+  }
+
+  if (stops.some((stop) => stop.cargo.kind !== 'PARCELS')) throw new Error('Route cargo mode must match vehicle capacity')
+  const packageCount = stops.reduce((sum, stop) => sum + (stop.cargo.kind === 'PARCELS' ? stop.cargo.packageCount : 0), 0)
+  const volumeCm3 = stops.reduce((sum, stop) => sum + (stop.cargo.kind === 'PARCELS' ? stop.cargo.volumeCm3 : 0), 0)
+  return { kind: 'PARCELS', packageCount, volumeCm3, utilizationPct: clampPct((volumeCm3 / capacity.capacityCm3) * 100) }
+}
+
+export function remainingCargoAfter(
+  stops: PlannedStop[],
+  completedCount: number,
+  capacity: VehicleCapacity,
+): RemainingCargo {
+  return initialCargo(stops.slice(completedCount), capacity)
+}
+
+export function cargoFitsCapacity(stops: PlannedStop[], capacity: VehicleCapacity): boolean {
+  if (stops.some((stop) => stop.cargo.kind !== capacity.kind)) return false
+  const cargo = initialCargo(stops, capacity)
+  if (cargo.kind === 'MASS') return cargo.quantityKg <= capacity.capacityKg
+  return cargo.volumeCm3 <= capacity.capacityCm3
+}
 ```
 
-For `PARCELS`, utilization is `volumeCm3 / capacityCm3 * 100`; for `MASS`, utilization is `quantityKg / capacityKg * 100`. Clamp utilization to `[0, 100]`.
-
-- [ ] **Step 4: Migrate Legacy scenario to MASS without changing its visible quantities**
-
-Example:
+- [ ] **Step 4: Migrate Legacy to MASS without changing quantities**
 
 ```ts
 const trucks: Truck[] = Array.from({ length: 5 }, (_, index) => ({
@@ -377,52 +378,29 @@ const trucks: Truck[] = Array.from({ length: 5 }, (_, index) => ({
 }))
 ```
 
-and each stop:
-
-```ts
-cargo: { kind: 'MASS', quantityKg: 520 }
-```
-
-Remove `demandKg` from `Store`; route stops remain the source of delivered quantity.
+Each Legacy stop uses e.g. `cargo: { kind: 'MASS', quantityKg: 520 }`.
 
 - [ ] **Step 5: Update validation and engine**
 
-Validation must still enforce assignment/schedule invariants, plus matching cargo kind and capacity.
-
-Engine:
+Use `cargoFitsCapacity(route.stops, truck.capacity)` and emit a specific cargo-mode error before capacity error. Engine uses:
 
 ```ts
 const completedDeliveries = completedStops.length
 const remainingCargo = remainingCargoAfter(route.stops, completedDeliveries, truck.capacity)
 ```
 
-Return `remainingCargo` in each `TruckSnapshot`.
+Return `remainingCargo` in `TruckSnapshot`.
 
-- [ ] **Step 6: Write and satisfy UI semantics tests**
+- [ ] **Step 6: Add UI tests and copy**
 
-Parcel examples must render:
+Parcel fixture must render `12 paquetes` and `37% de capacidad ocupada`; Legacy still renders `520 kg`. Make depot popup title `scenario.depot.name`. Rename KPI label to `Vehículos activos`.
 
-```text
-12 paquetes
-37% de capacidad ocupada
-```
-
-Legacy examples must still render:
-
-```text
-520 kg
-```
-
-Update `mapPointDetails.ts` to format cargo by discriminator and replace hardcoded `Depósito Coca Coqui` with `scenario.depot.name`. Change generic KPI wording from `Camiones activos` to `Vehículos activos`.
-
-- [ ] **Step 7: Run GREEN regression**
+- [ ] **Step 7: Run GREEN/build**
 
 ```bash
 npm test -- tests/scenarioValidation.test.ts tests/simulationEngine.test.ts tests/dashboardComponents.test.tsx tests/mapPointDetails.test.ts
 npm run build
 ```
-
-Expected: PASS; Legacy user-facing kg values are unchanged except generic vehicle wording.
 
 - [ ] **Step 8: Commit**
 
@@ -443,17 +421,18 @@ git commit -m "feat: add scenario-aware cargo semantics"
 - Create: `scripts/fixtures/amazon-mini/actual_sequences.json`
 - Create: `scripts/fixtures/amazon-mini/travel_times.json`
 - Create: `tests/calibrationScript.test.ts`
-- Create after real offline run: `src/scenario/calibration/amazon-last-mile-v1.json`
+- Create after the documented offline run: `src/scenario/calibration/amazon-last-mile-v1.json`
 - Modify: `package.json`
 
 **Interfaces:**
-- CLI:
+
+Canonical command:
 
 ```bash
-node scripts/calibrate-amazon.mjs --input-dir <external-folder> --output src/scenario/calibration/amazon-last-mile-v1.json
+node scripts/calibrate-amazon.mjs --input-dir /tmp/fleetflow-amazon-training --output src/scenario/calibration/amazon-last-mile-v1.json
 ```
 
-- Profile stores quantile summaries, not raw observations:
+Profile contract:
 
 ```ts
 export interface QuantileDistribution {
@@ -483,15 +462,11 @@ export interface CalibrationProfile {
 }
 ```
 
-- [ ] **Step 1: Create project-authored synthetic Amazon-schema fixtures**
+- [ ] **Step 1: Create synthetic schema fixtures**
 
-Use fake route/package IDs and synthetic coordinates. Include at least two routes: one `route_score: "High"` and one `"Low"`; only the High route may contribute to the profile.
+Use fake IDs/coordinates and exactly two routes: one `High`, one `Low`. High route has station + three dropoffs, four packages, one valid time window and a complete actual sequence/travel matrix. Low route must have data that would change quantiles if accidentally included. These fixtures are authored for FleetFlow and contain no copied Amazon records.
 
-Fixture fields must match the documented public schema: `route_score`, `executor_capacity_cm3`, stop `type`, package `planned_service_time_seconds`, `dimensions`, optional `time_window`, `actual` sequence and travel-time matrix.
-
-- [ ] **Step 2: Write failing CLI test**
-
-Use `execFileSync` with a temp output path:
+- [ ] **Step 2: Write RED CLI test**
 
 ```ts
 execFileSync(process.execPath, [
@@ -502,6 +477,8 @@ execFileSync(process.execPath, [
 const profile = JSON.parse(readFileSync(outputPath, 'utf8'))
 expect(profile.source.sample).toBe('High')
 expect(profile.summary.routesAnalyzed).toBe(1)
+expect(profile.summary.stopsAnalyzed).toBe(3)
+expect(profile.summary.packagesAnalyzed).toBe(4)
 expect(profile.distributions.timeWindowProbability).toBeGreaterThanOrEqual(0)
 expect(profile.distributions.timeWindowProbability).toBeLessThanOrEqual(1)
 ```
@@ -512,26 +489,44 @@ expect(profile.distributions.timeWindowProbability).toBeLessThanOrEqual(1)
 npm test -- tests/calibrationScript.test.ts
 ```
 
-Expected: FAIL because the calibration script does not exist.
+- [ ] **Step 4: Implement extraction rules and quantiles**
 
-- [ ] **Step 4: Implement exact extraction rules**
+Rules:
+1. Parse `route_data.json`, `package_data.json`, `actual_sequences.json`, `travel_times.json` from the supplied external directory.
+2. Keep only `route_score === 'High'`.
+3. `stopsPerRoute`: count `Dropoff` stops only.
+4. `packagesPerStop`: number of packages at each dropoff.
+5. `serviceSecondsPerStop`: sum package `planned_service_time_seconds` per dropoff.
+6. `packageVolumeCm3`: `depth_cm * height_cm * width_cm` per package.
+7. `travelSecondsBetweenStops`: sort `actual` stop ranks and take travel matrix values only for consecutive observed stops.
+8. Windowed stop: at least one package has both start/end; width uses positive `(end-start)` minutes.
+9. Departure: parse `departure_time_utc` to minute-of-day.
+10. Capacity: collect `executor_capacity_cm3` per selected route.
+11. Reject missing files or zero High routes.
 
-`calibrate-amazon.mjs` must:
+Use exact nearest-index summary code:
 
-1. parse `route_data.json`, `package_data.json`, `actual_sequences.json`, `travel_times.json`,
-2. keep only routes with `route_score === 'High'`,
-3. count only `Dropoff` stops for `stopsPerRoute`,
-4. count packages at each dropoff for `packagesPerStop`,
-5. sum `planned_service_time_seconds` across packages at a stop for stop service time,
-6. multiply `depth_cm * height_cm * width_cm` for each package volume,
-7. use observed sequence ranks to select only consecutive realized stop pairs for travel-time observations,
-8. treat a stop as windowed when at least one package has both start and end timestamps,
-9. calculate window width in minutes from valid positive windows,
-10. parse `departure_time_utc` into minute-of-day,
-11. store vehicle `executor_capacity_cm3`,
-12. calculate nearest-rank min/p10/p25/p50/p75/p90/max summaries.
+```js
+function quantile(sorted, p) {
+  return sorted[Math.round((sorted.length - 1) * p)]
+}
 
-Reject an input set with zero High routes or missing required files.
+function summarize(values) {
+  if (values.length === 0) throw new Error('Cannot summarize an empty distribution')
+  const sorted = [...values].sort((a, b) => a - b)
+  return {
+    min: sorted[0],
+    p10: quantile(sorted, 0.10),
+    p25: quantile(sorted, 0.25),
+    p50: quantile(sorted, 0.50),
+    p75: quantile(sorted, 0.75),
+    p90: quantile(sorted, 0.90),
+    max: sorted[sorted.length - 1],
+  }
+}
+```
+
+Read files sequentially and release raw object references after aggregation; if the full package/travel JSON requires more Node heap on the implementation machine, run this offline command with `NODE_OPTIONS=--max-old-space-size=8192`. CI never runs raw calibration.
 
 - [ ] **Step 5: Run fixture GREEN**
 
@@ -539,11 +534,7 @@ Reject an input set with zero High routes or missing required files.
 npm test -- tests/calibrationScript.test.ts
 ```
 
-Expected: PASS and no raw fixture records appear in the output beyond aggregate counts/quantiles.
-
-- [ ] **Step 6: Produce the real profile outside the repository working tree**
-
-Use the public no-account AWS bucket documented by Amazon/MIT. Download the four training files into a temporary external directory, not under the repo. Example workflow:
+- [ ] **Step 6: Produce the real profile outside the repo tree**
 
 ```bash
 mkdir -p /tmp/fleetflow-amazon-training
@@ -551,14 +542,12 @@ aws s3 cp --no-sign-request s3://amazon-last-mile-challenges/almrrc2021/almrrc20
 aws s3 cp --no-sign-request s3://amazon-last-mile-challenges/almrrc2021/almrrc2021-data-training/model_build_inputs/package_data.json /tmp/fleetflow-amazon-training/package_data.json
 aws s3 cp --no-sign-request s3://amazon-last-mile-challenges/almrrc2021/almrrc2021-data-training/model_build_inputs/actual_sequences.json /tmp/fleetflow-amazon-training/actual_sequences.json
 aws s3 cp --no-sign-request s3://amazon-last-mile-challenges/almrrc2021/almrrc2021-data-training/model_build_inputs/travel_times.json /tmp/fleetflow-amazon-training/travel_times.json
-node scripts/calibrate-amazon.mjs --input-dir /tmp/fleetflow-amazon-training --output src/scenario/calibration/amazon-last-mile-v1.json
+NODE_OPTIONS=--max-old-space-size=8192 node scripts/calibrate-amazon.mjs --input-dir /tmp/fleetflow-amazon-training --output src/scenario/calibration/amazon-last-mile-v1.json
 ```
 
-If AWS CLI is absent, use the public S3 HTTPS equivalents; do not add the raw files to Git.
+The bucket is public/no-account. If AWS CLI is unavailable, use the equivalent public S3 object URLs from the same prefix; raw files must still live outside the repository.
 
-- [ ] **Step 7: Validate the real artifact**
-
-Add assertions to `tests/calibrationScript.test.ts` that import the checked-in profile and require:
+- [ ] **Step 7: Validate checked-in real artifact**
 
 ```ts
 expect(profile.summary.routesAnalyzed).toBeGreaterThan(0)
@@ -567,13 +556,13 @@ expect(profile.summary.packagesAnalyzed).toBeGreaterThan(profile.summary.stopsAn
 expect(profile.distributions.vehicleCapacityCm3.p50).toBeGreaterThan(0)
 ```
 
-- [ ] **Step 8: Add package script and commit**
+- [ ] **Step 8: Add script and commit**
+
+`package.json`:
 
 ```json
 "calibrate:amazon": "node scripts/calibrate-amazon.mjs"
 ```
-
-Then:
 
 ```bash
 git add scripts/calibrate-amazon.mjs scripts/fixtures/amazon-mini src/scenario/calibration package.json tests/calibrationScript.test.ts
@@ -591,31 +580,41 @@ git commit -m "feat: derive compact Amazon calibration profile"
 - Modify: `package.json`
 
 **Interfaces:**
-- CLI:
 
 ```bash
-node scripts/generate-calibrated-scenario.mjs \
-  --profile src/scenario/calibration/amazon-last-mile-v1.json \
-  --output src/scenario/generated/cordoba-calibrated-v1.json \
-  --seed fleetflow-cordoba-v0.4
+node scripts/generate-calibrated-scenario.mjs --profile src/scenario/calibration/amazon-last-mile-v1.json --output src/scenario/generated/cordoba-calibrated-v1.json --seed fleetflow-cordoba-v0.4
 ```
 
-- Fixed V0.4 route stop counts: `[6, 9, 7, 8, 6, 10, 7, 7]` = 60.
-- Fixed compressed target: 100 packages.
-- Depot: existing Córdoba reference `[-64.1888, -31.4201]`.
+Fixed route stop counts: `[6, 9, 7, 8, 6, 10, 7, 7]`. Fixed package target: `100`. Depot: `[-64.1888, -31.4201]`.
 
-- [ ] **Step 1: Write failing generated-scenario tests**
+Exact route anchors:
+
+```js
+const ROUTE_ANCHORS = [
+  [-64.2220, -31.3970],
+  [-64.1880, -31.3920],
+  [-64.1540, -31.4010],
+  [-64.1450, -31.4250],
+  [-64.1580, -31.4520],
+  [-64.1890, -31.4580],
+  [-64.2210, -31.4470],
+  [-64.2360, -31.4190],
+]
+```
+
+Each stop uses seeded jitter of at most `±0.008` longitude and `±0.007` latitude around its assigned anchor.
+
+- [ ] **Step 1: Write RED scenario tests**
 
 ```ts
 expect(scenario.trucks).toHaveLength(8)
 expect(scenario.stores).toHaveLength(60)
 expect(scenario.routes.reduce((n, route) => n + route.stops.length, 0)).toBe(60)
-expect(totalPackages(scenario)).toBeGreaterThanOrEqual(90)
-expect(totalPackages(scenario)).toBeLessThanOrEqual(110)
+expect(totalPackages(scenario)).toBe(100)
 expect(validateScenario(scenario)).toEqual([])
 ```
 
-Also execute the generator into a temp path with the canonical seed and deep-compare to the checked-in JSON to prove reproducibility.
+Run generator to a temp path with canonical seed and `expect(generated).toEqual(checkedInScenario)`.
 
 - [ ] **Step 2: Run RED**
 
@@ -623,45 +622,74 @@ Also execute the generator into a temp path with the canonical seed and deep-com
 npm test -- tests/calibratedScenario.test.ts
 ```
 
-Expected: FAIL because generator/output do not exist.
+- [ ] **Step 3: Implement deterministic PRNG/sampling**
 
-- [ ] **Step 3: Implement seeded random and quantile sampling**
+```js
+function hashSeed(text) {
+  let hash = 2166136261
+  for (const char of text) {
+    hash ^= char.charCodeAt(0)
+    hash = Math.imul(hash, 16777619)
+  }
+  return hash >>> 0
+}
 
-Use a self-contained deterministic `mulberry32` PRNG and piecewise interpolation across quantile anchors. Do not call `Math.random()` anywhere in generation.
+function mulberry32(seed) {
+  return function next() {
+    let t = seed += 0x6D2B79F5
+    t = Math.imul(t ^ (t >>> 15), t | 1)
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61)
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
+  }
+}
 
-- [ ] **Step 4: Generate project-authored Córdoba coordinates**
-
-Use eight stable route anchors around the central depot and small seeded jitter. Keep points within the current FleetFlow Córdoba operating envelope (roughly longitude `-64.25..-64.13`, latitude `-31.47..-31.38`). Coordinates are explicitly synthetic; no Amazon location is consumed.
-
-- [ ] **Step 5: Generate parcel cargo and schedules**
-
-For each stop:
-
-- package count samples `packagesPerStop` but is normalized deterministically across 60 stops to exactly 100 total packages,
-- package volume samples `packageVolumeCm3` once per package and sums by stop,
-- service duration samples stop service seconds and converts to integer minutes with minimum 1,
-- travel duration between stops samples `travelSecondsBetweenStops` and converts to integer minutes with minimum 1,
-- time-window inclusion uses calibrated probability,
-- window width samples the calibrated width distribution,
-- window is centered around the planned arrival and clamped so baseline planned arrival is inside the window.
-
-For each vehicle, sample `vehicleCapacityCm3`; if sampled capacity is below assigned route volume, raise it to `ceil(routeVolume * 1.15)` so generated baseline is valid while retaining the sampled value when already sufficient.
-
-Departure times are rank-normalized from sampled `departureMinuteOfDayUtc` into offsets spanning 0–18 simulated minutes after 06:00.
-
-- [ ] **Step 6: Generate the canonical artifact**
-
-```bash
-npm run generate:calibrated
+function sampleDistribution(distribution, random) {
+  const knots = [
+    [0.00, distribution.min], [0.10, distribution.p10], [0.25, distribution.p25],
+    [0.50, distribution.p50], [0.75, distribution.p75], [0.90, distribution.p90],
+    [1.00, distribution.max],
+  ]
+  const p = random()
+  const upperIndex = knots.findIndex(([q]) => q >= p)
+  if (upperIndex <= 0) return knots[0][1]
+  const [q0, v0] = knots[upperIndex - 1]
+  const [q1, v1] = knots[upperIndex]
+  const ratio = (p - q0) / (q1 - q0)
+  return v0 + (v1 - v0) * ratio
+}
 ```
 
-with:
+Never call `Math.random()` in generation.
+
+- [ ] **Step 4: Generate geometry-independent operational scenario**
+
+For each stop:
+- sample package count then normalize counts deterministically to total 100 by round-robin increment/decrement while keeping each stop at least 1 package,
+- sample one package volume per package and sum per stop,
+- sample stop service seconds and convert to `Math.max(1, Math.round(seconds / 60))`,
+- sample travel seconds for schedule gaps and convert similarly,
+- include a time window when `random() < profile.distributions.timeWindowProbability`,
+- sample width; center window around planned arrival and clamp start to `>= 0`.
+
+For each vehicle, sample capacity; if below assigned route volume, set `capacityCm3 = Math.ceil(routeVolume * 1.15)`.
+
+Sample eight departure minute-of-day values, sort them, normalize rank/value range into integer offsets `0..18`, and use those offsets from simulated 06:00.
+
+Use labels `Vehículo 01` … `Vehículo 08`, stores `Entrega 001` … `Entrega 060`, and `cargo: { kind: 'PARCELS', packageCount, volumeCm3 }`.
+
+- [ ] **Step 5: Generate canonical artifact**
+
+`package.json`:
 
 ```json
 "generate:calibrated": "node scripts/generate-calibrated-scenario.mjs --profile src/scenario/calibration/amazon-last-mile-v1.json --output src/scenario/generated/cordoba-calibrated-v1.json --seed fleetflow-cordoba-v0.4"
 ```
 
-- [ ] **Step 7: Run GREEN and commit**
+```bash
+npm run generate:calibrated
+```
+
+- [ ] **Step 6: Run GREEN/build and commit**
 
 ```bash
 npm test -- tests/calibratedScenario.test.ts tests/scenarioValidation.test.ts
@@ -672,7 +700,7 @@ git commit -m "feat: generate calibrated Cordoba last-mile scenario"
 
 ---
 
-### Task 6: Generate Eight Static Road Routes for the Calibrated Scenario
+### Task 6: Generate Eight Static Road Routes
 
 **Files:**
 - Modify: `scripts/prepare-routes.mjs`
@@ -681,17 +709,12 @@ git commit -m "feat: generate calibrated Cordoba last-mile scenario"
 - Modify: `package.json`
 
 **Interfaces:**
-- CLI:
 
 ```bash
-node scripts/prepare-routes.mjs \
-  --scenario src/scenario/generated/cordoba-calibrated-v1.json \
-  --output public/data/cordoba-calibrated-routes.geojson
+node scripts/prepare-routes.mjs --scenario src/scenario/generated/cordoba-calibrated-v1.json --output public/data/cordoba-calibrated-routes.geojson
 ```
 
-- [ ] **Step 1: Add RED route-asset tests for calibrated geometry**
-
-Import the generated scenario JSON and the checked-in calibrated GeoJSON. Require 8 features and validate each feature against its route through `routeCollectionToIndex`.
+- [ ] **Step 1: Add RED calibrated-asset tests**
 
 ```ts
 const index = routeCollectionToIndex(calibratedRoutes, calibratedScenario)
@@ -707,44 +730,38 @@ for (const route of calibratedScenario.routes) {
 npm test -- tests/routeAssets.test.ts
 ```
 
-Expected: FAIL because calibrated route asset is absent.
+- [ ] **Step 3: Generalize route-preparation input**
 
-- [ ] **Step 3: Generalize `prepare-routes.mjs` inputs**
-
-Remove hardcoded five trucks/coordinates. Parse `--scenario` JSON, resolve each route's stop positions, and build:
+Parse `--scenario`/`--output`. Resolve:
 
 ```js
+const storeById = new Map(scenario.stores.map((store) => [store.id, store]))
 const coordinates = [
   scenario.depot.position,
-  ...route.stops.map((stop) => storeById.get(stop.storeId).position),
+  ...routePlan.stops.map((stop) => {
+    const store = storeById.get(stop.storeId)
+    if (!store) throw new Error(`Missing store ${stop.storeId}`)
+    return store.position
+  }),
   scenario.depot.position,
 ]
 ```
 
-For every OSRM response require:
+For OSRM response require `route.legs.length === coordinates.length - 1`; generated `waypointDistancesKm.length === routePlan.stops.length + 2`; distances strictly increase. Feature ID is exactly `routePlan.geometryId`; property `truckId` is exactly `routePlan.truckId`.
 
-```js
-route.legs.length === coordinates.length - 1
-waypointDistancesKm.length === routePlan.stops.length + 2
-```
+- [ ] **Step 4: Generate checked-in calibrated GeoJSON**
 
-Set feature ID to `routePlan.geometryId`, not a generated truck-name convention.
-
-- [ ] **Step 4: Generate the calibrated static asset**
-
-```bash
-npm run prepare:routes:calibrated
-```
-
-Package script:
+`package.json`:
 
 ```json
 "prepare:routes:calibrated": "node scripts/prepare-routes.mjs --scenario src/scenario/generated/cordoba-calibrated-v1.json --output public/data/cordoba-calibrated-routes.geojson"
 ```
 
-This is the only step in V0.4 allowed to call OSRM.
+```bash
+npm run prepare:routes:calibrated
+```
 
-- [ ] **Step 5: Run GREEN and verify no runtime route URL exists**
+- [ ] **Step 5: Run GREEN and runtime-network guard**
 
 ```bash
 npm test -- tests/routeAssets.test.ts tests/mapPresentation.test.ts
@@ -752,7 +769,7 @@ npm run build
 grep -R "router.project-osrm.org" src public || true
 ```
 
-Expected: tests/build PASS; grep finds no runtime source usage.
+Expected: tests/build PASS; grep has no runtime source hit.
 
 - [ ] **Step 6: Commit**
 
@@ -763,7 +780,7 @@ git commit -m "feat: add calibrated Cordoba road routes"
 
 ---
 
-### Task 7: Add Scenario Registry and Atomic Runtime Switching
+### Task 7: Add Scenario Registry and Atomic Switching
 
 **Files:**
 - Create: `src/scenario/scenarioRegistry.ts`
@@ -777,7 +794,8 @@ git commit -m "feat: add calibrated Cordoba road routes"
 **Interfaces:**
 
 ```ts
-export type ScenarioId = 'cordoba-calibrated' | 'coca-coqui-legacy'
+export const SCENARIO_IDS = ['cordoba-calibrated', 'coca-coqui-legacy'] as const
+export type ScenarioId = typeof SCENARIO_IDS[number]
 
 export interface ScenarioProvenance {
   mode: 'CALIBRATED' | 'SYNTHETIC'
@@ -813,49 +831,75 @@ expect(getScenarioDefinition('coca-coqui-legacy').scenario.trucks).toHaveLength(
 expect(getScenarioDefinition('cordoba-calibrated').routeAsset).toBe('./data/cordoba-calibrated-routes.geojson')
 ```
 
-- [ ] **Step 2: Implement registry with explicit provenance**
+- [ ] **Step 2: Implement registry and validate generated JSON at module load**
 
-Calibrated summary:
+Cast imported JSON through `unknown` to `FleetScenario`, run `validateScenario`, and throw if errors exist so bad generated data fails build/tests immediately.
+
+Calibrated summary exactly:
 
 ```text
 Comportamiento derivado de datos operacionales públicos. Ubicaciones y recorridos adaptados a Córdoba.
 ```
 
-Legacy summary:
+Legacy summary exactly:
 
 ```text
 Cinco camiones y quince entregas creadas para la primera versión de FleetFlow.
 ```
 
-Do not use Amazon/Mercado Libre branding as scenario labels.
+- [ ] **Step 3: Implement semantic switcher**
 
-- [ ] **Step 3: Write RED scenario-switching UI test**
+```tsx
+interface ScenarioSwitcherProps {
+  value: ScenarioId
+  onChange: (id: ScenarioId) => void
+}
 
-Mock `fetch` by URL and render `<App />`. Assert initial calibrated request, then click Legacy:
-
-```ts
-expect(fetch).toHaveBeenCalledWith('./data/cordoba-calibrated-routes.geojson', expect.anything())
-await user.click(screen.getByRole('radio', { name: /Coca Coqui/i }))
-expect(fetch).toHaveBeenCalledWith('./data/coca-coqui-routes.geojson', expect.anything())
-expect(screen.getByText('06:00')).toBeInTheDocument()
+export function ScenarioSwitcher({ value, onChange }: ScenarioSwitcherProps) {
+  return (
+    <fieldset className="scenario-switcher">
+      <legend>Escenario</legend>
+      {SCENARIO_IDS.map((id) => {
+        const definition = getScenarioDefinition(id)
+        return (
+          <label key={id}>
+            <input
+              type="radio"
+              name="fleetflow-scenario"
+              value={id}
+              checked={value === id}
+              onChange={() => onChange(id)}
+            />
+            <span>{definition.label}</span>
+            <small>{definition.badge}</small>
+          </label>
+        )
+      })}
+    </fieldset>
+  )
+}
 ```
 
-Start the simulation before switching and assert the new scenario is paused/reset.
+Style it inside the connected rail; no new floating card.
 
-- [ ] **Step 4: Implement atomic active-scenario state in `App.tsx`**
+- [ ] **Step 4: Write RED switching test**
 
-Replace the module-global Coca Coqui constants with:
+Mock route `fetch` by URL. Initial render must request calibrated asset. Start simulation, switch to Legacy, then require Legacy asset, 06:00 and paused state. Switch back and require calibrated asset again.
+
+```ts
+expect(fetch).toHaveBeenCalledWith('./data/cordoba-calibrated-routes.geojson')
+await user.click(screen.getByRole('radio', { name: /Coca Coqui/i }))
+expect(fetch).toHaveBeenCalledWith('./data/coca-coqui-routes.geojson')
+```
+
+- [ ] **Step 5: Implement atomic active scenario in `App.tsx`**
 
 ```ts
 const [scenarioId, setScenarioId] = useState<ScenarioId>(DEFAULT_SCENARIO_ID)
 const activeDefinition = getScenarioDefinition(scenarioId)
 const activeScenario = activeDefinition.scenario
 const simulationEndMinute = Math.max(...activeScenario.routes.map((route) => route.returnMinute))
-```
 
-On change:
-
-```ts
 function changeScenario(nextId: ScenarioId) {
   setIsPlaying(false)
   setSimulationMinute(0)
@@ -865,24 +909,9 @@ function changeScenario(nextId: ScenarioId) {
 }
 ```
 
-Route-loading effect must depend on `activeDefinition.routeAsset`, validate against `activeScenario`, and ignore stale async responses using the existing cancellation pattern.
+Route effect depends on `activeDefinition.routeAsset` and `activeScenario`, uses the existing cancellation flag, calls `routeCollectionToIndex(collection, activeScenario)`, and ignores stale completion. Give `<FleetMap key={scenarioId} ... />` so popups/layers cannot survive switching.
 
-Give `FleetMap` a `key={scenarioId}` so any open popup/map layer state is destroyed when scenarios switch.
-
-- [ ] **Step 5: Implement connected-rail segmented switcher**
-
-Use a semantic radio group, not a native gray `<select>`:
-
-```tsx
-<fieldset className="scenario-switcher">
-  <legend>Escenario</legend>
-  {/* two labelled radio inputs */}
-</fieldset>
-```
-
-Style it inside `.top-rail` without creating a new floating card.
-
-- [ ] **Step 6: Run GREEN**
+- [ ] **Step 6: Run GREEN/build**
 
 ```bash
 npm test -- tests/scenarioRegistry.test.ts tests/scenarioSwitching.test.tsx tests/appSmoke.test.tsx
@@ -898,7 +927,7 @@ git commit -m "feat: switch between calibrated and legacy scenarios"
 
 ---
 
-### Task 8: Add Provenance Disclosure and Calibrated Operational Copy
+### Task 8: Add Provenance Disclosure and Operational Copy
 
 **Files:**
 - Create: `src/components/ScenarioProvenance.tsx`
@@ -911,13 +940,11 @@ git commit -m "feat: switch between calibrated and legacy scenarios"
 - Modify: `tests/mapPointDetails.test.ts`
 - Modify: `tests/mapPresentation.test.ts`
 
-**Interfaces:**
-- Consumes `ScenarioProvenance` from registry.
-- First-level calibrated disclosure is always visible; details use native `<details>` / `<summary>`.
+**Interfaces:** consumes `ScenarioProvenance`; first-level disclosure stays visible and detailed source/method uses native `<details>`.
 
 - [ ] **Step 1: Write RED provenance/copy tests**
 
-Calibrated mode must visibly include:
+Calibrated mode contains:
 
 ```text
 ESCENARIO CALIBRADO
@@ -925,47 +952,40 @@ Comportamiento derivado de datos operacionales públicos.
 Fuente y método
 ```
 
-Legacy mode must include:
+Legacy contains `ESCENARIO SINTÉTICO · LEGACY V0`. No rendered text may match `/Amazon Córdoba|Mercado Libre Córdoba|rutas reales de Amazon/i`.
 
-```text
-ESCENARIO SINTÉTICO · LEGACY V0
-```
-
-No rendered text may match `/Amazon Córdoba|Mercado Libre Córdoba|rutas reales de Amazon/i`.
-
-- [ ] **Step 2: Implement `ScenarioProvenance`**
+- [ ] **Step 2: Implement provenance component without hidden placeholders**
 
 ```tsx
-<section className="scenario-provenance" aria-label="Procedencia del escenario">
-  <strong>{provenance.shortLabel}</strong>
-  <span>{provenance.summary}</span>
-  <details>
-    <summary>Fuente y método</summary>
-    {/* source, license, synthetic elements, limitations */}
-  </details>
-</section>
+export function ScenarioProvenance({ provenance }: { provenance: ScenarioProvenance }) {
+  return (
+    <section className="scenario-provenance" aria-label="Procedencia del escenario">
+      <strong>{provenance.shortLabel}</strong>
+      <span>{provenance.summary}</span>
+      <details>
+        <summary>Fuente y método</summary>
+        {provenance.sourceName ? <p>Fuente: {provenance.sourceName}</p> : null}
+        {provenance.sourceLicense ? <p>Licencia fuente: {provenance.sourceLicense}</p> : null}
+        {provenance.sourceUrl ? <a href={provenance.sourceUrl}>Ver fuente oficial</a> : null}
+        <p>Sintético/adaptado: {provenance.syntheticElements.join(' · ')}</p>
+        <p>Limitaciones: {provenance.limitations.join(' · ')}</p>
+      </details>
+    </section>
+  )
+}
 ```
 
-For calibrated mode, link to the official Registry of Open Data/Amazon Science source with normal anchor semantics.
+Calibrated `sourceUrl` is the official Registry of Open Data page.
 
-- [ ] **Step 3: Finish generic parcel copy**
+- [ ] **Step 3: Finish parcel/generic copy**
 
-Fleet rows and truck popups in calibrated mode should prefer:
+Calibrated fleet/popup examples: `Vehículo 03`, `28 paquetes`, `5 / 8 entregas`, `37% de capacidad ocupada`. Store popup uses `Entrega 037`, package count, planned service time and optional window. Legacy keeps kg and Coca Coqui labels.
 
-```text
-Vehículo 03
-28 paquetes
-5 / 8 entregas
-37% de capacidad ocupada
-```
+- [ ] **Step 4: Integrate provenance into connected frame**
 
-Store popup should say `Entrega 037`, package count and service minutes. Legacy keeps kg and Coca Coqui names.
+Place it as a compact footer of the right operations rail below FleetPanel with an internal top divider; no modal/card/overlay.
 
-- [ ] **Step 4: Keep provenance visually subordinate to the map**
-
-Place it as a compact footer inside the connected right rail or top rail, with internal divider only — no floating card, no modal, no blocking overlay.
-
-- [ ] **Step 5: Run GREEN**
+- [ ] **Step 5: Run GREEN/build**
 
 ```bash
 npm test -- tests/dashboardComponents.test.tsx tests/mapPointDetails.test.ts tests/mapPresentation.test.ts
@@ -981,19 +1001,15 @@ git commit -m "feat: explain calibrated scenario provenance"
 
 ---
 
-### Task 9: Documentation, Full Regression, PR and Deployment Verification
+### Task 9: Documentation, Full Regression, PR and Deployment
 
 **Files:**
 - Modify: `README.md`
 - Create: `DATA_LICENSES.md`
-- Modify only if needed for generated-asset checks: `.github/workflows/ci.yml`
 - Test: complete `tests/` suite
+- No CI workflow change planned; current workflow already runs `npm test` and `npm run build`.
 
-**Interfaces:**
-- Documents exact commands to regenerate calibration profile, scenario and route asset.
-- Establishes licensing boundary between MIT software and CC BY-NC-derived calibration data.
-
-- [ ] **Step 1: Update README architecture and default experience**
+- [ ] **Step 1: Update README**
 
 Document:
 
@@ -1006,86 +1022,46 @@ External Amazon training data (offline only)
   → Simulation Engine
 ```
 
-State plainly:
+State plainly: Córdoba geography is synthetic/project-authored; operational parameters are calibrated; displayed routes are not Amazon/Mercado Libre operations; raw Amazon files are never shipped; Legacy is selectable.
 
-- Córdoba geography is synthetic/project-authored,
-- operational parameters are calibrated from public data,
-- the displayed routes are not Amazon or Mercado Libre operations,
-- raw Amazon files are never shipped,
-- Legacy V0 is selectable for comparison.
+- [ ] **Step 2: Add `DATA_LICENSES.md` exact boundary**
 
-- [ ] **Step 2: Add `DATA_LICENSES.md`**
-
-Explicitly state:
+Include:
 
 ```text
 The FleetFlow source code is licensed under MIT.
 `src/scenario/calibration/amazon-last-mile-v1.json` is a derived calibration artifact based on material from the 2021 Amazon Last Mile Routing Research Challenge Dataset and is not covered by the repository's MIT license. Source material is provided under CC BY-NC 4.0; see the official dataset registry for terms and attribution.
 ```
 
-Include the official source/citation and mark `scripts/fixtures/amazon-mini/*` as project-authored synthetic fixtures, not copied Amazon records.
+Add official dataset citation and state that `scripts/fixtures/amazon-mini/*` are FleetFlow-authored synthetic schema fixtures.
 
-- [ ] **Step 3: Add deterministic artifact regression if CI does not already cover it**
-
-CI must run normal tests/build without downloading raw Amazon data or calling OSRM. The checked-in scenario determinism test and route asset validation are sufficient; do not add network generation to CI.
-
-- [ ] **Step 4: Run complete local/branch verification**
+- [ ] **Step 3: Run complete branch verification**
 
 ```bash
 npm test
 npm run build
-```
-
-Expected: all tests PASS; Vite may retain the existing non-blocking large-chunk warning but no TypeScript/build error.
-
-- [ ] **Step 5: Inspect branch diff for scope**
-
-Verify no raw third-party data file was accidentally committed and no unrelated GeoPlatform work appears:
-
-```bash
 git status --short
 git diff main...HEAD --stat
 git diff main...HEAD --name-only
 ```
 
-Expected: only FleetFlow V0.4 domain/scenario/UI/scripts/tests/docs plus the compact calibration profile and calibrated GeoJSON route asset.
+Expected: tests/build PASS; no raw Amazon files; only V0.4 code/scripts/tests/docs, compact profile and calibrated GeoJSON.
 
-- [ ] **Step 6: Open PR**
-
-Title:
-
-```text
-feat: ship FleetFlow V0.4 calibrated scenarios
-```
-
-PR body must state 8 vehicles / 60 stops / parcel semantics, Legacy preservation, Amazon calibration/license boundary, no runtime routing, and the exact branch test/build results.
-
-- [ ] **Step 7: Wait for PR CI and squash merge only on GREEN**
-
-Squash title:
-
-```text
-feat: ship FleetFlow V0.4 calibrated scenarios
-```
-
-Do not merge on branch CI alone; require the pull-request-triggered CI run for the exact head SHA.
-
-- [ ] **Step 8: Verify post-merge production**
-
-On the merged `main` SHA, require:
-
-- CI `success`,
-- GitHub Pages deployment `success`,
-- clean public URL loads calibrated mode by default,
-- scenario switcher can move to Legacy and back,
-- calibrated map shows 8 vehicles / 60 delivery points,
-- no runtime OSRM request appears in browser network behavior.
-
-- [ ] **Step 9: Final commit for docs if Task 9 changes precede PR**
+- [ ] **Step 4: Commit docs**
 
 ```bash
-git add README.md DATA_LICENSES.md .github/workflows/ci.yml
+git add README.md DATA_LICENSES.md
 git commit -m "docs: document FleetFlow calibration provenance"
 ```
 
-Skip `.github/workflows/ci.yml` from `git add` when no workflow change was required.
+- [ ] **Step 5: Open PR**
+
+Title `feat: ship FleetFlow V0.4 calibrated scenarios`. Body records 8 vehicles / 60 stops / 100 packages, Legacy preservation, data/license boundary, no runtime routing, and exact test/build results.
+
+- [ ] **Step 6: Require PR-triggered CI GREEN and squash merge**
+
+Do not merge on branch CI alone. Squash title: `feat: ship FleetFlow V0.4 calibrated scenarios`.
+
+- [ ] **Step 7: Verify merged SHA in production**
+
+Require main CI `success` and GitHub Pages `success`. On the public page verify calibrated mode is default, 8 vehicles/60 points appear, selector switches Legacy and back, and browser runtime makes no OSRM request.
