@@ -7,6 +7,17 @@ export function validateScenario(scenario: FleetScenario): string[] {
   const trucks = new Map(scenario.trucks.map((truck) => [truck.id, truck]))
   const assignmentCounts = new Map(scenario.stores.map((store) => [store.id, 0]))
   const routeCounts = new Map(scenario.trucks.map((truck) => [truck.id, 0]))
+  const scenarioCargoModes = new Set<string>(scenario.trucks.map((truck) => truck.capacity.kind))
+
+  for (const route of scenario.routes) {
+    for (const stop of route.stops) {
+      scenarioCargoModes.add(stop.cargo.kind)
+    }
+  }
+
+  if (scenarioCargoModes.size > 1) {
+    errors.push(`Scenario cargo mode must be uniform; found ${[...scenarioCargoModes].join(', ')}`)
+  }
 
   for (const store of scenario.stores) {
     if (store.timeWindow && store.timeWindow.endMinute <= store.timeWindow.startMinute) {
