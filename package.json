@@ -8,7 +8,8 @@
     "build": "tsc -b && vite build",
     "test": "vitest run",
     "test:watch": "vitest",
-    "prepare:routes": "node scripts/prepare-routes.mjs"
+    "prepare:routes": "node scripts/prepare-routes.mjs",
+    "calibrate:amazon": "node scripts/calibrate-amazon.mjs"
   },
   "dependencies": {
     "@turf/along": "7.4.0",
