@@ -34,13 +34,32 @@ jobs:
           aws s3 cp --no-sign-request "$base/travel_times.json" "$input/travel_times.json"
           du -h "$input"/*
 
-      - name: Derive compact High-route profile
+      - name: Run Amazon calibration quietly
+        id: calibrate
         env:
           NODE_OPTIONS: --max-old-space-size=6144
         run: |
+          set +e
           node scripts/calibrate-amazon.mjs \
             --input-dir /tmp/fleetflow-amazon-training \
-            --output /tmp/amazon-last-mile-v1.json
+            --output /tmp/amazon-last-mile-v1.json \
+            >/tmp/calibrate.stdout 2>/tmp/calibrate.stderr
+          status=$?
+          echo "status=$status" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Report calibration result
+        env:
+          CALIBRATION_STATUS: ${{ steps.calibrate.outputs.status }}
+        run: |
+          if [ "$CALIBRATION_STATUS" != "0" ]; then
+            echo "Amazon calibration exited with status $CALIBRATION_STATUS"
+            echo "--- stderr tail ---"
+            tail -n 80 /tmp/calibrate.stderr || true
+            echo "--- stdout tail ---"
+            tail -n 20 /tmp/calibrate.stdout || true
+            exit "$CALIBRATION_STATUS"
+          fi
           cat /tmp/amazon-last-mile-v1.json
 
       - name: Upload compact profile only
