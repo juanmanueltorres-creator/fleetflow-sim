@@ -64,20 +64,25 @@ describe('simulation dashboard components', () => {
     expect(onSpeedChange).toHaveBeenCalledWith(30)
   })
 
-  it('shows concise fleet KPIs with estimated fuel wording', () => {
+  it('shows concise KPIs in plain Spanish with estimated fuel wording', () => {
     render(<KpiPanel metrics={metrics} />)
     expect(screen.getByText('7 / 15')).toBeInTheDocument()
     expect(screen.getByText('5 / 5')).toBeInTheDocument()
     expect(screen.getByText('71.0 km')).toBeInTheDocument()
     expect(screen.getByText('4.3 L')).toBeInTheDocument()
-    expect(screen.getByText('Estimated fuel used')).toBeInTheDocument()
+    expect(screen.getByText('Entregas')).toBeInTheDocument()
+    expect(screen.getByText('Camiones activos')).toBeInTheDocument()
+    expect(screen.getByText('Distancia prevista')).toBeInTheDocument()
+    expect(screen.getByText('Combustible estimado')).toBeInTheDocument()
   })
 
-  it('shows truck status and next planned stop', () => {
+  it('shows truck status and next stop in plain Spanish', () => {
     render(<FleetPanel scenario={cocaCoquiScenario} snapshot={snapshot} />)
     expect(screen.getByText('Truck 01')).toBeInTheDocument()
-    expect(screen.getByText('En route')).toBeInTheDocument()
-    expect(screen.getByText('Next · Local 03')).toBeInTheDocument()
-    expect(screen.getByText('2 / 3 delivered')).toBeInTheDocument()
+    expect(screen.getByText('En camino')).toBeInTheDocument()
+    expect(screen.getByText('Sigue · Local 03')).toBeInTheDocument()
+    expect(screen.getByText('2 / 3 entregas')).toBeInTheDocument()
+    expect(screen.getByText('Flota')).toBeInTheDocument()
+    expect(screen.getByText('5 camiones')).toBeInTheDocument()
   })
 })
