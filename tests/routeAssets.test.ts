@@ -21,11 +21,16 @@ const variableScenario: FleetScenario = {
   simulationStartLabel: '06:00',
   depot: { id: 'depot', name: 'Depot', position: [-64.18, -31.42] },
   stores: [
-    { id: 'store-a', name: 'A', position: [-64.17, -31.41], demandKg: 100, serviceMinutes: 2 },
-    { id: 'store-b', name: 'B', position: [-64.16, -31.40], demandKg: 100, serviceMinutes: 2 },
+    { id: 'store-a', name: 'A', position: [-64.17, -31.41], serviceMinutes: 2 },
+    { id: 'store-b', name: 'B', position: [-64.16, -31.40], serviceMinutes: 2 },
   ],
   trucks: [
-    { id: 'truck-a', label: 'Truck A', capacityKg: 500, fuelConsumptionLPer100Km: 18 },
+    {
+      id: 'truck-a',
+      label: 'Truck A',
+      capacity: { kind: 'MASS', capacityKg: 500 },
+      fuelConsumptionLPer100Km: 18,
+    },
   ],
   routes: [
     {
@@ -35,8 +40,18 @@ const variableScenario: FleetScenario = {
       departureMinute: 0,
       returnMinute: 20,
       stops: [
-        { storeId: 'store-a', plannedArrivalMinute: 5, plannedDepartureMinute: 7, demandKg: 100 },
-        { storeId: 'store-b', plannedArrivalMinute: 12, plannedDepartureMinute: 14, demandKg: 100 },
+        {
+          storeId: 'store-a',
+          plannedArrivalMinute: 5,
+          plannedDepartureMinute: 7,
+          cargo: { kind: 'MASS', quantityKg: 100 },
+        },
+        {
+          storeId: 'store-b',
+          plannedArrivalMinute: 12,
+          plannedDepartureMinute: 14,
+          cargo: { kind: 'MASS', quantityKg: 100 },
+        },
       ],
     },
   ],

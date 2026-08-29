@@ -49,7 +49,6 @@ function makeScenarioWithStops(stopCount: number): {
     id: `test-store-${index + 1}`,
     name: `Test Store ${index + 1}`,
     position: [-64.18 + (index + 1) * 0.001, -31.42],
-    demandKg: 10,
     serviceMinutes: 1,
   }))
   const stops: PlannedStop[] = stores.map((store, index) => {
@@ -58,7 +57,7 @@ function makeScenarioWithStops(stopCount: number): {
       storeId: store.id,
       plannedArrivalMinute,
       plannedDepartureMinute: plannedArrivalMinute + 1,
-      demandKg: 10,
+      cargo: { kind: 'MASS', quantityKg: 10 },
     }
   })
   const finalDeparture = stops[stops.length - 1]?.plannedDepartureMinute ?? 0
@@ -80,7 +79,7 @@ function makeScenarioWithStops(stopCount: number): {
       {
         id: 'test-truck',
         label: 'Test Truck',
-        capacityKg: 1000,
+        capacity: { kind: 'MASS', capacityKg: 1000 },
         fuelConsumptionLPer100Km: 18,
       },
     ],

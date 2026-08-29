@@ -1,4 +1,4 @@
-import type { FleetScenario, FleetSnapshot, TruckStatus } from '../domain/types'
+import type { FleetScenario, FleetSnapshot, RemainingCargo, TruckStatus } from '../domain/types'
 
 interface FleetPanelProps {
   scenario: FleetScenario
@@ -13,6 +13,21 @@ const STATUS_LABELS: Record<TruckStatus, string> = {
   DONE: 'Listo',
 }
 
+function vehicleCountLabel(count: number): string {
+  return `${count} ${count === 1 ? 'vehículo' : 'vehículos'}`
+}
+
+function cargoLines(cargo: RemainingCargo): string[] {
+  if (cargo.kind === 'MASS') {
+    return [`${Math.round(cargo.quantityKg)} kg en carga`]
+  }
+
+  return [
+    `${cargo.packageCount} ${cargo.packageCount === 1 ? 'paquete' : 'paquetes'}`,
+    `${Math.round(cargo.utilizationPct)}% de capacidad ocupada`,
+  ]
+}
+
 export function FleetPanel({ scenario, snapshot }: FleetPanelProps) {
   const storesById = new Map(scenario.stores.map((store) => [store.id, store]))
   const routesByTruck = new Map(scenario.routes.map((route) => [route.truckId, route]))
@@ -22,7 +37,7 @@ export function FleetPanel({ scenario, snapshot }: FleetPanelProps) {
     <section className="fleet-panel" aria-label="Estado de la flota">
       <div className="panel-heading">
         <span className="panel-label">Flota</span>
-        <strong>{scenario.trucks.length} camiones</strong>
+        <strong>{vehicleCountLabel(scenario.trucks.length)}</strong>
       </div>
 
       <div className="fleet-list">
@@ -45,6 +60,9 @@ export function FleetPanel({ scenario, snapshot }: FleetPanelProps) {
               </div>
               <p>{nextStore ? `Sigue · ${nextStore.name}` : 'Ruta completa'}</p>
               <span>{truckSnapshot.completedDeliveries} / {route.stops.length} entregas</span>
+              {cargoLines(truckSnapshot.remainingCargo).map((line) => (
+                <span key={line}>{line}</span>
+              ))}
             </article>
           )
         })}

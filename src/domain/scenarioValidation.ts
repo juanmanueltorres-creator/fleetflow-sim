@@ -1,3 +1,4 @@
+import { cargoFitsCapacity } from './cargo'
 import type { FleetScenario } from './types'
 
 export function validateScenario(scenario: FleetScenario): string[] {
@@ -5,6 +6,13 @@ export function validateScenario(scenario: FleetScenario): string[] {
   const stores = new Map(scenario.stores.map((store) => [store.id, store]))
   const trucks = new Map(scenario.trucks.map((truck) => [truck.id, truck]))
   const assignmentCounts = new Map(scenario.stores.map((store) => [store.id, 0]))
+  const routeCounts = new Map(scenario.trucks.map((truck) => [truck.id, 0]))
+
+  for (const store of scenario.stores) {
+    if (store.timeWindow && store.timeWindow.endMinute <= store.timeWindow.startMinute) {
+      errors.push(`Store ${store.id} has invalid time window`)
+    }
+  }
 
   for (const route of scenario.routes) {
     const truck = trucks.get(route.truckId)
@@ -14,8 +22,14 @@ export function validateScenario(scenario: FleetScenario): string[] {
       continue
     }
 
+    routeCounts.set(truck.id, (routeCounts.get(truck.id) ?? 0) + 1)
+
+    if (route.stops.length === 0) {
+      errors.push(`Route ${route.id} must contain at least one stop`)
+    }
+
     let previousMinute = route.departureMinute
-    let assignedDemandKg = 0
+    let cargoModeMismatch = false
 
     for (const stop of route.stops) {
       const store = stores.get(stop.storeId)
@@ -26,7 +40,18 @@ export function validateScenario(scenario: FleetScenario): string[] {
       }
 
       assignmentCounts.set(stop.storeId, (assignmentCounts.get(stop.storeId) ?? 0) + 1)
-      assignedDemandKg += stop.demandKg
+
+      if (stop.cargo.kind !== truck.capacity.kind) {
+        cargoModeMismatch = true
+      }
+
+      if (stop.cargo.kind === 'MASS') {
+        if (stop.cargo.quantityKg <= 0) {
+          errors.push(`Route ${route.id} has non-positive mass cargo at ${stop.storeId}`)
+        }
+      } else if (stop.cargo.packageCount <= 0 || stop.cargo.volumeCm3 <= 0) {
+        errors.push(`Route ${route.id} has non-positive parcel cargo at ${stop.storeId}`)
+      }
 
       if (stop.plannedArrivalMinute < previousMinute) {
         errors.push(`Route ${route.id} has non-monotonic arrival at ${stop.storeId}`)
@@ -43,7 +68,9 @@ export function validateScenario(scenario: FleetScenario): string[] {
       errors.push(`Route ${route.id} must return after its final stop`)
     }
 
-    if (assignedDemandKg > truck.capacityKg) {
+    if (cargoModeMismatch) {
+      errors.push(`Route ${route.id} cargo mode must match ${truck.id} capacity`)
+    } else if (!cargoFitsCapacity(route.stops, truck.capacity)) {
       errors.push(`Route ${route.id} exceeds ${truck.id} capacity`)
     }
   }
@@ -52,6 +79,13 @@ export function validateScenario(scenario: FleetScenario): string[] {
     const count = assignmentCounts.get(store.id) ?? 0
     if (count !== 1) {
       errors.push(`Store ${store.id} must be assigned exactly once; found ${count}`)
+    }
+  }
+
+  for (const truck of scenario.trucks) {
+    const count = routeCounts.get(truck.id) ?? 0
+    if (count !== 1) {
+      errors.push(`Truck ${truck.id} must have exactly one route; found ${count}`)
     }
   }
 

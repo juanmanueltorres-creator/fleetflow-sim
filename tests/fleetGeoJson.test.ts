@@ -14,7 +14,11 @@ describe('fleetSnapshotToGeoJson', () => {
           currentStopId: null,
           nextStopId: 'store-01',
           routeProgress: 0.2,
-          cargoKg: 1040,
+          remainingCargo: {
+            kind: 'MASS',
+            quantityKg: 1040,
+            utilizationPct: (1040 / 2400) * 100,
+          },
           completedDeliveries: 1,
           distanceTravelledKm: 2.36,
           estimatedFuelUsedL: 0.4248,

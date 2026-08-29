@@ -1,4 +1,12 @@
-import type { FleetScenario, FleetSnapshot, RoutePlan, Store, Truck } from '../domain/types'
+import type {
+  FleetScenario,
+  FleetSnapshot,
+  RemainingCargo,
+  RoutePlan,
+  StopCargo,
+  Store,
+  Truck,
+} from '../domain/types'
 import { formatSimulationTime } from '../simulation/clock'
 
 export interface MapPointDetails {
@@ -32,6 +40,26 @@ function findStoreAssignment(scenario: FleetScenario, storeId: string): StoreAss
   throw new Error(`Store ${storeId} has no route assignment`)
 }
 
+function formatStopCargo(cargo: StopCargo): string {
+  if (cargo.kind === 'MASS') return `${Math.round(cargo.quantityKg)} kg`
+  return `${cargo.packageCount} ${cargo.packageCount === 1 ? 'paquete' : 'paquetes'}`
+}
+
+function formatRemainingCargo(cargo: RemainingCargo): string[] {
+  if (cargo.kind === 'MASS') {
+    return [`${Math.round(cargo.quantityKg)} kg en carga`]
+  }
+
+  return [
+    `${cargo.packageCount} ${cargo.packageCount === 1 ? 'paquete' : 'paquetes'}`,
+    `${Math.round(cargo.utilizationPct)}% de capacidad ocupada`,
+  ]
+}
+
+function vehicleCountLabel(count: number): string {
+  return `${count} ${count === 1 ? 'vehículo' : 'vehículos'}`
+}
+
 export function getStorePointDetails(
   scenario: FleetScenario,
   snapshot: FleetSnapshot,
@@ -40,14 +68,16 @@ export function getStorePointDetails(
   const { store, route, truck, stopIndex } = findStoreAssignment(scenario, storeId)
   const stop = route.stops[stopIndex]
   const minute = snapshot.simulationMinute
+  const cargoLabel = formatStopCargo(stop.cargo)
+  const serviceLabel = stop.cargo.kind === 'MASS' ? 'Descarga' : 'Entrega'
 
   if (minute < stop.plannedArrivalMinute) {
     return {
       title: store.name,
-      headline: `Faltan ${stop.demandKg} kg`,
+      headline: `Faltan ${cargoLabel}`,
       lines: [
         `${truck.label} · llega ${formatSimulationTime(stop.plannedArrivalMinute)}`,
-        `Descarga ~${store.serviceMinutes} min`,
+        `${serviceLabel} ~${store.serviceMinutes} min`,
       ],
       note: 'Escenario simulado',
     }
@@ -56,7 +86,7 @@ export function getStorePointDetails(
   if (minute < stop.plannedDepartureMinute) {
     return {
       title: store.name,
-      headline: `Descargando ${stop.demandKg} kg`,
+      headline: `${stop.cargo.kind === 'MASS' ? 'Descargando' : 'Entregando'} ${cargoLabel}`,
       lines: [
         `${truck.label} · hasta ${formatSimulationTime(stop.plannedDepartureMinute)}`,
         `Parada ${stopIndex + 1} de ${route.stops.length}`,
@@ -72,7 +102,7 @@ export function getStorePointDetails(
 
   return {
     title: store.name,
-    headline: `Entrega hecha · ${stop.demandKg} kg`,
+    headline: `Entrega hecha · ${cargoLabel}`,
     lines: [
       nextStore ? `${truck.label} siguió a ${nextStore.name}` : `${truck.label} vuelve al depósito`,
       `Salió ${formatSimulationTime(stop.plannedDepartureMinute)}`,
@@ -123,7 +153,7 @@ export function getTruckPointDetails(
     headline,
     lines: [
       `${truckSnapshot.completedDeliveries} / ${route.stops.length} entregas`,
-      `${Math.round(truckSnapshot.cargoKg)} kg en carga`,
+      ...formatRemainingCargo(truckSnapshot.remainingCargo),
       `${truckSnapshot.estimatedFuelUsedL.toFixed(1)} L estimados`,
     ],
     note: 'Escenario simulado',
@@ -136,8 +166,8 @@ export function getDepotPointDetails(scenario: FleetScenario): MapPointDetails {
   const totalDeliveries = scenario.routes.reduce((sum, route) => sum + route.stops.length, 0)
 
   return {
-    title: 'Depósito Coca Coqui',
-    headline: `${scenario.trucks.length} camiones · ${totalDeliveries} entregas`,
+    title: scenario.depot.name,
+    headline: `${vehicleCountLabel(scenario.trucks.length)} · ${totalDeliveries} entregas`,
     lines: [
       `Primera salida ${formatSimulationTime(firstDeparture)} · último regreso ${formatSimulationTime(lastReturn)}`,
     ],

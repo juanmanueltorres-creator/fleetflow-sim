@@ -1,6 +1,7 @@
 import along from '@turf/along'
 import bearing from '@turf/bearing'
 import { point } from '@turf/helpers'
+import { remainingCargoAfter } from '../domain/cargo'
 import type {
   FleetScenario,
   FleetSnapshot,
@@ -84,15 +85,11 @@ function snapshotForTruck(
   geometry: RouteGeometryFeature,
   simulationMinute: number,
 ): TruckSnapshot {
-  const assignedDemandKg = route.stops.reduce((sum, stop) => sum + stop.demandKg, 0)
   const completedStops = route.stops.filter(
     (stop) => simulationMinute >= stop.plannedDepartureMinute,
   )
   const completedDeliveries = completedStops.length
-  const cargoKg = Math.max(
-    0,
-    assignedDemandKg - completedStops.reduce((sum, stop) => sum + stop.demandKg, 0),
-  )
+  const remainingCargo = remainingCargoAfter(route.stops, completedDeliveries, truck.capacity)
   const waypointDistances = geometry.properties.waypointDistancesKm
   const totalGeometryDistanceKm = routeDistanceKm(geometry)
 
@@ -161,7 +158,7 @@ function snapshotForTruck(
     currentStopId,
     nextStopId,
     routeProgress,
-    cargoKg,
+    remainingCargo,
     completedDeliveries,
     distanceTravelledKm,
     estimatedFuelUsedL,

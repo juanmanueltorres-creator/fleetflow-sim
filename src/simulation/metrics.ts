@@ -6,6 +6,7 @@ export interface FleetMetrics {
   completedDeliveries: number
   totalDeliveries: number
   activeTrucks: number
+  totalVehicles: number
   plannedDistanceKm: number
   estimatedFuelUsedL: number
 }
@@ -30,6 +31,7 @@ export function deriveFleetMetrics(
     ),
     totalDeliveries: scenario.stores.length,
     activeTrucks: snapshot.trucks.filter((truck) => ACTIVE_STATUSES.has(truck.status)).length,
+    totalVehicles: scenario.trucks.length,
     plannedDistanceKm,
     estimatedFuelUsedL: snapshot.trucks.reduce(
       (total, truck) => total + truck.estimatedFuelUsedL,
