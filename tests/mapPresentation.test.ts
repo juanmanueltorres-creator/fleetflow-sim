@@ -53,4 +53,16 @@ describe('FleetFlow map presentation', () => {
     expect(css).toContain('right: 0')
     expect(css).toContain('bottom: 0')
   })
+
+  it('keeps scenario switching and provenance inside the connected operational frame', () => {
+    const app = read('src/App.tsx')
+    const switcher = read('src/components/ScenarioSwitcher.tsx')
+    const provenance = read('src/components/ScenarioProvenance.tsx')
+
+    expect(app).toContain('<ScenarioSwitcher')
+    expect(app).toContain('<ScenarioProvenance')
+    expect(app.indexOf('<ScenarioProvenance')).toBeGreaterThan(app.indexOf('<FleetPanel'))
+    expect(switcher).toContain('className="scenario-switcher"')
+    expect(provenance).toContain('Fuente y método')
+  })
 })
