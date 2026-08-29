@@ -1,7 +1,7 @@
 # FleetFlow V0.4 — Calibrated Scenarios Design
 
 ## Status
-Approved design, ready for implementation planning after user review.
+Approved design, awaiting final user review before implementation planning.
 
 ## Goal
 
@@ -76,36 +76,36 @@ It must not:
 
 ### Calibration artifact
 
-FleetFlow will version a small derived artifact such as:
+FleetFlow will version a small derived artifact implementing a contract equivalent to:
 
-```json
-{
-  "source": {
-    "dataset": "Amazon Last Mile Routing Research Challenge",
-    "license": "CC BY-NC 4.0",
-    "sample": "high-quality routes",
-    "methodVersion": "1"
-  },
-  "summary": {
-    "routesAnalyzed": 0,
-    "stopsAnalyzed": 0,
-    "packagesAnalyzed": 0
-  },
-  "distributions": {
-    "stopsPerRoute": [],
-    "packagesPerStop": [],
-    "serviceSecondsPerStop": [],
-    "travelSecondsBetweenStops": [],
-    "timeWindowProbability": 0,
-    "timeWindowWidthMinutes": [],
-    "packageVolumeCm3": [],
-    "vehicleCapacityCm3": [],
-    "departureMinuteOffset": []
+```ts
+interface CalibrationProfile {
+  source: {
+    dataset: string
+    license: string
+    sample: string
+    methodVersion: string
+  }
+  summary: {
+    routesAnalyzed: number
+    stopsAnalyzed: number
+    packagesAnalyzed: number
+  }
+  distributions: {
+    stopsPerRoute: number[]
+    packagesPerStop: number[]
+    serviceSecondsPerStop: number[]
+    travelSecondsBetweenStops: number[]
+    timeWindowProbability: number
+    timeWindowWidthMinutes: number[]
+    packageVolumeCm3: number[]
+    vehicleCapacityCm3: number[]
+    departureMinuteOffset: number[]
   }
 }
 ```
 
-The exact representation can use compact buckets, quantiles or summary distributions. It must be deterministic, small enough to review in Git, and sufficient to regenerate the calibrated scenario without the raw dataset.
+The stored representation may use compact buckets, quantiles or summary distributions. It must be deterministic, small enough to review in Git, and sufficient to regenerate the calibrated scenario without the raw dataset.
 
 ## Scenario registry
 
@@ -175,11 +175,11 @@ The scenario switcher is part of the connected HUD and should use the existing F
 
 ### Scale
 
-Target:
+V0.4 uses:
 
-- **8 vehicles**
-- **approximately 60 stops total**
-- **approximately 90–110 packages total**, with the exact total determined by the deterministic calibration profile
+- **exactly 8 vehicles**
+- **exactly 60 stops total**
+- **90–110 packages total**, with the exact package total determined deterministically by the calibration profile and seed
 
 The scenario intentionally compresses real last-mile route scale for visual legibility. It must be described as **calibrated**, not as a literal reproduction of Amazon route scale.
 
@@ -187,7 +187,7 @@ The scenario intentionally compresses real last-mile route scale for visual legi
 
 Routes should have uneven stop counts so the simulation looks operational rather than artificially balanced.
 
-A representative target is:
+A representative distribution is:
 
 ```text
 Vehicle 01     6 stops
@@ -202,7 +202,7 @@ Vehicle 08     7 stops
 TOTAL          60 stops
 ```
 
-Exact counts may vary if the deterministic generator produces a nearby valid distribution, but the total must remain close to 60 and every stop must be assigned exactly once.
+Per-route counts may vary if the deterministic generator produces a different valid uneven allocation, but the total must equal **60** and every stop must be assigned exactly once.
 
 ### Geography
 
@@ -272,31 +272,63 @@ waypointDistancesKm.length === route.stops.length + 2
 
 The first waypoint distance must be `0`. Distances must be monotonically non-decreasing. The last waypoint corresponds to the return to depot.
 
-`routeCollectionToIndex()` must not require exactly five features. Instead, it validates the collection against the active scenario's expected geometry IDs.
+`routeCollectionToIndex()` must not require exactly five features. It should accept the active scenario (or its expected geometry IDs) and fail closed if any required geometry is missing, duplicated or malformed.
 
 ## Cargo model
 
-V0 currently treats cargo as kilograms everywhere. V0.4 introduces a scenario-aware cargo contract.
+V0 currently treats cargo as kilograms everywhere. V0.4 introduces a scenario-aware discriminated cargo contract.
 
 ```ts
 type CargoMode = 'MASS' | 'PARCELS'
+
+type CargoDemand =
+  | {
+      kind: 'MASS'
+      quantityKg: number
+    }
+  | {
+      kind: 'PARCELS'
+      packageCount: number
+      volumeCm3: number
+    }
+
+type CargoCapacity =
+  | {
+      kind: 'MASS'
+      capacityKg: number
+    }
+  | {
+      kind: 'PARCELS'
+      capacityVolumeCm3: number
+    }
+
+type CargoSnapshot =
+  | {
+      kind: 'MASS'
+      remainingKg: number
+      utilizationPct: number
+    }
+  | {
+      kind: 'PARCELS'
+      remainingPackages: number
+      remainingVolumeCm3: number
+      utilizationPct: number
+    }
 ```
 
-The exact implementation may use a discriminated union, but the public domain behavior must support:
+A scenario's stops and vehicles must use compatible cargo kinds. Mixed cargo kinds inside one scenario are invalid in V0.4.
 
 ### Legacy mass mode
 
-- demand in kg,
-- truck capacity in kg,
-- remaining cargo in kg.
+- stop demand is measured in kg,
+- truck capacity is measured in kg,
+- snapshots expose remaining kg and utilization.
 
 ### Calibrated parcel mode
 
-- package count,
-- package volume or derived utilization,
-- vehicle capacity volume,
-- remaining package count,
-- capacity utilization percentage.
+- stops contain package count and package volume,
+- vehicles contain volumetric capacity,
+- snapshots expose remaining package count, remaining volume and utilization percentage.
 
 The calibrated UI should prefer plain operational language such as:
 
@@ -308,6 +340,12 @@ Sigue · Entrega 037
 ```
 
 It must not display fake kilograms for last-mile parcels.
+
+### Internal naming scope
+
+The current code uses the domain name `Store`. Renaming that entire internal type is not required for V0.4 because it would add migration scope without changing behavior. The calibrated UI, accessibility copy and provenance should use **parada**, **entrega** or another scenario-appropriate public label instead of calling every last-mile destination a store.
+
+A future domain cleanup may rename the internal entity after the scenario architecture is stable.
 
 ## Time windows
 
@@ -366,7 +404,7 @@ The map remains the main working surface.
 Switching scenarios updates:
 
 - map routes,
-- stores / delivery points,
+- stops / delivery points,
 - vehicles,
 - clock duration,
 - KPIs,
@@ -404,7 +442,7 @@ Given:
 - the same generator version,
 - the same seed,
 
-FleetFlow must produce the same stores, package assignments, service durations, time windows and route plans.
+FleetFlow must produce the same stop coordinates, package assignments, service durations, time windows and route plans.
 
 The generated scenario may be checked in as TypeScript/JSON output for production stability, while the generator and seed remain documented and tested.
 
@@ -420,12 +458,14 @@ At minimum:
 - route schedule is chronological,
 - planned arrival is before planned departure,
 - route return is after the final stop departure,
-- cargo never exceeds vehicle capacity,
+- stop cargo kind matches vehicle capacity kind,
+- assigned cargo never exceeds vehicle capacity,
 - geometry waypoint count equals stop count + 2,
 - waypoint distances are monotonic,
 - every geometry ID is unique and resolvable,
 - calibrated scenario has exactly 8 vehicles,
-- calibrated scenario has approximately 60 stops,
+- calibrated scenario has exactly 60 stops,
+- calibrated scenario has 90–110 packages,
 - legacy scenario remains 5 vehicles / 15 stops.
 
 ## Testing requirements
@@ -433,7 +473,8 @@ At minimum:
 ### Domain
 
 - Legacy validation continues to pass.
-- Calibrated validation passes with 8 vehicles and approximately 60 stops.
+- Calibrated validation passes with exactly 8 vehicles and 60 stops.
+- Calibrated package count is between 90 and 110.
 - Every calibrated stop is assigned exactly once.
 - No route exceeds its cargo capacity.
 - Same seed creates the same calibrated scenario.
@@ -444,7 +485,7 @@ At minimum:
 - unloading uses the correct dynamic waypoint,
 - travel interpolation works for all generated legs,
 - return-to-depot works after arbitrary stop counts,
-- completed delivery count and remaining cargo remain correct.
+- completed delivery count and remaining cargo remain correct for both cargo modes.
 
 ### Geometry
 
@@ -467,6 +508,7 @@ At minimum:
 
 - calibrated scenario shows parcel semantics,
 - Legacy keeps kg semantics,
+- calibrated public copy says parada/entrega rather than assuming store semantics,
 - provenance labels distinguish calibrated from synthetic,
 - no UI string claims that displayed Córdoba routes are real Amazon or Mercado Libre routes.
 
@@ -498,7 +540,8 @@ After merge, both main CI and GitHub Pages deploy must pass on the merged SHA.
 - OR-Tools replanning,
 - customer notifications,
 - real-time ETA confidence,
-- raw third-party dataset hosting.
+- raw third-party dataset hosting,
+- full internal `Store` → generic location type rename.
 
 ## Follow-up direction
 
