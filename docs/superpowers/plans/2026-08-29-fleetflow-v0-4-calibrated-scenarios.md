@@ -317,12 +317,15 @@ export type RemainingCargo =
 
 `Store` removes `demandKg`, keeps `serviceMinutes`, and gains optional `timeWindow?: { startMinute: number; endMinute: number }`. `PlannedStop` owns `cargo`; `Truck` owns `capacity`; `TruckSnapshot` owns `remainingCargo`.
 
-- [ ] **Step 1: Write RED cargo validation tests**
+- [ ] **Step 1: Write RED cargo/validation tests**
 
 ```ts
 expect(validateScenario(parcelScenario)).toEqual([])
 expect(validateScenario(overCapacityParcelScenario)).toContainEqual(expect.stringMatching(/capacity/i))
 expect(validateScenario(massStopWithParcelTruck)).toContainEqual(expect.stringMatching(/cargo mode/i))
+expect(validateScenario(vehicleWithoutRoute)).toContainEqual(expect.stringMatching(/exactly one route/i))
+expect(validateScenario(vehicleWithTwoRoutes)).toContainEqual(expect.stringMatching(/exactly one route/i))
+expect(validateScenario(emptyRoute)).toContainEqual(expect.stringMatching(/at least one stop/i))
 ```
 
 - [ ] **Step 2: Run RED**
@@ -360,10 +363,15 @@ export function remainingCargoAfter(
 }
 
 export function cargoFitsCapacity(stops: PlannedStop[], capacity: VehicleCapacity): boolean {
-  if (stops.some((stop) => stop.cargo.kind !== capacity.kind)) return false
-  const cargo = initialCargo(stops, capacity)
-  if (cargo.kind === 'MASS') return cargo.quantityKg <= capacity.capacityKg
-  return cargo.volumeCm3 <= capacity.capacityCm3
+  if (capacity.kind === 'MASS') {
+    if (stops.some((stop) => stop.cargo.kind !== 'MASS')) return false
+    const quantityKg = stops.reduce((sum, stop) => sum + (stop.cargo.kind === 'MASS' ? stop.cargo.quantityKg : 0), 0)
+    return quantityKg <= capacity.capacityKg
+  }
+
+  if (stops.some((stop) => stop.cargo.kind !== 'PARCELS')) return false
+  const volumeCm3 = stops.reduce((sum, stop) => sum + (stop.cargo.kind === 'PARCELS' ? stop.cargo.volumeCm3 : 0), 0)
+  return volumeCm3 <= capacity.capacityCm3
 }
 ```
 
@@ -380,9 +388,19 @@ const trucks: Truck[] = Array.from({ length: 5 }, (_, index) => ({
 
 Each Legacy stop uses e.g. `cargo: { kind: 'MASS', quantityKg: 520 }`.
 
-- [ ] **Step 5: Update validation and engine**
+- [ ] **Step 5: Make scenario validation match the spec**
 
-Use `cargoFitsCapacity(route.stops, truck.capacity)` and emit a specific cargo-mode error before capacity error. Engine uses:
+In addition to existing missing-reference/assignment/schedule checks:
+- count routes by `truckId` and require every scenario vehicle to have exactly one route,
+- reject routes with zero stops,
+- reject non-positive cargo quantities/volumes/capacities,
+- emit cargo-mode mismatch before capacity error,
+- use `cargoFitsCapacity` for capacity,
+- validate optional `Store.timeWindow` with `startMinute >= 0` and `endMinute > startMinute`,
+- keep every store assigned exactly once,
+- keep arrival/departure/return chronology checks.
+
+Engine uses:
 
 ```ts
 const completedDeliveries = completedStops.length
@@ -954,7 +972,7 @@ Fuente y método
 
 Legacy contains `ESCENARIO SINTÉTICO · LEGACY V0`. No rendered text may match `/Amazon Córdoba|Mercado Libre Córdoba|rutas reales de Amazon/i`.
 
-- [ ] **Step 2: Implement provenance component without hidden placeholders**
+- [ ] **Step 2: Implement provenance component**
 
 ```tsx
 export function ScenarioProvenance({ provenance }: { provenance: ScenarioProvenance }) {
