@@ -64,6 +64,36 @@ describe('simulation dashboard components', () => {
     expect(onSpeedChange).toHaveBeenCalledWith(30)
   })
 
+  it('turns reset into the primary repeat action when the trip is complete', () => {
+    const onPlayPause = vi.fn()
+    const onReset = vi.fn()
+    const onSpeedChange = vi.fn()
+
+    render(
+      <>
+        <SimulationClock minute={65} isPlaying={false} isComplete />
+        <SimulationControls
+          isPlaying={false}
+          isComplete
+          speed={60}
+          onPlayPause={onPlayPause}
+          onReset={onReset}
+          onSpeedChange={onSpeedChange}
+        />
+      </>,
+    )
+
+    expect(screen.getByText('Completado')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Play simulation' })).toBeDisabled()
+    const repeatButton = screen.getByRole('button', { name: 'Repeat trip' })
+    expect(repeatButton).toHaveTextContent('Repetir viaje')
+    expect(repeatButton).toHaveClass('is-complete')
+
+    fireEvent.click(repeatButton)
+    expect(onReset).toHaveBeenCalledOnce()
+    expect(onPlayPause).not.toHaveBeenCalled()
+  })
+
   it('shows concise KPIs in plain Spanish with estimated fuel wording', () => {
     render(<KpiPanel metrics={metrics} />)
     expect(screen.getByText('7 / 15')).toBeInTheDocument()
