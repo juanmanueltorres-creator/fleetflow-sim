@@ -6,11 +6,11 @@ interface FleetPanelProps {
 }
 
 const STATUS_LABELS: Record<TruckStatus, string> = {
-  AT_DEPOT: 'At depot',
-  EN_ROUTE: 'En route',
-  UNLOADING: 'Unloading',
-  RETURNING: 'Returning',
-  DONE: 'Done',
+  AT_DEPOT: 'En depósito',
+  EN_ROUTE: 'En camino',
+  UNLOADING: 'Descargando',
+  RETURNING: 'Volviendo',
+  DONE: 'Listo',
 }
 
 export function FleetPanel({ scenario, snapshot }: FleetPanelProps) {
@@ -19,10 +19,10 @@ export function FleetPanel({ scenario, snapshot }: FleetPanelProps) {
   const snapshotsByTruck = new Map(snapshot.trucks.map((truck) => [truck.truckId, truck]))
 
   return (
-    <section className="fleet-panel" aria-label="Fleet status">
+    <section className="fleet-panel" aria-label="Estado de la flota">
       <div className="panel-heading">
-        <span className="panel-label">Fleet</span>
-        <strong>{scenario.trucks.length} vehicles</strong>
+        <span className="panel-label">Flota</span>
+        <strong>{scenario.trucks.length} camiones</strong>
       </div>
 
       <div className="fleet-list">
@@ -43,8 +43,8 @@ export function FleetPanel({ scenario, snapshot }: FleetPanelProps) {
                   {STATUS_LABELS[truckSnapshot.status]}
                 </span>
               </div>
-              <p>{nextStore ? `Next · ${nextStore.name}` : 'Route complete'}</p>
-              <span>{truckSnapshot.completedDeliveries} / {route.stops.length} delivered</span>
+              <p>{nextStore ? `Sigue · ${nextStore.name}` : 'Ruta completa'}</p>
+              <span>{truckSnapshot.completedDeliveries} / {route.stops.length} entregas</span>
             </article>
           )
         })}

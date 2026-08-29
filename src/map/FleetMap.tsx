@@ -4,12 +4,19 @@ import {
   LngLatBounds,
   Map as MapLibreMap,
   NavigationControl,
+  Popup,
   type ExpressionSpecification,
   type GeoJSONSource,
 } from 'maplibre-gl'
 import type { FeatureCollection, Point } from 'geojson'
 import type { FleetScenario, FleetSnapshot } from '../domain/types'
 import { fleetSnapshotToGeoJson } from './fleetGeoJson'
+import {
+  getDepotPointDetails,
+  getStorePointDetails,
+  getTruckPointDetails,
+  type MapPointDetails,
+} from './mapPointDetails'
 import type { RouteGeometryCollection } from './routeAssets'
 import {
   MAP_CENTER,
@@ -88,12 +95,56 @@ function fitPadding() {
   return { top: 150, right: 48, bottom: 120, left: 48 }
 }
 
+function createPopupContent(details: MapPointDetails): HTMLDivElement {
+  const root = document.createElement('div')
+  root.className = 'fleet-popup'
+
+  const title = document.createElement('h3')
+  title.textContent = details.title
+  root.appendChild(title)
+
+  const headline = document.createElement('strong')
+  headline.className = 'fleet-popup-headline'
+  headline.textContent = details.headline
+  root.appendChild(headline)
+
+  const list = document.createElement('div')
+  list.className = 'fleet-popup-lines'
+  for (const line of details.lines) {
+    const item = document.createElement('span')
+    item.textContent = line
+    list.appendChild(item)
+  }
+  root.appendChild(list)
+
+  const note = document.createElement('small')
+  note.textContent = details.note
+  root.appendChild(note)
+
+  return root
+}
+
+function showPopup(map: MapLibreMap, lngLat: { lng: number; lat: number }, details: MapPointDetails) {
+  new Popup({
+    closeButton: false,
+    closeOnClick: true,
+    offset: 12,
+    className: 'fleet-point-popup',
+  })
+    .setLngLat(lngLat)
+    .setDOMContent(createPopupContent(details))
+    .addTo(map)
+}
+
 export function FleetMap({ scenario, routes, snapshot }: FleetMapProps) {
   const containerRef = useRef<HTMLDivElement | null>(null)
   const mapRef = useRef<MapLibreMap | null>(null)
   const initialSnapshotRef = useRef(snapshot)
+  const latestSnapshotRef = useRef(snapshot)
   const [mapReady, setMapReady] = useState(false)
   const [mapError, setMapError] = useState(false)
+
+  latestSnapshotRef.current = snapshot
 
   const stores = useMemo(() => storeGeoJson(scenario), [scenario])
   const depot = useMemo(() => depotGeoJson(scenario), [scenario])
@@ -199,6 +250,39 @@ export function FleetMap({ scenario, routes, snapshot }: FleetMapProps) {
         },
       })
 
+      map.on('click', 'fleet-store-points', (event) => {
+        const storeId = event.features?.[0]?.properties?.id
+        if (!storeId) return
+        showPopup(
+          map,
+          event.lngLat,
+          getStorePointDetails(scenario, latestSnapshotRef.current, String(storeId)),
+        )
+      })
+
+      map.on('click', 'fleet-truck-core', (event) => {
+        const truckId = event.features?.[0]?.properties?.truckId
+        if (!truckId) return
+        showPopup(
+          map,
+          event.lngLat,
+          getTruckPointDetails(scenario, latestSnapshotRef.current, String(truckId)),
+        )
+      })
+
+      map.on('click', 'fleet-depot-point', (event) => {
+        showPopup(map, event.lngLat, getDepotPointDetails(scenario))
+      })
+
+      for (const layerId of ['fleet-store-points', 'fleet-truck-core', 'fleet-depot-point']) {
+        map.on('mouseenter', layerId, () => {
+          map.getCanvas().style.cursor = 'pointer'
+        })
+        map.on('mouseleave', layerId, () => {
+          map.getCanvas().style.cursor = ''
+        })
+      }
+
       map.resize()
       map.fitBounds(routeBounds(routes), {
         padding: fitPadding(),
@@ -217,7 +301,7 @@ export function FleetMap({ scenario, routes, snapshot }: FleetMapProps) {
       mapRef.current = null
       map.remove()
     }
-  }, [depot, routes, stores])
+  }, [depot, routes, scenario, stores])
 
   useEffect(() => {
     if (!mapReady || !mapRef.current) return
@@ -226,11 +310,11 @@ export function FleetMap({ scenario, routes, snapshot }: FleetMapProps) {
   }, [mapReady, snapshot])
 
   return (
-    <section className="map-stage" aria-label="Coca Coqui fleet map">
+    <section className="map-stage" aria-label="Mapa de la flota Coca Coqui">
       <div ref={containerRef} className="map-canvas" />
       {mapError ? (
         <div className="map-error" role="alert">
-          Map tiles are unavailable. Simulation data is still loaded.
+          No se pudo cargar el mapa. La simulación sigue disponible.
         </div>
       ) : null}
     </section>

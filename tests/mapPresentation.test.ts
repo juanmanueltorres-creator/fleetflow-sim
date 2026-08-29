@@ -6,7 +6,7 @@ function read(path: string): string {
   return readFileSync(resolve(process.cwd(), path), 'utf8')
 }
 
-describe('FleetFlow V0.1 map presentation', () => {
+describe('FleetFlow map presentation', () => {
   it('uses the dark map and the established profile palette and typography', () => {
     const mapConfig = read('src/map/mapConfig.ts')
     const css = read('src/app.css')
@@ -24,5 +24,17 @@ describe('FleetFlow V0.1 map presentation', () => {
     expect(mapSource).toContain('fitBounds')
     expect(mapSource).toContain("id: 'fleet-truck-halo'")
     expect(mapSource).toContain("id: 'fleet-truck-core'")
+  })
+
+  it('opens plain-language details from stores, trucks and the depot', () => {
+    const mapSource = read('src/map/FleetMap.tsx')
+
+    expect(mapSource).toContain('getStorePointDetails')
+    expect(mapSource).toContain('getTruckPointDetails')
+    expect(mapSource).toContain('getDepotPointDetails')
+    expect(mapSource).toContain('new Popup')
+    expect(mapSource).toContain("map.on('click', 'fleet-store-points'")
+    expect(mapSource).toContain("map.on('click', 'fleet-truck-core'")
+    expect(mapSource).toContain("map.on('click', 'fleet-depot-point'")
   })
 })
