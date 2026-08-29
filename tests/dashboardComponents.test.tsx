@@ -1,5 +1,5 @@
-import { fireEvent, render, screen } from '@testing-library/react'
-import { describe, expect, it, vi } from 'vitest'
+import { cleanup, fireEvent, render, screen } from '@testing-library/react'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { FleetPanel } from '../src/components/FleetPanel'
 import { KpiPanel } from '../src/components/KpiPanel'
 import { SimulationClock } from '../src/components/SimulationClock'
@@ -7,6 +7,8 @@ import { SimulationControls } from '../src/components/SimulationControls'
 import type { FleetSnapshot } from '../src/domain/types'
 import { cocaCoquiScenario } from '../src/scenario/cocaCoquiScenario'
 import type { FleetMetrics } from '../src/simulation/metrics'
+
+afterEach(cleanup)
 
 const snapshot: FleetSnapshot = {
   simulationMinute: 30,
