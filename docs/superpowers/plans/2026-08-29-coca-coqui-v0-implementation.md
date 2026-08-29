@@ -2,100 +2,78 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Build the first public, static Coca Coqui fleet simulation for Córdoba Capital: five trucks, roughly fifteen synthetic stores, scheduled movement on road-following routes, an accelerated clock, basic fleet states, and lightweight KPIs.
+**Goal:** Build the first public, static Coca Coqui fleet simulation for Córdoba Capital: five trucks, fifteen synthetic stores, scheduled movement on road-following routes, an accelerated clock, fleet states, and lightweight KPIs.
 
-**Architecture:** A React + TypeScript + Vite SPA loads deterministic scenario assets, feeds them into a pure TypeScript simulation engine, converts each fleet snapshot to GeoJSON, and renders routes/stops/trucks with MapLibre GL. Runtime behavior is local and deterministic; routing geometries are prepared ahead of deployment from OpenStreetMap-based routing data so the deployed demo has no paid API or routing-service dependency.
+**Architecture:** A React + TypeScript + Vite SPA loads one deterministic scenario and one checked-in GeoJSON route asset. A pure simulation engine derives truck state from synthetic time; a GeoJSON adapter feeds one MapLibre truck source; React renders the clock, controls, fleet list, and KPIs. Route geometry is prepared once from OpenStreetMap-based routing data and is not fetched by the deployed app.
 
-**Tech Stack:** React, TypeScript, Vite, MapLibre GL JS, Turf.js, Vitest, GeoJSON, OpenStreetMap-derived routing data.
+**Tech Stack:** React 19.1.1, React DOM 19.1.1, MapLibre GL 6.6.0, TypeScript 5.7.2, Vite 6.1.0, Vitest 3.0.5, Turf modules 7.4.0, GeoJSON.
 
 **Spec:** `docs/superpowers/specs/2026-08-29-coca-coqui-visual-simulation-design.md`
 
 ## Global Constraints
 
 - V0 is a visual simulation, not a production fleet-management system.
-- One synthetic depot in Córdoba Capital.
-- Approximately 15 synthetic delivery locations.
-- Five fictional trucks.
-- Static public frontend; no Supabase, PostGIS, FastAPI, authentication, database, or paid APIs.
-- No live GPS, IoT, traffic, AI, Cesium, or production-grade route optimization.
-- Operational data is fictional; fuel is explicitly an estimate.
-- `PLANNED` simulation output must be shaped so a future telemetry adapter can feed the same `FleetSnapshot` boundary.
-- External map/routing data keeps its own attribution/licensing; MIT applies to application code.
-- Tests are required for scenario validity and deterministic simulation behavior.
+- One fictional depot, exactly fifteen fictional stores, exactly five fictional trucks.
+- Static public frontend; no Supabase, PostGIS, FastAPI, auth, database, or paid API.
+- No live GPS, IoT, traffic, AI, Cesium, or production-grade optimization.
+- The deployed app must not call a routing API.
+- Operational data is synthetic; fuel is always labeled as estimated.
+- The map/UI consume `FleetSnapshot`; future telemetry may replace the simulator without rewriting those consumers.
+- MIT applies to application code; third-party map/routing data retains its own attribution and licensing.
+- TDD for domain behavior; each implementation task ends with passing tests/build and a commit.
 
 ---
 
-## File Structure
+## File Map
 
 ```text
-fleetflow-sim/
-├─ index.html
-├─ package.json
-├─ tsconfig.json
-├─ tsconfig.app.json
-├─ tsconfig.node.json
-├─ vite.config.ts
-├─ vitest.config.ts
-├─ src/
-│  ├─ main.tsx                    # React entrypoint
-│  ├─ App.tsx                     # Composes map, controls, fleet panel and KPIs
-│  ├─ app.css                     # V0 layout and visual treatment
-│  ├─ domain/
-│  │  ├─ types.ts                 # Shared domain contracts
-│  │  └─ scenarioValidation.ts    # Deterministic scenario invariants
-│  ├─ scenario/
-│  │  └─ cocaCoquiScenario.ts     # Synthetic V0 scenario metadata and schedule
-│  ├─ simulation/
-│  │  ├─ engine.ts                # Pure timestamp -> FleetSnapshot logic
-│  │  ├─ clock.ts                 # Simulation time helpers
-│  │  └─ metrics.ts               # Derived fleet KPIs
-│  ├─ map/
-│  │  ├─ FleetMap.tsx             # MapLibre lifecycle only
-│  │  ├─ fleetGeoJson.ts          # FleetSnapshot -> GeoJSON adapter
-│  │  └─ mapConfig.ts             # Map center/style/source/layer IDs
-│  ├─ components/
-│  │  ├─ SimulationControls.tsx   # Play/pause/reset/speed controls
-│  │  ├─ FleetPanel.tsx           # Five-truck status list
-│  │  ├─ KpiPanel.tsx             # Deliveries, active trucks, distance, fuel
-│  │  └─ SimulationClock.tsx      # Prominent synthetic clock
-│  └─ test/
-│     └─ setup.ts                  # Vitest DOM setup if needed
-├─ public/
-│  └─ data/
-│     └─ coca-coqui-routes.geojson # Prepared road-following route geometries
-├─ scripts/
-│  └─ prepare-routes.mjs          # Development-only route asset generator
-├─ tests/
-│  ├─ scenarioValidation.test.ts
-│  ├─ simulationEngine.test.ts
-│  ├─ metrics.test.ts
-│  └─ fleetGeoJson.test.ts
-└─ README.md
+index.html
+package.json
+vite.config.ts
+vitest.config.ts
+tsconfig.json
+tsconfig.app.json
+tsconfig.node.json
+src/
+  main.tsx
+  App.tsx
+  app.css
+  domain/types.ts
+  domain/scenarioValidation.ts
+  scenario/cocaCoquiScenario.ts
+  simulation/clock.ts
+  simulation/engine.ts
+  simulation/metrics.ts
+  map/mapConfig.ts
+  map/routeAssets.ts
+  map/fleetGeoJson.ts
+  map/FleetMap.tsx
+  components/SimulationClock.tsx
+  components/SimulationControls.tsx
+  components/FleetPanel.tsx
+  components/KpiPanel.tsx
+  test/setup.ts
+public/data/coca-coqui-routes.geojson
+scripts/prepare-routes.mjs
+tests/scenarioValidation.test.ts
+tests/simulationEngine.test.ts
+tests/metrics.test.ts
+tests/fleetGeoJson.test.ts
+.github/workflows/ci.yml
+README.md
 ```
 
 ---
 
-### Task 1: Establish the runnable Vite + React + TypeScript test baseline
+### Task 1: Runnable React/TypeScript baseline
 
-**Files:**
-- Create: `package.json`
-- Create: `index.html`
-- Create: `tsconfig.json`
-- Create: `tsconfig.app.json`
-- Create: `tsconfig.node.json`
-- Create: `vite.config.ts`
-- Create: `vitest.config.ts`
-- Create: `src/main.tsx`
-- Create: `src/App.tsx`
-- Create: `src/app.css`
-- Create: `src/test/setup.ts`
-- Modify: `README.md`
+**Files:** create `package.json`, Vite/TS/Vitest config, `index.html`, `src/main.tsx`, `src/App.tsx`, `src/app.css`, `src/test/setup.ts`; modify `README.md`.
 
-**Interfaces:**
-- Consumes: none.
-- Produces: a buildable/testable SPA baseline used by all later tasks.
+**Interfaces:** produces a buildable SPA and test runner; no domain interfaces yet.
 
-- [ ] **Step 1: Create `package.json` with only V0 dependencies**
+- [ ] **Step 1: Add pinned dependencies**
+
+`package.json`:
 
 ```json
 {
@@ -111,29 +89,32 @@ fleetflow-sim/
     "prepare:routes": "node scripts/prepare-routes.mjs"
   },
   "dependencies": {
-    "@turf/along": "latest",
-    "@turf/bearing": "latest",
-    "@turf/helpers": "latest",
-    "@turf/length": "latest",
-    "maplibre-gl": "latest",
-    "react": "latest",
-    "react-dom": "latest"
+    "@turf/along": "^7.4.0",
+    "@turf/bearing": "^7.4.0",
+    "@turf/helpers": "^7.4.0",
+    "@turf/length": "^7.4.0",
+    "maplibre-gl": "^6.6.0",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1"
   },
   "devDependencies": {
-    "@testing-library/jest-dom": "latest",
-    "@testing-library/react": "latest",
-    "@types/react": "latest",
-    "@types/react-dom": "latest",
-    "@vitejs/plugin-react": "latest",
-    "jsdom": "latest",
-    "typescript": "latest",
-    "vite": "latest",
-    "vitest": "latest"
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.1.0",
+    "@types/geojson": "^7946.0.16",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "jsdom": "^26.0.0",
+    "typescript": "~5.7.2",
+    "vite": "^6.1.0",
+    "vitest": "^3.0.5"
   }
 }
 ```
 
-- [ ] **Step 2: Add minimal TypeScript/Vite/Vitest config**
+These shared frontend versions intentionally mirror the existing Pulso stack where applicable; Turf is pinned to 7.4.0.
+
+- [ ] **Step 2: Add minimal configs**
 
 `vite.config.ts`:
 
@@ -141,10 +122,7 @@ fleetflow-sim/
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-export default defineConfig({
-  plugins: [react()],
-  base: './',
-})
+export default defineConfig({ plugins: [react()], base: './' })
 ```
 
 `vitest.config.ts`:
@@ -153,10 +131,7 @@ export default defineConfig({
 import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
-  test: {
-    environment: 'jsdom',
-    setupFiles: ['./src/test/setup.ts'],
-  },
+  test: { environment: 'jsdom', setupFiles: ['./src/test/setup.ts'] },
 })
 ```
 
@@ -166,7 +141,7 @@ export default defineConfig({
 import '@testing-library/jest-dom/vitest'
 ```
 
-- [ ] **Step 3: Add a smoke testable app shell**
+- [ ] **Step 3: Add the minimal app shell**
 
 `src/App.tsx`:
 
@@ -181,9 +156,9 @@ export default function App() {
 }
 ```
 
-- [ ] **Step 4: Install dependencies and verify the baseline**
+`src/main.tsx` mounts `<App />` into `#root` and imports `app.css`.
 
-Run:
+- [ ] **Step 4: Install and verify**
 
 ```bash
 npm install
@@ -191,7 +166,7 @@ npm test
 npm run build
 ```
 
-Expected: no test failures and a successful production build.
+Expected: test command exits 0 and production build succeeds.
 
 - [ ] **Step 5: Commit**
 
@@ -202,91 +177,46 @@ git commit -m "chore: scaffold FleetFlow V0 frontend"
 
 ---
 
-### Task 2: Define domain contracts and validate the deterministic Coca Coqui scenario
+### Task 2: Domain contracts + exact Coca Coqui scenario
 
-**Files:**
-- Create: `src/domain/types.ts`
-- Create: `src/domain/scenarioValidation.ts`
-- Create: `src/scenario/cocaCoquiScenario.ts`
-- Create: `tests/scenarioValidation.test.ts`
+**Files:** create `src/domain/types.ts`, `src/domain/scenarioValidation.ts`, `src/scenario/cocaCoquiScenario.ts`, `tests/scenarioValidation.test.ts`.
 
-**Interfaces:**
-- Consumes: TypeScript baseline from Task 1.
-- Produces: `FleetScenario`, `RoutePlan`, `Truck`, `Store`, `FleetSnapshot`, `validateScenario(scenario)` and `cocaCoquiScenario`.
+**Interfaces:** produces `FleetScenario`, `RoutePlan`, `FleetSnapshot`, `TruckSnapshot`, `validateScenario()`, and `cocaCoquiScenario`.
 
-- [ ] **Step 1: Write failing scenario invariant tests**
-
-`tests/scenarioValidation.test.ts`:
+- [ ] **Step 1: Write RED scenario tests**
 
 ```ts
 import { describe, expect, it } from 'vitest'
-import { cocaCoquiScenario } from '../src/scenario/cocaCoquiScenario'
 import { validateScenario } from '../src/domain/scenarioValidation'
+import { cocaCoquiScenario } from '../src/scenario/cocaCoquiScenario'
 
 describe('Coca Coqui V0 scenario', () => {
-  it('has one depot, five trucks and fifteen stores', () => {
+  it('contains exactly one depot, five trucks and fifteen stores', () => {
+    expect(cocaCoquiScenario.depot.id).toBe('depot-01')
     expect(cocaCoquiScenario.trucks).toHaveLength(5)
     expect(cocaCoquiScenario.stores).toHaveLength(15)
-    expect(cocaCoquiScenario.depot.id).toBe('depot-01')
   })
 
-  it('assigns every store exactly once without exceeding capacity', () => {
+  it('assigns every store exactly once within capacity and chronological order', () => {
     expect(validateScenario(cocaCoquiScenario)).toEqual([])
   })
 })
 ```
 
-- [ ] **Step 2: Run the focused test and verify RED**
+Run `npm test -- tests/scenarioValidation.test.ts`; expected FAIL because modules are absent.
 
-Run:
-
-```bash
-npm test -- tests/scenarioValidation.test.ts
-```
-
-Expected: FAIL because domain/scenario modules do not exist.
-
-- [ ] **Step 3: Define exact domain types**
+- [ ] **Step 2: Define domain types exactly**
 
 `src/domain/types.ts`:
 
 ```ts
 export type Position = [longitude: number, latitude: number]
+export type TruckStatus = 'AT_DEPOT' | 'EN_ROUTE' | 'UNLOADING' | 'RETURNING' | 'DONE'
 
-export type TruckStatus =
-  | 'AT_DEPOT'
-  | 'EN_ROUTE'
-  | 'UNLOADING'
-  | 'RETURNING'
-  | 'DONE'
-
-export interface Depot {
-  id: string
-  name: string
-  position: Position
-}
-
-export interface Store {
-  id: string
-  name: string
-  position: Position
-  demandKg: number
-  serviceMinutes: number
-}
-
-export interface Truck {
-  id: string
-  label: string
-  capacityKg: number
-  fuelConsumptionLPer100Km: number
-}
-
-export interface PlannedStop {
-  storeId: string
-  plannedArrivalMinute: number
-  plannedDepartureMinute: number
-  demandKg: number
-}
+export interface Depot { id: string; name: string; position: Position }
+export interface Store { id: string; name: string; position: Position; demandKg: number; serviceMinutes: number }
+export interface Truck { id: string; label: string; capacityKg: number; fuelConsumptionLPer100Km: number }
+export interface PlannedStop { storeId: string; plannedArrivalMinute: number; plannedDepartureMinute: number; demandKg: number }
 
 export interface RoutePlan {
   id: string
@@ -322,325 +252,247 @@ export interface TruckSnapshot {
   estimatedFuelUsedL: number
 }
 
-export interface FleetSnapshot {
-  simulationMinute: number
-  trucks: TruckSnapshot[]
-}
+export interface FleetSnapshot { simulationMinute: number; trucks: TruckSnapshot[] }
 ```
 
-- [ ] **Step 4: Add scenario validation**
+- [ ] **Step 3: Add exact synthetic places and trucks**
 
-`src/domain/scenarioValidation.ts` must export:
+Use depot `[-64.1888, -31.4201]` and these fifteen fictional stores:
 
 ```ts
-import type { FleetScenario } from './types'
+const stores: Store[] = [
+  { id: 'store-01', name: 'Local 01', position: [-64.1805, -31.4148], demandKg: 520, serviceMinutes: 5 },
+  { id: 'store-02', name: 'Local 02', position: [-64.1679, -31.4057], demandKg: 430, serviceMinutes: 5 },
+  { id: 'store-03', name: 'Local 03', position: [-64.1554, -31.4219], demandKg: 610, serviceMinutes: 6 },
+  { id: 'store-04', name: 'Local 04', position: [-64.2032, -31.4075], demandKg: 470, serviceMinutes: 5 },
+  { id: 'store-05', name: 'Local 05', position: [-64.2197, -31.4140], demandKg: 560, serviceMinutes: 5 },
+  { id: 'store-06', name: 'Local 06', position: [-64.2291, -31.4301], demandKg: 480, serviceMinutes: 5 },
+  { id: 'store-07', name: 'Local 07', position: [-64.1962, -31.4378], demandKg: 500, serviceMinutes: 5 },
+  { id: 'store-08', name: 'Local 08', position: [-64.1813, -31.4480], demandKg: 450, serviceMinutes: 5 },
+  { id: 'store-09', name: 'Local 09', position: [-64.1651, -31.4394], demandKg: 630, serviceMinutes: 6 },
+  { id: 'store-10', name: 'Local 10', position: [-64.1458, -31.4112], demandKg: 390, serviceMinutes: 5 },
+  { id: 'store-11', name: 'Local 11', position: [-64.1372, -31.4300], demandKg: 540, serviceMinutes: 5 },
+  { id: 'store-12', name: 'Local 12', position: [-64.1516, -31.4522], demandKg: 460, serviceMinutes: 5 },
+  { id: 'store-13', name: 'Local 13', position: [-64.2075, -31.4515], demandKg: 580, serviceMinutes: 5 },
+  { id: 'store-14', name: 'Local 14', position: [-64.2220, -31.4460], demandKg: 410, serviceMinutes: 5 },
+  { id: 'store-15', name: 'Local 15', position: [-64.2360, -31.4110], demandKg: 520, serviceMinutes: 5 },
+]
 
-export function validateScenario(scenario: FleetScenario): string[] {
-  const errors: string[] = []
-  const assignedStoreIds = scenario.routes.flatMap((route) =>
-    route.stops.map((stop) => stop.storeId),
-  )
-
-  const unique = new Set(assignedStoreIds)
-  if (unique.size !== scenario.stores.length || assignedStoreIds.length !== scenario.stores.length) {
-    errors.push('Every store must be assigned exactly once')
-  }
-
-  for (const route of scenario.routes) {
-    const truck = scenario.trucks.find((candidate) => candidate.id === route.truckId)
-    if (!truck) {
-      errors.push(`Unknown truck ${route.truckId}`)
-      continue
-    }
-
-    const assignedDemand = route.stops.reduce((sum, stop) => sum + stop.demandKg, 0)
-    if (assignedDemand > truck.capacityKg) {
-      errors.push(`Truck ${truck.id} exceeds capacity`)
-    }
-
-    let cursor = route.departureMinute
-    for (const stop of route.stops) {
-      if (stop.plannedArrivalMinute < cursor || stop.plannedDepartureMinute < stop.plannedArrivalMinute) {
-        errors.push(`Route ${route.id} has invalid stop ordering`)
-      }
-      cursor = stop.plannedDepartureMinute
-    }
-    if (route.returnMinute < cursor) {
-      errors.push(`Route ${route.id} returns before its last stop departs`)
-    }
-  }
-
-  return errors
-}
+const trucks: Truck[] = Array.from({ length: 5 }, (_, index) => ({
+  id: `truck-0${index + 1}`,
+  label: `Truck 0${index + 1}`,
+  capacityKg: 2400,
+  fuelConsumptionLPer100Km: 18,
+}))
 ```
 
-- [ ] **Step 5: Add the deterministic scenario**
+- [ ] **Step 4: Add the five exact route plans**
 
-Use one depot near central Córdoba and 15 fictional stores represented only by IDs/names plus coordinates. Assign three stores per truck. Keep total assigned demand below each truck capacity and give each stop explicit arrival/departure minutes. The scenario must export exactly:
+Minutes are relative to 06:00. Distances are nominal planning values used only for V0 KPIs; road geometry is prepared separately in Task 4.
 
 ```ts
-export const cocaCoquiScenario: FleetScenario = {
-  id: 'coca-coqui-cordoba-v0',
-  label: 'Coca Coqui — Córdoba Distribution Run',
-  simulationStartLabel: '06:00',
-  depot: {
-    id: 'depot-01',
-    name: 'Coca Coqui Distribution Center',
-    position: [-64.1888, -31.4201],
+const routes: RoutePlan[] = [
+  {
+    id: 'route-01', truckId: 'truck-01', geometryId: 'route-truck-01',
+    departureMinute: 0, returnMinute: 52, distanceKm: 11.8,
+    stops: [
+      { storeId: 'store-01', plannedArrivalMinute: 8, plannedDepartureMinute: 13, demandKg: 520 },
+      { storeId: 'store-02', plannedArrivalMinute: 20, plannedDepartureMinute: 25, demandKg: 430 },
+      { storeId: 'store-03', plannedArrivalMinute: 33, plannedDepartureMinute: 39, demandKg: 610 },
+    ],
   },
-  trucks: [
-    { id: 'truck-01', label: 'Truck 01', capacityKg: 2400, fuelConsumptionLPer100Km: 18 },
-    { id: 'truck-02', label: 'Truck 02', capacityKg: 2400, fuelConsumptionLPer100Km: 18 },
-    { id: 'truck-03', label: 'Truck 03', capacityKg: 2400, fuelConsumptionLPer100Km: 18 },
-    { id: 'truck-04', label: 'Truck 04', capacityKg: 2400, fuelConsumptionLPer100Km: 18 },
-    { id: 'truck-05', label: 'Truck 05', capacityKg: 2400, fuelConsumptionLPer100Km: 18 },
-  ],
-  stores: [
-    { id: 'store-01', name: 'Local 01', position: [-64.1805, -31.4148], demandKg: 520, serviceMinutes: 5 },
-    { id: 'store-02', name: 'Local 02', position: [-64.1679, -31.4057], demandKg: 430, serviceMinutes: 5 },
-    { id: 'store-03', name: 'Local 03', position: [-64.1554, -31.4219], demandKg: 610, serviceMinutes: 6 },
-    { id: 'store-04', name: 'Local 04', position: [-64.2032, -31.4075], demandKg: 470, serviceMinutes: 5 },
-    { id: 'store-05', name: 'Local 05', position: [-64.2197, -31.4140], demandKg: 560, serviceMinutes: 5 },
-    { id: 'store-06', name: 'Local 06', position: [-64.2291, -31.4301], demandKg: 480, serviceMinutes: 5 },
-    { id: 'store-07', name: 'Local 07', position: [-64.1962, -31.4378], demandKg: 500, serviceMinutes: 5 },
-    { id: 'store-08', name: 'Local 08', position: [-64.1813, -31.4480], demandKg: 450, serviceMinutes: 5 },
-    { id: 'store-09', name: 'Local 09', position: [-64.1651, -31.4394], demandKg: 630, serviceMinutes: 6 },
-    { id: 'store-10', name: 'Local 10', position: [-64.1458, -31.4112], demandKg: 390, serviceMinutes: 5 },
-    { id: 'store-11', name: 'Local 11', position: [-64.1372, -31.4300], demandKg: 540, serviceMinutes: 5 },
-    { id: 'store-12', name: 'Local 12', position: [-64.1516, -31.4522], demandKg: 460, serviceMinutes: 5 },
-    { id: 'store-13', name: 'Local 13', position: [-64.2075, -31.4515], demandKg: 580, serviceMinutes: 5 },
-    { id: 'store-14', name: 'Local 14', position: [-64.2220, -31.4460], demandKg: 410, serviceMinutes: 5 },
-    { id: 'store-15', name: 'Local 15', position: [-64.2360, -31.4110], demandKg: 520, serviceMinutes: 5 },
-  ],
-  routes: [],
-}
+  {
+    id: 'route-02', truckId: 'truck-02', geometryId: 'route-truck-02',
+    departureMinute: 3, returnMinute: 55, distanceKm: 14.6,
+    stops: [
+      { storeId: 'store-04', plannedArrivalMinute: 12, plannedDepartureMinute: 17, demandKg: 470 },
+      { storeId: 'store-05', plannedArrivalMinute: 24, plannedDepartureMinute: 29, demandKg: 560 },
+      { storeId: 'store-06', plannedArrivalMinute: 38, plannedDepartureMinute: 43, demandKg: 480 },
+    ],
+  },
+  {
+    id: 'route-03', truckId: 'truck-03', geometryId: 'route-truck-03',
+    departureMinute: 6, returnMinute: 58, distanceKm: 13.2,
+    stops: [
+      { storeId: 'store-07', plannedArrivalMinute: 15, plannedDepartureMinute: 20, demandKg: 500 },
+      { storeId: 'store-08', plannedArrivalMinute: 27, plannedDepartureMinute: 32, demandKg: 450 },
+      { storeId: 'store-09', plannedArrivalMinute: 40, plannedDepartureMinute: 46, demandKg: 630 },
+    ],
+  },
+  {
+    id: 'route-04', truckId: 'truck-04', geometryId: 'route-truck-04',
+    departureMinute: 9, returnMinute: 60, distanceKm: 15.0,
+    stops: [
+      { storeId: 'store-10', plannedArrivalMinute: 18, plannedDepartureMinute: 23, demandKg: 390 },
+      { storeId: 'store-11', plannedArrivalMinute: 30, plannedDepartureMinute: 35, demandKg: 540 },
+      { storeId: 'store-12', plannedArrivalMinute: 43, plannedDepartureMinute: 48, demandKg: 460 },
+    ],
+  },
+  {
+    id: 'route-05', truckId: 'truck-05', geometryId: 'route-truck-05',
+    departureMinute: 12, returnMinute: 65, distanceKm: 16.4,
+    stops: [
+      { storeId: 'store-13', plannedArrivalMinute: 21, plannedDepartureMinute: 26, demandKg: 580 },
+      { storeId: 'store-14', plannedArrivalMinute: 34, plannedDepartureMinute: 39, demandKg: 410 },
+      { storeId: 'store-15', plannedArrivalMinute: 47, plannedDepartureMinute: 52, demandKg: 520 },
+    ],
+  },
+]
 ```
 
-Populate `routes` with five deterministic route objects, three stores each, explicit monotonic planned times, realistic nonzero `distanceKm`, and `geometryId` values `route-truck-01` through `route-truck-05`.
+- [ ] **Step 5: Implement `validateScenario()`**
 
-- [ ] **Step 6: Run the focused tests and full build**
+It must return `string[]` and enforce: each store assigned exactly once; every route references an existing truck/store; assigned demand <= truck capacity; stop times are monotonic; return time is after final departure; every route has positive `distanceKm`.
+
+- [ ] **Step 6: GREEN + commit**
 
 ```bash
 npm test -- tests/scenarioValidation.test.ts
 npm test
 npm run build
-```
-
-Expected: PASS.
-
-- [ ] **Step 7: Commit**
-
-```bash
 git add src/domain src/scenario tests/scenarioValidation.test.ts
 git commit -m "feat: define Coca Coqui fleet scenario"
 ```
 
 ---
 
-### Task 3: Build the pure deterministic simulation engine
+### Task 3: Pure clock and simulation engine
 
-**Files:**
-- Create: `src/simulation/clock.ts`
-- Create: `src/simulation/engine.ts`
-- Create: `tests/simulationEngine.test.ts`
+**Files:** create `src/simulation/clock.ts`, `src/simulation/engine.ts`, `tests/simulationEngine.test.ts`.
 
-**Interfaces:**
-- Consumes: `FleetScenario`, `RoutePlan`, `FleetSnapshot`, `TruckSnapshot`.
-- Produces: `formatSimulationTime(minute: number): string` and `getFleetSnapshot(scenario, geometries, simulationMinute): FleetSnapshot`.
+**Interfaces:** consumes `FleetScenario` plus `RouteGeometryIndex`; produces `formatSimulationTime()` and `getFleetSnapshot()`.
 
-- [ ] **Step 1: Write tests for time-derived truck states**
-
-`tests/simulationEngine.test.ts` must cover:
+Define route asset types inside `src/map/routeAssets.ts` before engine implementation:
 
 ```ts
-it('keeps trucks at the depot before departure', () => {
-  const snapshot = getFleetSnapshot(cocaCoquiScenario, testGeometries, -1)
-  expect(snapshot.trucks.every((truck) => truck.status === 'AT_DEPOT')).toBe(true)
-})
+import type { Feature, LineString } from 'geojson'
 
-it('holds a truck at its store while unloading', () => {
-  const route = cocaCoquiScenario.routes[0]
-  const stop = route.stops[0]
-  const snapshot = getFleetSnapshot(cocaCoquiScenario, testGeometries, stop.plannedArrivalMinute + 1)
-  expect(snapshot.trucks[0].status).toBe('UNLOADING')
-  expect(snapshot.trucks[0].currentStopId).toBe(stop.storeId)
-})
+export interface RouteGeometryProperties {
+  truckId: string
+  waypointDistancesKm: [number, number, number, number, number]
+}
 
-it('ends every truck DONE at the depot after the scenario', () => {
-  const snapshot = getFleetSnapshot(cocaCoquiScenario, testGeometries, 300)
-  expect(snapshot.trucks.every((truck) => truck.status === 'DONE')).toBe(true)
-  expect(snapshot.trucks.every((truck) => truck.routeProgress === 1)).toBe(true)
-})
-
-it('is deterministic for the same timestamp', () => {
-  const a = getFleetSnapshot(cocaCoquiScenario, testGeometries, 27)
-  const b = getFleetSnapshot(cocaCoquiScenario, testGeometries, 27)
-  expect(a).toEqual(b)
-})
+export type RouteGeometryFeature = Feature<LineString, RouteGeometryProperties>
+export type RouteGeometryIndex = Record<string, RouteGeometryFeature>
 ```
 
-Use tiny deterministic LineString fixtures in `testGeometries`; do not mock React or MapLibre.
+The five waypoint distances correspond to `[depot, stop1, stop2, stop3, depot]` and are cumulative along the road geometry.
 
-- [ ] **Step 2: Run RED**
+- [ ] **Step 1: Write RED engine tests**
 
-```bash
-npm test -- tests/simulationEngine.test.ts
+Tests must prove:
+
+```ts
+expect(getFleetSnapshot(scenario, geometries, -1).trucks.every(t => t.status === 'AT_DEPOT')).toBe(true)
+expect(getFleetSnapshot(scenario, geometries, 300).trucks.every(t => t.status === 'DONE')).toBe(true)
+expect(getFleetSnapshot(scenario, geometries, 27)).toEqual(getFleetSnapshot(scenario, geometries, 27))
 ```
 
-Expected: FAIL because the simulation engine does not exist.
+Also test truck 01 at minute 9 is `UNLOADING` at Store 01 and truck 01 at minute 45 is `RETURNING`.
 
-- [ ] **Step 3: Implement clock helpers**
+Use deterministic two/three-segment LineString fixtures with matching cumulative `waypointDistancesKm`.
 
-`src/simulation/clock.ts`:
+Run `npm test -- tests/simulationEngine.test.ts`; expected RED.
+
+- [ ] **Step 2: Implement clock helper**
 
 ```ts
 export function formatSimulationTime(minute: number): string {
-  const baseMinutes = 6 * 60
-  const absolute = Math.max(0, Math.round(baseMinutes + minute))
-  const hours = Math.floor(absolute / 60) % 24
-  const minutes = absolute % 60
-  return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`
+  const absolute = Math.max(0, Math.round(360 + minute))
+  return `${String(Math.floor(absolute / 60) % 24).padStart(2, '0')}:${String(absolute % 60).padStart(2, '0')}`
 }
 ```
 
-- [ ] **Step 4: Implement the minimal engine as a pure function**
+- [ ] **Step 3: Implement `getFleetSnapshot()`**
 
-`src/simulation/engine.ts` must:
-
-1. Find the truck's route.
-2. Return `AT_DEPOT` before `departureMinute`.
-3. Return `UNLOADING` when `simulationMinute` is within a stop arrival/departure interval.
-4. Return `EN_ROUTE` before the final store and `RETURNING` after the final store departure.
-5. Return `DONE` at the depot at/after `returnMinute`.
-6. Use route geometry length and Turf `along` to derive travelling positions.
-7. Calculate bearing with Turf from two nearby points.
-8. Keep `distanceTravelledKm` and `estimatedFuelUsedL` monotonic because both are derived from total route progress.
-9. Decrease cargo only after a delivery is completed.
-
-The exported signature must be:
+Exact signature:
 
 ```ts
 export function getFleetSnapshot(
   scenario: FleetScenario,
-  geometries: Record<string, Feature<LineString>>,
+  geometries: RouteGeometryIndex,
   simulationMinute: number,
 ): FleetSnapshot
 ```
 
-- [ ] **Step 5: Run tests and build**
+For each truck:
+
+1. Find its route and geometry.
+2. Before departure: depot, `AT_DEPOT`, progress 0.
+3. During a stop arrival/departure window: exact store coordinate, `UNLOADING`.
+4. Between depot/stop waypoints: identify the active leg using schedule times, compute normalized leg time, interpolate cumulative road distance between the two matching values in `waypointDistancesKm`, then use Turf `along()` on the whole LineString.
+5. Travelling before stop 3 departure is `EN_ROUTE`; after stop 3 departure is `RETURNING`.
+6. At/after return: depot, `DONE`, progress 1.
+7. Bearing comes from points at `distanceKm` and `min(distanceKm + 0.01, totalGeometryKm)` via Turf `bearing()`.
+8. `distanceTravelledKm = route.distanceKm * routeProgress`.
+9. `estimatedFuelUsedL = distanceTravelledKm * truck.fuelConsumptionLPer100Km / 100`.
+10. Cargo starts as assigned route demand and decreases only once each stop's departure time has passed.
+
+- [ ] **Step 4: GREEN + commit**
 
 ```bash
 npm test -- tests/simulationEngine.test.ts
 npm test
 npm run build
-```
-
-Expected: PASS.
-
-- [ ] **Step 6: Commit**
-
-```bash
-git add src/simulation tests/simulationEngine.test.ts
+git add src/simulation src/map/routeAssets.ts tests/simulationEngine.test.ts
 git commit -m "feat: add deterministic fleet simulation engine"
 ```
 
 ---
 
-### Task 4: Prepare static road geometries and the GeoJSON map adapter
+### Task 4: Prepare and check in road-following routes + fleet GeoJSON adapter
 
-**Files:**
-- Create: `scripts/prepare-routes.mjs`
-- Create: `public/data/coca-coqui-routes.geojson`
-- Create: `src/map/fleetGeoJson.ts`
-- Create: `tests/fleetGeoJson.test.ts`
+**Files:** create `scripts/prepare-routes.mjs`, `public/data/coca-coqui-routes.geojson`, `src/map/fleetGeoJson.ts`, `tests/fleetGeoJson.test.ts`.
 
-**Interfaces:**
-- Consumes: scenario route `geometryId`s and `FleetSnapshot`.
-- Produces: static route `FeatureCollection<LineString>` plus `fleetSnapshotToGeoJson(snapshot)`.
+**Interfaces:** route preparation produces five LineStrings with cumulative leg distances; adapter produces one Point FeatureCollection for all trucks.
 
-- [ ] **Step 1: Write the failing GeoJSON adapter test**
+- [ ] **Step 1: Write RED adapter test**
 
 ```ts
-import { describe, expect, it } from 'vitest'
-import { fleetSnapshotToGeoJson } from '../src/map/fleetGeoJson'
-
-it('creates one Point feature per truck', () => {
-  const data = fleetSnapshotToGeoJson({
-    simulationMinute: 0,
-    trucks: [
-      {
-        truckId: 'truck-01',
-        position: [-64.18, -31.42],
-        bearing: 90,
-        status: 'EN_ROUTE',
-        currentStopId: null,
-        nextStopId: 'store-01',
-        routeProgress: 0.2,
-        cargoKg: 1400,
-        completedDeliveries: 0,
-        distanceTravelledKm: 2,
-        estimatedFuelUsedL: 0.36,
-      },
-    ],
-  })
-
-  expect(data.features).toHaveLength(1)
-  expect(data.features[0].geometry.type).toBe('Point')
-  expect(data.features[0].properties?.truckId).toBe('truck-01')
+const data = fleetSnapshotToGeoJson({
+  simulationMinute: 10,
+  trucks: [{
+    truckId: 'truck-01', position: [-64.18, -31.42], bearing: 90,
+    status: 'EN_ROUTE', currentStopId: null, nextStopId: 'store-01',
+    routeProgress: 0.2, cargoKg: 1040, completedDeliveries: 1,
+    distanceTravelledKm: 2.36, estimatedFuelUsedL: 0.4248,
+  }],
 })
+expect(data.features).toHaveLength(1)
+expect(data.features[0].properties?.truckId).toBe('truck-01')
 ```
 
-- [ ] **Step 2: Run RED**
+Run focused test; expected RED.
 
-```bash
-npm test -- tests/fleetGeoJson.test.ts
-```
+- [ ] **Step 2: Implement `fleetSnapshotToGeoJson()`**
 
-- [ ] **Step 3: Implement the adapter**
-
-`fleetSnapshotToGeoJson` must return one GeoJSON Point feature per truck with these properties only:
+Return a `FeatureCollection<Point>` with one feature per truck and properties:
 
 ```ts
-{
-  truckId,
-  bearing,
-  status,
-  currentStopId,
-  nextStopId,
-  routeProgress,
-}
+{ truckId, bearing, status, currentStopId, nextStopId, routeProgress }
 ```
 
-- [ ] **Step 4: Add a route preparation script**
+- [ ] **Step 3: Implement the development-only route generator**
 
-`scripts/prepare-routes.mjs` must:
+For each truck, construct coordinates `[depot, stop1, stop2, stop3, depot]`. Request a single driving route with GeoJSON geometry from the configured OpenStreetMap-compatible routing endpoint. Require an HTTP 200 and a response containing one route with four `legs` and a LineString geometry.
 
-1. Read the depot and route stop coordinates from a small local constant matching `cocaCoquiScenario`.
-2. For each of the five planned truck routes, request one road-following route from an OpenStreetMap-compatible routing service during development.
-3. Request GeoJSON geometry output.
-4. Fail on non-200 HTTP responses or missing LineString geometry.
-5. Write one FeatureCollection to `public/data/coca-coqui-routes.geojson` with feature IDs matching `route-truck-01` through `route-truck-05`.
-6. Never run in the browser or production runtime.
+For each route, calculate:
 
-Expected output shape:
-
-```json
-{
-  "type": "FeatureCollection",
-  "features": [
-    {
-      "type": "Feature",
-      "id": "route-truck-01",
-      "properties": { "truckId": "truck-01" },
-      "geometry": { "type": "LineString", "coordinates": [] }
-    }
-  ]
-}
+```js
+const waypointDistancesKm = [
+  0,
+  legs[0].distance / 1000,
+  (legs[0].distance + legs[1].distance) / 1000,
+  (legs[0].distance + legs[1].distance + legs[2].distance) / 1000,
+  legs.reduce((sum, leg) => sum + leg.distance, 0) / 1000,
+]
 ```
 
-If the public routing endpoint is temporarily unavailable during implementation, use a checked-in road-following fixture generated once from a valid route response; do not change V0 into a runtime-routing application.
+Write `public/data/coca-coqui-routes.geojson` containing exactly five features with IDs `route-truck-01` ... `route-truck-05` and properties `{ truckId, waypointDistancesKm }`.
 
-- [ ] **Step 5: Validate assets and tests**
+The script is never imported by `src/` and never runs in production.
+
+- [ ] **Step 4: Run route preparation once and verify asset shape**
 
 ```bash
 npm run prepare:routes
@@ -649,9 +501,9 @@ npm test
 npm run build
 ```
 
-Expected: the GeoJSON file contains five route features and all tests pass.
+Acceptance: five LineStrings; every `waypointDistancesKm` array has five ascending numbers; final value > 0.
 
-- [ ] **Step 6: Commit**
+- [ ] **Step 5: Commit**
 
 ```bash
 git add scripts public/data src/map/fleetGeoJson.ts tests/fleetGeoJson.test.ts
@@ -660,65 +512,45 @@ git commit -m "feat: add static route assets and fleet GeoJSON adapter"
 
 ---
 
-### Task 5: Render the map, routes, stores, depot and five trucks with one MapLibre vehicle source
+### Task 5: MapLibre map with one truck source
 
-**Files:**
-- Create: `src/map/mapConfig.ts`
-- Create: `src/map/FleetMap.tsx`
-- Modify: `src/app.css`
-- Modify: `src/App.tsx`
+**Files:** create `src/map/mapConfig.ts`, `src/map/FleetMap.tsx`; modify `src/App.tsx`, `src/app.css`.
 
-**Interfaces:**
-- Consumes: `FleetScenario`, route FeatureCollection, `FleetSnapshot`.
-- Produces: `<FleetMap scenario={...} routes={...} snapshot={...} />`.
+**Interfaces:** `<FleetMap scenario routes snapshot />` consumes scenario, route FeatureCollection, and FleetSnapshot.
 
-- [ ] **Step 1: Implement stable source/layer IDs**
-
-`src/map/mapConfig.ts` must export:
+- [ ] **Step 1: Add map constants**
 
 ```ts
 export const MAP_CENTER: [number, number] = [-64.1888, -31.4201]
 export const MAP_ZOOM = 12
+export const MAP_STYLE = 'https://demotiles.maplibre.org/style.json'
 export const SOURCE_ROUTES = 'fleet-routes'
 export const SOURCE_STORES = 'fleet-stores'
 export const SOURCE_TRUCKS = 'fleet-trucks'
 export const SOURCE_DEPOT = 'fleet-depot'
 ```
 
-- [ ] **Step 2: Implement `FleetMap` with MapLibre lifecycle isolated from React state logic**
+- [ ] **Step 2: Implement `FleetMap` lifecycle**
 
-The component must:
+The component must create one MapLibre instance on mount, add four GeoJSON sources after `load`, render route/store/depot/truck layers, update only `SOURCE_TRUCKS.setData()` when snapshot changes, keep attribution visible, and call `map.remove()` on unmount.
 
-1. Create exactly one MapLibre map instance on mount.
-2. Add route, store, depot and truck GeoJSON sources after map load.
-3. Add a line layer for all five routes.
-4. Add point/circle layers for stores and depot.
-5. Add one symbol/circle source for all five trucks rather than five React markers.
-6. Update only the truck source data when `snapshot` changes.
-7. Remove the map instance on unmount.
-8. Keep required OpenStreetMap/map-style attribution visible.
+All five trucks are in the one `SOURCE_TRUCKS` FeatureCollection; do not create five React marker components.
 
-Do not create business logic inside the component.
+- [ ] **Step 3: Load local route asset in `App`**
 
-- [ ] **Step 3: Add the map-first shell**
+Fetch `./data/coca-coqui-routes.geojson` once. Convert features into a `RouteGeometryIndex` keyed by feature `id`. Before data loads, show `Loading simulation…`; on invalid/missing data show `Unable to load simulation route data.`.
 
-`src/App.tsx` at this stage should load:
+Initialize snapshot at minute 0 with `getFleetSnapshot()`.
 
-- the local scenario;
-- `/data/coca-coqui-routes.geojson` once;
-- an initial snapshot at minute `0`;
-- `FleetMap` full viewport.
-
-If route assets fail to load, render a visible `Unable to load simulation route data.` message.
-
-- [ ] **Step 4: Build**
+- [ ] **Step 4: Verify**
 
 ```bash
 npm test
 npm run build
+npm run dev
 ```
 
-Expected: build passes; manual dev smoke shows one depot, 15 stores, five planned routes and five truck points.
+Manual smoke: depot + 15 stores + five route lines + five truck points visible.
 
 - [ ] **Step 5: Commit**
 
@@ -729,49 +561,15 @@ git commit -m "feat: render Coca Coqui fleet map"
 
 ---
 
-### Task 6: Add the accelerated simulation loop and operator-facing controls
+### Task 6: Clock, controls, fleet list, and KPIs
 
-**Files:**
-- Create: `src/components/SimulationControls.tsx`
-- Create: `src/components/SimulationClock.tsx`
-- Create: `src/components/FleetPanel.tsx`
-- Create: `src/components/KpiPanel.tsx`
-- Create: `src/simulation/metrics.ts`
-- Create: `tests/metrics.test.ts`
-- Modify: `src/App.tsx`
-- Modify: `src/app.css`
+**Files:** create four components plus `src/simulation/metrics.ts`, `tests/metrics.test.ts`; modify `App.tsx`, `app.css`.
 
-**Interfaces:**
-- Consumes: `getFleetSnapshot`, `formatSimulationTime`, `FleetSnapshot`, scenario routes.
-- Produces: working Play/Pause/Reset/speed demo and visible KPIs.
+**Interfaces:** produces Play/Pause/Reset/speed controls and fleet/KPI UI.
 
-- [ ] **Step 1: Write failing KPI tests**
+- [ ] **Step 1: Write RED metrics test**
 
-`tests/metrics.test.ts`:
-
-```ts
-import { describe, expect, it } from 'vitest'
-import { getFleetMetrics } from '../src/simulation/metrics'
-
-it('derives deliveries and active trucks from a fleet snapshot', () => {
-  const metrics = getFleetMetrics(snapshotFixture, scenarioFixture)
-  expect(metrics.totalDeliveries).toBe(15)
-  expect(metrics.completedDeliveries).toBeGreaterThanOrEqual(0)
-  expect(metrics.activeTrucks).toBeGreaterThanOrEqual(0)
-  expect(metrics.plannedDistanceKm).toBeGreaterThan(0)
-  expect(metrics.estimatedFuelLitres).toBeGreaterThan(0)
-})
-```
-
-- [ ] **Step 2: Run RED**
-
-```bash
-npm test -- tests/metrics.test.ts
-```
-
-- [ ] **Step 3: Implement metrics**
-
-`getFleetMetrics(snapshot, scenario)` must return:
+`getFleetMetrics(snapshot, scenario)` returns:
 
 ```ts
 export interface FleetMetrics {
@@ -783,17 +581,17 @@ export interface FleetMetrics {
 }
 ```
 
-Rules:
+Test `totalDeliveries === 15`, positive planned distance/fuel, and active count from statuses.
 
-- `completedDeliveries`: sum of truck snapshot completed deliveries.
-- `totalDeliveries`: `scenario.stores.length`.
-- `activeTrucks`: trucks in `EN_ROUTE`, `UNLOADING`, or `RETURNING`.
-- `plannedDistanceKm`: sum of route `distanceKm`.
-- `estimatedFuelLitres`: sum of each route distance multiplied by its truck nominal L/100 km divided by 100.
+- [ ] **Step 2: Implement metrics exactly**
 
-- [ ] **Step 4: Implement controls and clock**
+- completed = sum of `completedDeliveries`.
+- total = `scenario.stores.length`.
+- active = `EN_ROUTE | UNLOADING | RETURNING`.
+- planned distance = sum `route.distanceKm`.
+- estimated fuel = sum `route.distanceKm * truck.fuelConsumptionLPer100Km / 100`.
 
-`SimulationControls` props:
+- [ ] **Step 3: Implement controls**
 
 ```ts
 interface SimulationControlsProps {
@@ -805,39 +603,27 @@ interface SimulationControlsProps {
 }
 ```
 
-Expose speed presets `1`, `10`, `30`, `60` simulated seconds per real second. The prominent clock uses `formatSimulationTime(simulationMinute)`.
+Expose `1`, `10`, `30`, `60` simulated seconds per real second.
 
-- [ ] **Step 5: Implement one animation loop in `App.tsx`**
+- [ ] **Step 4: Add one `requestAnimationFrame` loop in App**
 
-Use a single `requestAnimationFrame` loop and a ref for the previous frame timestamp. When playing:
+For each frame while playing:
 
 ```ts
 const simulatedMinutesDelta = (realDeltaSeconds * speed) / 60
 ```
 
-Advance `simulationMinute`, recompute `getFleetSnapshot`, and stop automatically once the maximum route `returnMinute` is reached.
+Advance `simulationMinute`; derive a new snapshot; clamp at maximum route `returnMinute` (65) and auto-pause there. Reset returns to minute 0 and paused state.
 
-Reset must set the clock to `0`, restore all trucks to their initial snapshot, and pause playback.
+- [ ] **Step 5: Render panels**
 
-- [ ] **Step 6: Render fleet and KPI panels**
+Clock: `formatSimulationTime(simulationMinute)`.
 
-Each truck row must show:
+Each truck row: label, status, current/next stop, completed deliveries.
 
-- label;
-- status;
-- current/next stop;
-- completed deliveries.
+KPI panel: deliveries `x/15`, active trucks `x/5`, planned km, and text `Estimated fuel` followed by litres. Do not label fuel as measured or saved.
 
-KPI panel must show:
-
-- deliveries completed / 15;
-- active trucks / 5;
-- planned km;
-- **estimated fuel** in litres.
-
-The word `estimated` must remain visible with the fuel metric.
-
-- [ ] **Step 7: Verify automated and manual behavior**
+- [ ] **Step 6: GREEN + manual acceptance + commit**
 
 ```bash
 npm test
@@ -845,19 +631,7 @@ npm run build
 npm run dev
 ```
 
-Manual acceptance:
-
-1. Press Play.
-2. Clock advances.
-3. Multiple trucks move simultaneously.
-4. Trucks pause at scheduled stores.
-5. Fleet panel state changes with the clock.
-6. Pause freezes time and movement.
-7. Speed changes alter simulation rate.
-8. Reset returns all trucks to the start.
-9. All trucks eventually return and become `DONE`.
-
-- [ ] **Step 8: Commit**
+Manual acceptance: Play moves several trucks; unloading stops freeze at store coordinates; Pause freezes; speed changes rate; Reset restores minute 0; by 07:05 all trucks are `DONE` at depot.
 
 ```bash
 git add src/components src/simulation src/App.tsx src/app.css tests/metrics.test.ts
@@ -866,40 +640,29 @@ git commit -m "feat: add interactive fleet simulation controls"
 
 ---
 
-### Task 7: Harden the public V0, document attribution, and verify static deployment
+### Task 7: Public-release hardening and CI
 
-**Files:**
-- Modify: `README.md`
-- Modify: `src/App.tsx`
-- Modify: `src/app.css`
-- Create: `.github/workflows/ci.yml`
+**Files:** modify `README.md`; create `.github/workflows/ci.yml`; final verification of app.
 
-**Interfaces:**
-- Consumes: complete V0 application.
-- Produces: documented and CI-verified public repository ready for static hosting.
+**Interfaces:** produces a documented, reproducible static V0 ready for GitHub Pages or another static host.
 
-- [ ] **Step 1: Update README with the exact product boundary**
+- [ ] **Step 1: README boundary and attribution**
 
-README must state:
+README must explicitly state:
 
-- FleetFlow Sim is an open-source visual fleet-routing simulation.
+- FleetFlow Sim is an open-source visual fleet simulation.
 - Coca Coqui is fictional.
-- All stores, demand, schedules and operational data are synthetic.
-- Road geometries/map context derive from open mapping/routing data and keep their own attribution/licensing.
-- Fuel is an estimate using `distance × nominal L/100 km / 100`.
-- No live GPS, telemetry, traffic, customer data or measured fuel savings exist in V0.
-- Local commands: `npm install`, `npm run prepare:routes`, `npm run dev`, `npm test`, `npm run build`.
+- Depot, stores, demand, schedules, and operational events are synthetic.
+- Route/map context uses open mapping/routing data under its own terms/attribution.
+- Fuel is estimated with `distanceKm × nominalLitresPer100Km / 100`.
+- V0 has no live GPS, IoT, traffic, real customer data, or measured fuel savings.
+- Commands: `npm install`, `npm run prepare:routes`, `npm run dev`, `npm test`, `npm run build`.
 
 - [ ] **Step 2: Add CI**
 
-`.github/workflows/ci.yml`:
-
 ```yaml
 name: CI
-
-on:
-  push:
-  pull_request:
+on: [push, pull_request]
 
 jobs:
   test-build:
@@ -915,7 +678,7 @@ jobs:
       - run: npm run build
 ```
 
-- [ ] **Step 3: Run final local verification**
+- [ ] **Step 3: Final verification**
 
 ```bash
 npm ci
@@ -923,21 +686,12 @@ npm test
 npm run build
 ```
 
-Expected: all commands exit 0.
+Inspect built assets and verify: relative Vite base works; route GeoJSON is present; no token/secret/API key is bundled; deployed app does not need route generation at runtime.
 
-- [ ] **Step 4: Verify static-path assumptions**
-
-Inspect the production build locally and confirm:
-
-- Vite uses relative `base: './'` paths.
-- route GeoJSON resolves from the static build.
-- no secret/API key is bundled.
-- the deployed simulation does not need the route-preparation service at runtime.
-
-- [ ] **Step 5: Commit**
+- [ ] **Step 4: Commit**
 
 ```bash
-git add README.md .github/workflows/ci.yml src/App.tsx src/app.css
+git add README.md .github/workflows/ci.yml
 git commit -m "docs: prepare FleetFlow V0 for public release"
 ```
 
@@ -945,22 +699,20 @@ git commit -m "docs: prepare FleetFlow V0 for public release"
 
 ## V0 Acceptance Gate
 
-Do not expand scope until all of the following are true:
-
 ```text
 [ ] npm test passes
 [ ] npm run build passes
-[ ] one depot renders
-[ ] fifteen synthetic stores render
-[ ] five planned road-following routes render
-[ ] five trucks are represented by one fleet GeoJSON source
-[ ] Play animates all active trucks from the synthetic clock
-[ ] unloading stops are visible in time and state
-[ ] pause / speed / reset work
-[ ] all trucks finish DONE at the depot
-[ ] deliveries / active trucks / planned km / estimated fuel render
-[ ] fictional/synthetic disclaimers are visible in README
-[ ] no backend, auth, DB, sensor, paid API, or runtime route service was introduced
+[ ] 1 depot renders
+[ ] 15 synthetic stores render
+[ ] 5 road-following planned routes render
+[ ] 5 trucks live in one MapLibre truck GeoJSON source
+[ ] Play advances a synthetic clock and animates active trucks
+[ ] UNLOADING visibly holds trucks at stores
+[ ] Pause, speed and reset work
+[ ] all trucks finish DONE at depot by 07:05
+[ ] deliveries, active trucks, planned km and Estimated fuel render
+[ ] README makes fictional/synthetic boundaries explicit
+[ ] no backend/auth/database/sensor/paid API/runtime router was added
 ```
 
-Only after this gate should V1 consider route optimization, 30 trucks, 80+ stops, planned-vs-actual telemetry, or OR-Tools.
+Do not start optimization, 30-truck scaling, telemetry, traffic, or OR-Tools until this gate is green.
