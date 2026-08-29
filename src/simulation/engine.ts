@@ -11,6 +11,7 @@ import type {
   TruckStatus,
 } from '../domain/types'
 import type { RouteGeometryFeature, RouteGeometryIndex } from '../map/routeAssets'
+import { routeDistanceKm } from '../map/routeAssets'
 
 interface TravelLeg {
   startMinute: number
@@ -45,7 +46,7 @@ function bearingAtDistance(
   return bearing(point(start), point(end))
 }
 
-function buildTravelLegs(route: RoutePlan, distances: [number, number, number, number, number]): TravelLeg[] {
+function buildTravelLegs(route: RoutePlan, distances: number[]): TravelLeg[] {
   const [first, second, third] = route.stops
   if (!first || !second || !third) {
     throw new Error(`Route ${route.id} must contain exactly three stops in V0`)
@@ -104,7 +105,7 @@ function snapshotForTruck(
     assignedDemandKg - completedStops.reduce((sum, stop) => sum + stop.demandKg, 0),
   )
   const waypointDistances = geometry.properties.waypointDistancesKm
-  const totalGeometryDistanceKm = waypointDistances[4]
+  const totalGeometryDistanceKm = routeDistanceKm(geometry)
 
   let position: Position = scenario.depot.position
   let bearingDegrees = 0
@@ -159,7 +160,7 @@ function snapshotForTruck(
     }
   }
 
-  const distanceTravelledKm = route.distanceKm * routeProgress
+  const distanceTravelledKm = totalGeometryDistanceKm * routeProgress
   const estimatedFuelUsedL =
     (distanceTravelledKm * truck.fuelConsumptionLPer100Km) / 100
 

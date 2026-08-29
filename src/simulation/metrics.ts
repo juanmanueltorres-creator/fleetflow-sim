@@ -1,4 +1,6 @@
 import type { FleetScenario, FleetSnapshot, TruckStatus } from '../domain/types'
+import type { RouteGeometryIndex } from '../map/routeAssets'
+import { routeDistanceKm } from '../map/routeAssets'
 
 export interface FleetMetrics {
   completedDeliveries: number
@@ -13,7 +15,14 @@ const ACTIVE_STATUSES = new Set<TruckStatus>(['EN_ROUTE', 'UNLOADING', 'RETURNIN
 export function deriveFleetMetrics(
   scenario: FleetScenario,
   snapshot: FleetSnapshot,
+  geometries: RouteGeometryIndex,
 ): FleetMetrics {
+  const plannedDistanceKm = scenario.routes.reduce((total, route) => {
+    const geometry = geometries[route.geometryId]
+    if (!geometry) throw new Error(`Missing geometry ${route.geometryId}`)
+    return total + routeDistanceKm(geometry)
+  }, 0)
+
   return {
     completedDeliveries: snapshot.trucks.reduce(
       (total, truck) => total + truck.completedDeliveries,
@@ -21,7 +30,7 @@ export function deriveFleetMetrics(
     ),
     totalDeliveries: scenario.stores.length,
     activeTrucks: snapshot.trucks.filter((truck) => ACTIVE_STATUSES.has(truck.status)).length,
-    plannedDistanceKm: scenario.routes.reduce((total, route) => total + route.distanceKm, 0),
+    plannedDistanceKm,
     estimatedFuelUsedL: snapshot.trucks.reduce(
       (total, truck) => total + truck.estimatedFuelUsedL,
       0,

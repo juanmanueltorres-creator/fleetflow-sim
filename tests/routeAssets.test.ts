@@ -34,7 +34,6 @@ const variableScenario: FleetScenario = {
       geometryId: 'route-test',
       departureMinute: 0,
       returnMinute: 20,
-      distanceKm: 3.1,
       stops: [
         { storeId: 'store-a', plannedArrivalMinute: 5, plannedDepartureMinute: 7, demandKg: 100 },
         { storeId: 'store-b', plannedArrivalMinute: 12, plannedDepartureMinute: 14, demandKg: 100 },
@@ -65,7 +64,7 @@ function makeVariableCollection(distances: number[] = [0, 1.2, 2.4, 3.1]): Route
         },
       },
     ],
-  } as RouteGeometryCollection
+  }
 }
 
 describe('static Coca Coqui route asset', () => {

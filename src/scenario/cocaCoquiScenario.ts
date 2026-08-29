@@ -32,7 +32,6 @@ const routes: RoutePlan[] = [
     geometryId: 'route-truck-01',
     departureMinute: 0,
     returnMinute: 52,
-    distanceKm: 11.8,
     stops: [
       { storeId: 'store-01', plannedArrivalMinute: 8, plannedDepartureMinute: 13, demandKg: 520 },
       { storeId: 'store-02', plannedArrivalMinute: 20, plannedDepartureMinute: 25, demandKg: 430 },
@@ -45,7 +44,6 @@ const routes: RoutePlan[] = [
     geometryId: 'route-truck-02',
     departureMinute: 3,
     returnMinute: 55,
-    distanceKm: 14.6,
     stops: [
       { storeId: 'store-04', plannedArrivalMinute: 12, plannedDepartureMinute: 17, demandKg: 470 },
       { storeId: 'store-05', plannedArrivalMinute: 24, plannedDepartureMinute: 29, demandKg: 560 },
@@ -58,7 +56,6 @@ const routes: RoutePlan[] = [
     geometryId: 'route-truck-03',
     departureMinute: 6,
     returnMinute: 58,
-    distanceKm: 13.2,
     stops: [
       { storeId: 'store-07', plannedArrivalMinute: 15, plannedDepartureMinute: 20, demandKg: 500 },
       { storeId: 'store-08', plannedArrivalMinute: 27, plannedDepartureMinute: 32, demandKg: 450 },
@@ -71,7 +68,6 @@ const routes: RoutePlan[] = [
     geometryId: 'route-truck-04',
     departureMinute: 9,
     returnMinute: 60,
-    distanceKm: 15.0,
     stops: [
       { storeId: 'store-10', plannedArrivalMinute: 18, plannedDepartureMinute: 23, demandKg: 390 },
       { storeId: 'store-11', plannedArrivalMinute: 30, plannedDepartureMinute: 35, demandKg: 540 },
@@ -84,7 +80,6 @@ const routes: RoutePlan[] = [
     geometryId: 'route-truck-05',
     departureMinute: 12,
     returnMinute: 65,
-    distanceKm: 16.4,
     stops: [
       { storeId: 'store-13', plannedArrivalMinute: 21, plannedDepartureMinute: 26, demandKg: 580 },
       { storeId: 'store-14', plannedArrivalMinute: 34, plannedDepartureMinute: 39, demandKg: 410 },

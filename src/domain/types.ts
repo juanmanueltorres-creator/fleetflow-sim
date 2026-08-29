@@ -35,7 +35,6 @@ export interface RoutePlan {
   departureMinute: number
   returnMinute: number
   stops: PlannedStop[]
-  distanceKm: number
   geometryId: string
 }
 

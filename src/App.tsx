@@ -30,7 +30,7 @@ export default function App() {
         const response = await fetch('./data/coca-coqui-routes.geojson')
         if (!response.ok) throw new Error(`Route asset HTTP ${response.status}`)
         const collection = (await response.json()) as RouteGeometryCollection
-        routeCollectionToIndex(collection)
+        routeCollectionToIndex(collection, cocaCoquiScenario)
         if (!cancelled) setRoutes(collection)
       } catch {
         if (!cancelled) setRouteError(true)
@@ -44,7 +44,7 @@ export default function App() {
   }, [])
 
   const routeIndex = useMemo(
-    () => (routes ? routeCollectionToIndex(routes) : null),
+    () => (routes ? routeCollectionToIndex(routes, cocaCoquiScenario) : null),
     [routes],
   )
 
@@ -54,8 +54,8 @@ export default function App() {
   }, [routeIndex, simulationMinute])
 
   const metrics = useMemo(
-    () => (snapshot ? deriveFleetMetrics(cocaCoquiScenario, snapshot) : null),
-    [snapshot],
+    () => (snapshot && routeIndex ? deriveFleetMetrics(cocaCoquiScenario, snapshot, routeIndex) : null),
+    [snapshot, routeIndex],
   )
 
   useEffect(() => {
