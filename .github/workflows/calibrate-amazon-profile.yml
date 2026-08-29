@@ -1,5 +1,6 @@
 name: Calibrate Amazon profile
 
+# One-off branch trigger after parser compatibility fixes; workflow_dispatch stays reusable.
 on:
   workflow_dispatch:
   push:
