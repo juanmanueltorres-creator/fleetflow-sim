@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { FleetPanel } from './components/FleetPanel'
 import { KpiPanel } from './components/KpiPanel'
+import { ScenarioProvenance } from './components/ScenarioProvenance'
 import { ScenarioSwitcher } from './components/ScenarioSwitcher'
 import { SimulationClock } from './components/SimulationClock'
 import { SimulationControls } from './components/SimulationControls'
@@ -166,6 +167,7 @@ export default function App() {
           <aside className="operations-panel">
             <KpiPanel metrics={metrics} />
             <FleetPanel scenario={activeScenario} snapshot={snapshot} />
+            <ScenarioProvenance provenance={activeDefinition.provenance} />
           </aside>
         ) : null}
       </div>
