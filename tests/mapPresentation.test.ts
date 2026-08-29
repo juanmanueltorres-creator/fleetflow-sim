@@ -37,4 +37,20 @@ describe('FleetFlow map presentation', () => {
     expect(mapSource).toContain("map.on('click', 'fleet-truck-core'")
     expect(mapSource).toContain("map.on('click', 'fleet-depot-point'")
   })
+
+  it('mounts the top rail and right operations rail as one connected interface frame', () => {
+    const app = read('src/App.tsx')
+    const css = read('src/app.css')
+
+    expect(app).toContain('className="interface-frame"')
+    expect(app).toContain('className="top-rail"')
+    expect(css).toContain('--operations-width: 292px')
+    expect(css).toContain('.interface-frame')
+    expect(css).toContain('.top-rail')
+    expect(css).toContain('right: var(--operations-width)')
+    expect(css).toContain('.operations-panel')
+    expect(css).toContain('top: 0')
+    expect(css).toContain('right: 0')
+    expect(css).toContain('bottom: 0')
+  })
 })
