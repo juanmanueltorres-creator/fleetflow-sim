@@ -60,6 +60,22 @@ function vehicleCountLabel(count: number): string {
   return `${count} ${count === 1 ? 'vehículo' : 'vehículos'}`
 }
 
+function scenarioNote(scenario: FleetScenario): string {
+  return scenario.id === 'cordoba-calibrated-v1'
+    ? 'Escenario calibrado · ubicación adaptada'
+    : 'Escenario simulado'
+}
+
+function timeWindowLine(store: Store): string | null {
+  if (!store.timeWindow) return null
+  return `Ventana ${formatSimulationTime(store.timeWindow.startMinute)}–${formatSimulationTime(store.timeWindow.endMinute)}`
+}
+
+function withTimeWindow(lines: string[], store: Store): string[] {
+  const windowLine = timeWindowLine(store)
+  return windowLine ? [...lines, windowLine] : lines
+}
+
 export function getStorePointDetails(
   scenario: FleetScenario,
   snapshot: FleetSnapshot,
@@ -70,16 +86,17 @@ export function getStorePointDetails(
   const minute = snapshot.simulationMinute
   const cargoLabel = formatStopCargo(stop.cargo)
   const serviceLabel = stop.cargo.kind === 'MASS' ? 'Descarga' : 'Entrega'
+  const note = scenarioNote(scenario)
 
   if (minute < stop.plannedArrivalMinute) {
     return {
       title: store.name,
       headline: `Faltan ${cargoLabel}`,
-      lines: [
+      lines: withTimeWindow([
         `${truck.label} · llega ${formatSimulationTime(stop.plannedArrivalMinute)}`,
         `${serviceLabel} ~${store.serviceMinutes} min`,
-      ],
-      note: 'Escenario simulado',
+      ], store),
+      note,
     }
   }
 
@@ -87,11 +104,11 @@ export function getStorePointDetails(
     return {
       title: store.name,
       headline: `${stop.cargo.kind === 'MASS' ? 'Descargando' : 'Entregando'} ${cargoLabel}`,
-      lines: [
+      lines: withTimeWindow([
         `${truck.label} · hasta ${formatSimulationTime(stop.plannedDepartureMinute)}`,
         `Parada ${stopIndex + 1} de ${route.stops.length}`,
-      ],
-      note: 'Escenario simulado',
+      ], store),
+      note,
     }
   }
 
@@ -103,11 +120,11 @@ export function getStorePointDetails(
   return {
     title: store.name,
     headline: `Entrega hecha · ${cargoLabel}`,
-    lines: [
+    lines: withTimeWindow([
       nextStore ? `${truck.label} siguió a ${nextStore.name}` : `${truck.label} vuelve al depósito`,
       `Salió ${formatSimulationTime(stop.plannedDepartureMinute)}`,
-    ],
-    note: 'Escenario simulado',
+    ], store),
+    note,
   }
 }
 
@@ -128,6 +145,9 @@ export function getTruckPointDetails(
   const currentStore = truckSnapshot.currentStopId
     ? scenario.stores.find((candidate) => candidate.id === truckSnapshot.currentStopId)
     : null
+  const currentStop = truckSnapshot.currentStopId
+    ? route.stops.find((stop) => stop.storeId === truckSnapshot.currentStopId)
+    : null
 
   let headline: string
   switch (truckSnapshot.status) {
@@ -138,7 +158,9 @@ export function getTruckPointDetails(
       headline = nextStore ? `Va a ${nextStore.name}` : 'En camino'
       break
     case 'UNLOADING':
-      headline = currentStore ? `Descargando en ${currentStore.name}` : 'Descargando'
+      headline = currentStore
+        ? `${currentStop?.cargo.kind === 'PARCELS' ? 'Entregando' : 'Descargando'} en ${currentStore.name}`
+        : currentStop?.cargo.kind === 'PARCELS' ? 'Entregando' : 'Descargando'
       break
     case 'RETURNING':
       headline = 'Vuelve al depósito'
@@ -156,7 +178,7 @@ export function getTruckPointDetails(
       ...formatRemainingCargo(truckSnapshot.remainingCargo),
       `${truckSnapshot.estimatedFuelUsedL.toFixed(1)} L estimados`,
     ],
-    note: 'Escenario simulado',
+    note: scenarioNote(scenario),
   }
 }
 
@@ -171,6 +193,6 @@ export function getDepotPointDetails(scenario: FleetScenario): MapPointDetails {
     lines: [
       `Primera salida ${formatSimulationTime(firstDeparture)} · último regreso ${formatSimulationTime(lastReturn)}`,
     ],
-    note: 'Escenario simulado',
+    note: scenarioNote(scenario),
   }
 }
