@@ -65,4 +65,11 @@ describe('FleetFlow map presentation', () => {
     expect(switcher).toContain('className="scenario-switcher"')
     expect(provenance).toContain('Fuente y método')
   })
+
+  it('names the map from the active scenario instead of hardcoding Coca Coqui', () => {
+    const mapSource = read('src/map/FleetMap.tsx')
+
+    expect(mapSource).toContain('aria-label={`Mapa de ${scenario.label}`}')
+    expect(mapSource).not.toContain('aria-label="Mapa de la flota Coca Coqui"')
+  })
 })
