@@ -54,7 +54,6 @@ function storeGeoJson(scenario: FleetScenario): FeatureCollection<Point> {
       properties: {
         id: store.id,
         name: store.name,
-        demandKg: store.demandKg,
       },
       geometry: { type: 'Point', coordinates: store.position },
     })),
