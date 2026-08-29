@@ -42,6 +42,14 @@ const ROUTE_COLOR_EXPRESSION: ExpressionSpecification = [
   'truck-03', '#efe4d0',
   'truck-04', '#b9874d',
   'truck-05', '#8f2d2d',
+  'vehicle-01', '#72c7e8',
+  'vehicle-02', '#d2b173',
+  'vehicle-03', '#efe4d0',
+  'vehicle-04', '#b9874d',
+  'vehicle-05', '#8f2d2d',
+  'vehicle-06', '#b7c9a8',
+  'vehicle-07', '#9f86c0',
+  'vehicle-08', '#d48665',
   '#8f8171',
 ]
 
