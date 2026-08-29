@@ -313,7 +313,7 @@ export function FleetMap({ scenario, routes, snapshot }: FleetMapProps) {
   }, [mapReady, snapshot])
 
   return (
-    <section className="map-stage" aria-label="Mapa de la flota Coca Coqui">
+    <section className="map-stage" aria-label={`Mapa de ${scenario.label}`}>
       <div ref={containerRef} className="map-canvas" />
       {mapError ? (
         <div className="map-error" role="alert">
