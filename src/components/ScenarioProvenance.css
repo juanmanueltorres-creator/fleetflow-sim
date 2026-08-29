@@ -1,0 +1,66 @@
+.scenario-provenance {
+  display: grid;
+  gap: 0.28rem;
+  margin-top: 0.72rem;
+  padding: 0.66rem 0.5rem 0.1rem;
+  border-top: 1px solid var(--color-border);
+  font-family: "Courier New", Courier, monospace;
+}
+
+.scenario-provenance > strong {
+  font-size: 0.57rem;
+  letter-spacing: 0.11em;
+  color: var(--color-gold);
+}
+
+.scenario-provenance > span {
+  font-size: 0.61rem;
+  line-height: 1.42;
+  color: #d7c9b2;
+}
+
+.scenario-provenance details {
+  margin-top: 0.12rem;
+  color: var(--color-muted);
+}
+
+.scenario-provenance summary {
+  width: fit-content;
+  cursor: pointer;
+  font-size: 0.59rem;
+  color: var(--color-cyan);
+}
+
+.scenario-provenance summary:hover,
+.scenario-provenance summary:focus-visible {
+  color: var(--color-bone-bright);
+  outline: none;
+}
+
+.scenario-provenance-details {
+  display: grid;
+  gap: 0.28rem;
+  margin-top: 0.44rem;
+  padding-left: 0.58rem;
+  border-left: 1px solid var(--color-border);
+}
+
+.scenario-provenance-details p {
+  margin: 0;
+  font-size: 0.56rem;
+  line-height: 1.4;
+  color: var(--color-muted);
+}
+
+.scenario-provenance-details a {
+  width: fit-content;
+  font-size: 0.57rem;
+  color: var(--color-gold);
+  text-underline-offset: 0.14rem;
+}
+
+@media (max-width: 520px) {
+  .scenario-provenance {
+    display: none;
+  }
+}
