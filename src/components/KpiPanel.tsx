@@ -6,21 +6,21 @@ interface KpiPanelProps {
 
 export function KpiPanel({ metrics }: KpiPanelProps) {
   return (
-    <section className="kpi-panel" aria-label="Fleet KPIs">
+    <section className="kpi-panel" aria-label="Resumen de la flota">
       <article>
-        <span>Deliveries</span>
+        <span>Entregas</span>
         <strong>{metrics.completedDeliveries} / {metrics.totalDeliveries}</strong>
       </article>
       <article>
-        <span>Active trucks</span>
+        <span>Camiones activos</span>
         <strong>{metrics.activeTrucks} / 5</strong>
       </article>
       <article>
-        <span>Planned distance</span>
+        <span>Distancia prevista</span>
         <strong>{metrics.plannedDistanceKm.toFixed(1)} km</strong>
       </article>
       <article>
-        <span>Estimated fuel used</span>
+        <span>Combustible estimado</span>
         <strong>{metrics.estimatedFuelUsedL.toFixed(1)} L</strong>
       </article>
     </section>
