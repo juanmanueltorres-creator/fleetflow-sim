@@ -177,6 +177,8 @@ describe('parcel operational copy', () => {
     const depot = getDepotPointDetails(parcelScenario)
 
     expect(store.headline).toBe('Faltan 3 paquetes')
+    expect(store.lines).toContain('Entrega ~2 min')
+    expect(store.lines).toContain('Ventana 06:04–06:08')
     expect(vehicle.lines).toContain('12 paquetes')
     expect(vehicle.lines).toContain('37% de capacidad ocupada')
     expect(depot.title).toBe('Córdoba Last-Mile Hub')
