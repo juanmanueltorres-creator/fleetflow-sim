@@ -1,13 +1,9 @@
 name: Calibrate Amazon profile
 
-# One-off branch trigger after the bounded-memory streaming parser landed.
+# Deliberately manual: raw public training data is an offline calibration input,
+# not part of normal CI or the deployed application.
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - feat/v0-4-calibrated-scenarios
-    paths:
-      - .github/workflows/calibrate-amazon-profile.yml
 
 permissions:
   contents: read
@@ -35,10 +31,8 @@ jobs:
           aws s3 cp --no-sign-request "$base/travel_times.json" "$input/travel_times.json"
           du -h "$input"/*
 
-      - name: Run Amazon calibration quietly
+      - name: Run bounded-memory calibration
         id: calibrate
-        env:
-          NODE_OPTIONS: --max-old-space-size=6144
         run: |
           set +e
           node scripts/calibrate-amazon.mjs \
@@ -49,8 +43,8 @@ jobs:
           echo "status=$status" >> "$GITHUB_OUTPUT"
           exit 0
 
-      - name: Preserve calibration diagnostics
-        if: always()
+      - name: Preserve diagnostics on failure
+        if: steps.calibrate.outputs.status != '0'
         uses: actions/upload-artifact@v4
         with:
           name: amazon-calibration-diagnostic
@@ -66,6 +60,7 @@ jobs:
         run: |
           if [ "$CALIBRATION_STATUS" != "0" ]; then
             echo "Amazon calibration exited with status $CALIBRATION_STATUS"
+            cat /tmp/calibrate.stderr
             exit "$CALIBRATION_STATUS"
           fi
           cat /tmp/amazon-last-mile-v1.json
