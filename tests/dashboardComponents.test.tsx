@@ -2,10 +2,12 @@ import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { FleetPanel } from '../src/components/FleetPanel'
 import { KpiPanel } from '../src/components/KpiPanel'
+import { ScenarioProvenance } from '../src/components/ScenarioProvenance'
 import { SimulationClock } from '../src/components/SimulationClock'
 import { SimulationControls } from '../src/components/SimulationControls'
 import type { FleetSnapshot } from '../src/domain/types'
 import { cocaCoquiScenario } from '../src/scenario/cocaCoquiScenario'
+import { getScenarioDefinition } from '../src/scenario/scenarioRegistry'
 import type { FleetMetrics } from '../src/simulation/metrics'
 
 afterEach(cleanup)
@@ -121,5 +123,27 @@ describe('simulation dashboard components', () => {
     expect(screen.getByText('2 / 3 entregas')).toBeInTheDocument()
     expect(screen.getByText('Flota')).toBeInTheDocument()
     expect(screen.getByText('5 vehículos')).toBeInTheDocument()
+  })
+
+  it('discloses calibrated provenance without implying real Cordoba delivery routes', () => {
+    const provenance = getScenarioDefinition('cordoba-calibrated').provenance
+    render(<ScenarioProvenance provenance={provenance} />)
+
+    expect(screen.getByText('ESCENARIO CALIBRADO')).toBeInTheDocument()
+    expect(screen.getByText(/Comportamiento derivado de datos operacionales públicos/)).toBeInTheDocument()
+    expect(screen.getByText('Fuente y método')).toBeInTheDocument()
+    expect(screen.getByText('Fuente: Amazon Last Mile Routing Research Challenge')).toBeInTheDocument()
+    expect(screen.getByText('Licencia fuente: CC BY-NC 4.0')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Ver fuente oficial' })).toHaveAttribute(
+      'href',
+      'https://registry.opendata.aws/amazon-last-mile-challenges/',
+    )
+    expect(document.body.textContent).not.toMatch(/Amazon Córdoba|Mercado Libre Córdoba|rutas reales de Amazon/i)
+  })
+
+  it('labels the legacy scenario explicitly as synthetic', () => {
+    const provenance = getScenarioDefinition('coca-coqui-legacy').provenance
+    render(<ScenarioProvenance provenance={provenance} />)
+    expect(screen.getByText('ESCENARIO SINTÉTICO · LEGACY V0')).toBeInTheDocument()
   })
 })
