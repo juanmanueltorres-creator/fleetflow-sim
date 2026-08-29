@@ -26,6 +26,14 @@ describe('FleetFlow map presentation', () => {
     expect(mapSource).toContain("id: 'fleet-truck-core'")
   })
 
+  it('assigns explicit route colors to all eight calibrated vehicles', () => {
+    const mapSource = read('src/map/FleetMap.tsx')
+
+    for (let index = 1; index <= 8; index += 1) {
+      expect(mapSource).toContain(`'vehicle-0${index}'`)
+    }
+  })
+
   it('opens plain-language details from stores, trucks and the depot', () => {
     const mapSource = read('src/map/FleetMap.tsx')
 
