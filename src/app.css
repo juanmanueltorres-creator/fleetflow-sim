@@ -11,6 +11,8 @@
   --color-muted: #8f8171;
   --color-cyan: #72c7e8;
   --color-crimson: #8f2d2d;
+  --operations-width: 292px;
+  --top-rail-height: 106px;
   font-family: Palatino Linotype, Book Antiqua, Georgia, serif;
   color: var(--color-bone);
   background: var(--color-ink);
@@ -41,7 +43,7 @@ select {
   font-size: 0.78rem;
   letter-spacing: 0.025em;
   border: 1px solid var(--color-border);
-  border-radius: 5px;
+  border-radius: 4px;
   background: rgba(17, 16, 13, 0.94);
   color: var(--color-bone);
 }
@@ -51,13 +53,18 @@ button {
   padding: 0.54rem 0.72rem;
 }
 
-button:hover,
+button:hover:not(:disabled),
 select:hover,
 button:focus-visible,
 select:focus-visible {
   border-color: var(--color-gold);
   outline: none;
   box-shadow: 0 0 0 1px rgba(210, 177, 115, 0.16);
+}
+
+button:disabled {
+  cursor: default;
+  opacity: 0.34;
 }
 
 .app-shell {
@@ -79,44 +86,50 @@ select:focus-visible {
     var(--color-ink);
 }
 
-.brand-card,
-.simulation-hud,
-.operations-panel {
+.interface-frame {
   position: absolute;
+  inset: 0;
   z-index: 5;
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
-  background: rgba(13, 11, 8, 0.94);
-  box-shadow: 0 18px 55px rgba(0, 0, 0, 0.38);
-  backdrop-filter: blur(10px);
+  pointer-events: none;
 }
 
-.brand-card::after,
-.operations-panel::before {
+.interface-frame::before {
   content: "";
   position: absolute;
-  pointer-events: none;
-  background: linear-gradient(90deg, transparent, rgba(210, 177, 115, 0.65), transparent);
-  height: 1px;
-}
-
-.brand-card::after {
-  right: 1rem;
-  bottom: 0;
-  left: 1rem;
-}
-
-.operations-panel::before {
+  z-index: 2;
   top: 0;
-  right: 1rem;
-  left: 1rem;
+  right: 0;
+  left: 0;
+  height: 1px;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent 2%, rgba(210, 177, 115, 0.8) 32%, rgba(114, 199, 232, 0.45) 68%, transparent 98%);
+}
+
+.top-rail,
+.operations-panel {
+  position: absolute;
+  pointer-events: auto;
+  background: rgba(13, 11, 8, 0.955);
+  backdrop-filter: blur(12px);
+}
+
+.top-rail {
+  top: 0;
+  left: 0;
+  right: var(--operations-width);
+  min-height: var(--top-rail-height);
+  display: grid;
+  grid-template-columns: minmax(315px, 0.86fr) minmax(560px, 1.14fr);
+  align-items: stretch;
+  border-bottom: 1px solid var(--color-border);
 }
 
 .brand-card {
-  top: 1rem;
-  left: 1rem;
-  width: min(350px, calc(100vw - 2rem));
-  padding: 0.95rem 1.05rem 1rem;
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0.62rem 1rem 0.68rem;
 }
 
 .brand-card h1,
@@ -125,9 +138,9 @@ select:focus-visible {
 }
 
 .brand-card h1 {
-  margin-top: 0.28rem;
+  margin-top: 0.18rem;
   font-family: Palatino Linotype, Book Antiqua, Georgia, serif;
-  font-size: clamp(1.7rem, 3vw, 2.25rem);
+  font-size: clamp(1.5rem, 2.4vw, 2rem);
   line-height: 1;
   letter-spacing: 0.015em;
   color: var(--color-gold);
@@ -138,16 +151,19 @@ select:focus-visible {
 }
 
 .brand-card > p:not(.eyebrow) {
-  margin-top: 0.48rem;
+  margin-top: 0.28rem;
+  overflow: hidden;
   color: #d7c9b2;
-  font-size: 0.92rem;
+  font-size: 0.78rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .brand-card span {
   display: block;
-  margin-top: 0.58rem;
+  margin-top: 0.3rem;
   font-family: "Courier New", Courier, monospace;
-  font-size: 0.66rem;
+  font-size: 0.56rem;
   letter-spacing: 0.06em;
   color: var(--color-muted);
   text-transform: uppercase;
@@ -156,7 +172,7 @@ select:focus-visible {
 .eyebrow,
 .panel-label {
   font-family: "Courier New", Courier, monospace;
-  font-size: 0.65rem;
+  font-size: 0.61rem;
   font-weight: 700;
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -164,13 +180,13 @@ select:focus-visible {
 }
 
 .simulation-hud {
-  top: 1rem;
-  left: 50%;
   display: flex;
-  gap: 0.7rem;
+  min-width: 0;
+  gap: 0.76rem;
   align-items: center;
-  transform: translateX(-50%);
-  padding: 0.6rem 0.7rem;
+  justify-content: flex-end;
+  padding: 0.62rem 0.82rem;
+  border-left: 1px solid var(--color-border);
 }
 
 .simulation-clock {
@@ -209,10 +225,30 @@ select:focus-visible {
   color: var(--color-cyan);
 }
 
+.run-state.is-complete {
+  border-color: rgba(210, 177, 115, 0.48);
+  background: rgba(210, 177, 115, 0.1);
+  color: var(--color-gold);
+}
+
 .simulation-controls {
   display: flex;
   align-items: center;
   gap: 0.4rem;
+}
+
+.simulation-controls button.is-complete {
+  border-color: var(--color-gold);
+  background: var(--color-gold);
+  color: var(--color-ink);
+  font-weight: 700;
+  box-shadow: 0 0 0 1px rgba(210, 177, 115, 0.22), 0 0 22px rgba(210, 177, 115, 0.14);
+}
+
+.simulation-controls button.is-complete:hover,
+.simulation-controls button.is-complete:focus-visible {
+  border-color: var(--color-bone-bright);
+  box-shadow: 0 0 0 1px rgba(255, 243, 220, 0.28), 0 0 28px rgba(210, 177, 115, 0.2);
 }
 
 .simulation-controls label {
@@ -229,12 +265,13 @@ select:focus-visible {
 }
 
 .operations-panel {
-  top: 1rem;
-  right: 1rem;
-  bottom: 1rem;
-  width: min(292px, calc(100vw - 2rem));
-  padding: 0.62rem;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: var(--operations-width);
+  padding: 0.72rem 0.72rem 0.6rem;
   overflow: auto;
+  border-left: 1px solid var(--color-border);
   scrollbar-width: thin;
   scrollbar-color: var(--color-gold-deep) transparent;
 }
@@ -242,15 +279,22 @@ select:focus-visible {
 .kpi-panel {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.38rem;
+  border-bottom: 1px solid var(--color-border);
 }
 
 .kpi-panel article {
   min-width: 0;
-  padding: 0.48rem 0.52rem;
-  border: 1px solid var(--color-border);
-  border-radius: 6px;
-  background: rgba(17, 16, 13, 0.72);
+  padding: 0.5rem 0.52rem 0.56rem;
+  border-bottom: 1px solid var(--color-border);
+  background: transparent;
+}
+
+.kpi-panel article:nth-child(odd) {
+  border-right: 1px solid var(--color-border);
+}
+
+.kpi-panel article:nth-last-child(-n + 2) {
+  border-bottom: 0;
 }
 
 .kpi-panel span,
@@ -270,7 +314,7 @@ select:focus-visible {
 }
 
 .fleet-panel {
-  margin-top: 0.56rem;
+  margin-top: 0.5rem;
 }
 
 .panel-heading {
@@ -288,14 +332,13 @@ select:focus-visible {
 
 .fleet-list {
   display: grid;
-  gap: 0.3rem;
+  border-top: 1px solid var(--color-border);
 }
 
 .truck-card {
-  padding: 0.44rem 0.5rem;
-  border: 1px solid var(--color-border);
-  border-radius: 6px;
-  background: rgba(17, 16, 13, 0.68);
+  padding: 0.52rem 0.5rem 0.56rem;
+  border-bottom: 1px solid var(--color-border);
+  background: transparent;
 }
 
 .truck-card > div {
@@ -450,38 +493,48 @@ select:focus-visible {
   color: var(--color-gold) !important;
 }
 
-@media (max-width: 1050px) {
-  .simulation-hud {
-    top: auto;
-    bottom: 0.75rem;
+@media (max-width: 1180px) {
+  .interface-frame {
+    --operations-width: 270px;
+    --top-rail-height: 132px;
   }
 
-  .operations-panel {
-    top: 7.6rem;
-    bottom: 5.25rem;
+  .top-rail {
+    grid-template-columns: 1fr;
+  }
+
+  .brand-card {
+    padding-block: 0.46rem 0.38rem;
+  }
+
+  .brand-card span {
+    display: none;
+  }
+
+  .simulation-hud {
+    justify-content: space-between;
+    padding: 0.42rem 0.72rem 0.5rem;
+    border-top: 1px solid var(--color-border);
+    border-left: 0;
   }
 }
 
 @media (max-width: 700px) {
-  .brand-card {
-    top: 0.65rem;
-    left: 0.65rem;
-    width: calc(100vw - 1.3rem);
+  .interface-frame {
+    --operations-width: min(270px, 78vw);
+    --top-rail-height: 132px;
+  }
+
+  .top-rail {
+    right: 0;
   }
 
   .operations-panel {
-    top: 7.7rem;
-    right: 0.65rem;
-    bottom: 5.7rem;
-    width: min(275px, calc(100vw - 1.3rem));
+    top: var(--top-rail-height);
   }
 
-  .simulation-hud {
-    left: 0.65rem;
-    right: 0.65rem;
-    bottom: 0.65rem;
-    transform: none;
-    justify-content: space-between;
+  .brand-card > p:not(.eyebrow) {
+    font-size: 0.72rem;
   }
 
   .simulation-controls label span {
@@ -492,6 +545,10 @@ select:focus-visible {
 @media (max-width: 520px) {
   .operations-panel {
     display: none;
+  }
+
+  .top-rail {
+    right: 0;
   }
 
   .simulation-hud {

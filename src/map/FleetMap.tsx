@@ -89,7 +89,11 @@ function routeBounds(routes: RouteGeometryCollection): LngLatBounds {
 
 function fitPadding() {
   if (typeof window !== 'undefined' && window.innerWidth >= 1180) {
-    return { top: 120, right: 350, bottom: 72, left: 390 }
+    return { top: 132, right: 330, bottom: 64, left: 64 }
+  }
+
+  if (typeof window !== 'undefined' && window.innerWidth >= 700) {
+    return { top: 156, right: 300, bottom: 72, left: 48 }
   }
 
   return { top: 150, right: 48, bottom: 120, left: 48 }

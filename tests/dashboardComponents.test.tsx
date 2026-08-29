@@ -1,5 +1,5 @@
-import { fireEvent, render, screen } from '@testing-library/react'
-import { describe, expect, it, vi } from 'vitest'
+import { cleanup, fireEvent, render, screen } from '@testing-library/react'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { FleetPanel } from '../src/components/FleetPanel'
 import { KpiPanel } from '../src/components/KpiPanel'
 import { SimulationClock } from '../src/components/SimulationClock'
@@ -7,6 +7,8 @@ import { SimulationControls } from '../src/components/SimulationControls'
 import type { FleetSnapshot } from '../src/domain/types'
 import { cocaCoquiScenario } from '../src/scenario/cocaCoquiScenario'
 import type { FleetMetrics } from '../src/simulation/metrics'
+
+afterEach(cleanup)
 
 const snapshot: FleetSnapshot = {
   simulationMinute: 30,
@@ -62,6 +64,36 @@ describe('simulation dashboard components', () => {
     expect(onPlayPause).toHaveBeenCalledOnce()
     expect(onReset).toHaveBeenCalledOnce()
     expect(onSpeedChange).toHaveBeenCalledWith(30)
+  })
+
+  it('turns reset into the primary repeat action when the trip is complete', () => {
+    const onPlayPause = vi.fn()
+    const onReset = vi.fn()
+    const onSpeedChange = vi.fn()
+
+    render(
+      <>
+        <SimulationClock minute={65} isPlaying={false} isComplete />
+        <SimulationControls
+          isPlaying={false}
+          isComplete
+          speed={60}
+          onPlayPause={onPlayPause}
+          onReset={onReset}
+          onSpeedChange={onSpeedChange}
+        />
+      </>,
+    )
+
+    expect(screen.getByText('Completado')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Play simulation' })).toBeDisabled()
+    const repeatButton = screen.getByRole('button', { name: 'Repeat trip' })
+    expect(repeatButton).toHaveTextContent('Repetir viaje')
+    expect(repeatButton).toHaveClass('is-complete')
+
+    fireEvent.click(repeatButton)
+    expect(onReset).toHaveBeenCalledOnce()
+    expect(onPlayPause).not.toHaveBeenCalled()
   })
 
   it('shows concise KPIs in plain Spanish with estimated fuel wording', () => {

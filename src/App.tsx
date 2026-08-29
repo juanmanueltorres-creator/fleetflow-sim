@@ -91,6 +91,8 @@ export default function App() {
     }
   }, [isPlaying, simulationMinute])
 
+  const isComplete = simulationMinute >= SIMULATION_END_MINUTE
+
   const resetSimulation = () => {
     setIsPlaying(false)
     setSimulationMinute(0)
@@ -98,24 +100,6 @@ export default function App() {
 
   return (
     <main className="app-shell">
-      <header className="brand-card">
-        <p className="eyebrow">Visual fleet simulation · V0</p>
-        <h1>FleetFlow Sim</h1>
-        <p>Coca Coqui — Córdoba Distribution Run</p>
-        <span>Fictional operational scenario</span>
-      </header>
-
-      <div className="simulation-hud">
-        <SimulationClock minute={simulationMinute} isPlaying={isPlaying} />
-        <SimulationControls
-          isPlaying={isPlaying}
-          speed={speed}
-          onPlayPause={() => setIsPlaying((current) => !current)}
-          onReset={resetSimulation}
-          onSpeedChange={setSpeed}
-        />
-      </div>
-
       {routeError ? (
         <div className="route-error" role="alert">
           Unable to load simulation route data.
@@ -125,14 +109,38 @@ export default function App() {
       {!routes || !snapshot || !metrics ? (
         routeError ? null : <p className="loading-state">Loading simulation…</p>
       ) : (
-        <>
-          <FleetMap scenario={cocaCoquiScenario} routes={routes} snapshot={snapshot} />
+        <FleetMap scenario={cocaCoquiScenario} routes={routes} snapshot={snapshot} />
+      )}
+
+      <div className="interface-frame">
+        <div className="top-rail">
+          <header className="brand-card">
+            <p className="eyebrow">Visual fleet simulation · V0</p>
+            <h1>FleetFlow Sim</h1>
+            <p>Coca Coqui — Córdoba Distribution Run</p>
+            <span>Fictional operational scenario</span>
+          </header>
+
+          <div className="simulation-hud">
+            <SimulationClock minute={simulationMinute} isPlaying={isPlaying} isComplete={isComplete} />
+            <SimulationControls
+              isPlaying={isPlaying}
+              isComplete={isComplete}
+              speed={speed}
+              onPlayPause={() => setIsPlaying((current) => !current)}
+              onReset={resetSimulation}
+              onSpeedChange={setSpeed}
+            />
+          </div>
+        </div>
+
+        {snapshot && metrics ? (
           <aside className="operations-panel">
             <KpiPanel metrics={metrics} />
             <FleetPanel scenario={cocaCoquiScenario} snapshot={snapshot} />
           </aside>
-        </>
-      )}
+        ) : null}
+      </div>
     </main>
   )
 }
