@@ -4,6 +4,7 @@ import {
   LngLatBounds,
   Map as MapLibreMap,
   NavigationControl,
+  type ExpressionSpecification,
   type GeoJSONSource,
 } from 'maplibre-gl'
 import type { FeatureCollection, Point } from 'geojson'
@@ -26,7 +27,7 @@ interface FleetMapProps {
   snapshot: FleetSnapshot
 }
 
-const ROUTE_COLOR_EXPRESSION = [
+const ROUTE_COLOR_EXPRESSION: ExpressionSpecification = [
   'match',
   ['get', 'truckId'],
   'truck-01', '#72c7e8',
@@ -35,7 +36,7 @@ const ROUTE_COLOR_EXPRESSION = [
   'truck-04', '#b9874d',
   'truck-05', '#8f2d2d',
   '#8f8171',
-] as const
+]
 
 function storeGeoJson(scenario: FleetScenario): FeatureCollection<Point> {
   return {
