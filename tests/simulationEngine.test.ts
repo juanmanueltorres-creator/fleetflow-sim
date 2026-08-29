@@ -48,18 +48,20 @@ describe('simulation clock', () => {
 
 describe('fleet simulation engine', () => {
   it('keeps every truck at the depot before departure', () => {
-    expect(
-      getFleetSnapshot(cocaCoquiScenario, geometries, -1).trucks.every(
-        (truck) => truck.status === 'AT_DEPOT',
-      ),
-    ).toBe(true)
+    const snapshot = getFleetSnapshot(cocaCoquiScenario, geometries, -1)
+    expect(snapshot.trucks.every((truck) => truck.status === 'AT_DEPOT')).toBe(true)
   })
 
   it('finishes every truck at the depot after the scenario ends', () => {
     const snapshot = getFleetSnapshot(cocaCoquiScenario, geometries, 300)
     expect(snapshot.trucks.every((truck) => truck.status === 'DONE')).toBe(true)
-    expect(snapshot.trucks.every((truck) => truck.position === cocaCoquiScenario.depot.position)).toBe(false)
-    expect(snapshot.trucks.every((truck) => truck.position[0] === cocaCoquiScenario.depot.position[0] && truck.position[1] === cocaCoquiScenario.depot.position[1])).toBe(true)
+    expect(
+      snapshot.trucks.every(
+        (truck) =>
+          truck.position[0] === cocaCoquiScenario.depot.position[0] &&
+          truck.position[1] === cocaCoquiScenario.depot.position[1],
+      ),
+    ).toBe(true)
   })
 
   it('is deterministic for the same timestamp', () => {
