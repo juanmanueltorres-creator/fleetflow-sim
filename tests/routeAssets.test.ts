@@ -11,6 +11,7 @@ import type {
   RouteGeometryFeature,
   RouteGeometryProperties,
 } from '../src/map/routeAssets'
+import type { OperationalRun } from '../src/scenario/operationalRuns/types'
 
 const assetPath = resolve(process.cwd(), 'public/data/coca-coqui-routes.geojson')
 const asset = JSON.parse(
@@ -87,6 +88,24 @@ function makeVariableCollection(distances: number[] = [0, 1.2, 2.4, 3.1]): Route
   }
 }
 
+function variableOperationalRun(): OperationalRun {
+  return {
+    id: 'cordoba-2026-08-31-v3',
+    targetDate: '2026-08-31',
+    issuedAt: '2026-08-30T21:00:00-03:00',
+    dataAsOf: '2026-08-30T21:00:00-03:00',
+    mode: 'FORECAST',
+    scenarioId: 'cordoba-calibrated',
+    modelVersion: 'fleetflow-v0.6',
+    provenance: {
+      generator: 'route-binding-test',
+      seed: 'route-binding-test:2026-08-31',
+      notes: ['Synthetic test run.'],
+    },
+    scenario: structuredClone(variableScenario),
+  }
+}
+
 describe('static Coca Coqui route asset', () => {
   it('contains five valid road-following route features', () => {
     expect(asset.type).toBe('FeatureCollection')
@@ -139,6 +158,43 @@ describe('scenario-driven route geometry', () => {
     expect(() => routeAssets.routeCollectionToIndex(makeVariableCollection(), variableScenario)).not.toThrow()
     const index = routeAssets.routeCollectionToIndex(makeVariableCollection(), variableScenario)
     expect(Object.keys(index)).toEqual(['route-test'])
+  })
+
+  it('accepts route binding metadata matching the selected run', () => {
+    const run = variableOperationalRun()
+    const collection = makeVariableCollection()
+    collection.metadata = {
+      runId: run.id,
+      targetDate: run.targetDate,
+      modelVersion: run.modelVersion,
+    }
+
+    expect(() => routeAssets.assertRouteCollectionMatchesRun(collection, run)).not.toThrow()
+  })
+
+  it.each([
+    ['runId', 'cordoba-2026-08-30-v3'],
+    ['targetDate', '2026-08-30'],
+    ['modelVersion', 'fleetflow-v9'],
+  ] as const)('rejects route binding mismatch for %s', (field, wrongValue) => {
+    const run = variableOperationalRun()
+    const collection = makeVariableCollection()
+    collection.metadata = {
+      runId: run.id,
+      targetDate: run.targetDate,
+      modelVersion: run.modelVersion,
+      [field]: wrongValue,
+    }
+
+    expect(() => routeAssets.assertRouteCollectionMatchesRun(collection, run)).toThrow(
+      new RegExp(`route.*${field}.*mismatch`, 'i'),
+    )
+  })
+
+  it('rejects missing route binding metadata when binding is required', () => {
+    const run = variableOperationalRun()
+    expect(() => routeAssets.assertRouteCollectionMatchesRun(makeVariableCollection(), run))
+      .toThrow(/metadata.*required/i)
   })
 
   it('exposes the final waypoint as the authoritative route distance', () => {

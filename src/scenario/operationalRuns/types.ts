@@ -32,7 +32,7 @@ export interface OperationalRun {
   scenario: FleetScenario
 }
 
-export interface OperationalRunManifestEntry {
+export interface OperationalRunManifestEntryBase {
   id: string
   targetDate: string
   issuedAt: string
@@ -43,7 +43,40 @@ export interface OperationalRunManifestEntry {
   artifact: string
 }
 
-export interface OperationalRunManifest {
-  schemaVersion: 1
-  runs: OperationalRunManifestEntry[]
+export interface OperationalRunManifestEntryV1 extends OperationalRunManifestEntryBase {
+  routeArtifact?: never
+  contextArtifact?: never
 }
+
+export interface OperationalRunManifestEntryV2 extends OperationalRunManifestEntryBase {
+  routeArtifact: string
+  contextArtifact?: string
+}
+
+export type OperationalRunManifestEntry =
+  | OperationalRunManifestEntryV1
+  | OperationalRunManifestEntryV2
+
+export interface OperationalRunManifestV1 {
+  schemaVersion: 1
+  runs: OperationalRunManifestEntryV1[]
+}
+
+export interface OperationalRunManifestV2 {
+  schemaVersion: 2
+  runs: OperationalRunManifestEntryV2[]
+}
+
+export type OperationalRunManifest = OperationalRunManifestV1 | OperationalRunManifestV2
+
+export interface OperationalContextEnvelope {
+  runId: string
+  targetDate: string
+  modelVersion: string
+  [key: string]: unknown
+}
+
+export type OperationalContextLoadState =
+  | { status: 'omitted' }
+  | { status: 'available'; artifact: OperationalContextEnvelope }
+  | { status: 'unavailable'; reason: string }

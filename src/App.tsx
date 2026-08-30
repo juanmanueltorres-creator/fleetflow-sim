@@ -11,16 +11,19 @@ import { FleetMap } from './map/FleetMap'
 import type { RouteGeometryCollection } from './map/routeAssets'
 import { routeCollectionToIndex } from './map/routeAssets'
 import {
-  getCordobaOperationalDate,
-} from './scenario/operationalRuns/date'
+  loadOperationalBundle,
+  type OperationalBundle,
+} from './scenario/operationalRuns/bundle'
 import {
-  loadOperationalRun,
   loadOperationalRunManifest,
   selectDefaultRunEntry,
 } from './scenario/operationalRuns/catalog'
+import {
+  getCordobaOperationalDate,
+} from './scenario/operationalRuns/date'
 import type {
-  OperationalRun,
   OperationalRunManifest,
+  OperationalRunManifestEntry,
 } from './scenario/operationalRuns/types'
 import {
   DEFAULT_SCENARIO_ID,
@@ -33,11 +36,12 @@ import { deriveFleetMetrics } from './simulation/metrics'
 
 export default function App() {
   const [scenarioId, setScenarioId] = useState<ScenarioId>(DEFAULT_SCENARIO_ID)
-  const [routes, setRoutes] = useState<RouteGeometryCollection | null>(null)
+  const [staticRoutes, setStaticRoutes] = useState<RouteGeometryCollection | null>(null)
   const [routeError, setRouteError] = useState(false)
   const [runManifest, setRunManifest] = useState<OperationalRunManifest | null>(null)
   const [selectedRunId, setSelectedRunId] = useState<string | null>(null)
-  const [activeRun, setActiveRun] = useState<OperationalRun | null>(null)
+  const [pendingRunId, setPendingRunId] = useState<string | null>(null)
+  const [activeBundle, setActiveBundle] = useState<OperationalBundle | null>(null)
   const [runLoading, setRunLoading] = useState(false)
   const [runError, setRunError] = useState(false)
   const [simulationMinute, setSimulationMinute] = useState(0)
@@ -46,7 +50,9 @@ export default function App() {
 
   const activeDefinition = getScenarioDefinition(scenarioId)
   const timeline = activeDefinition.operationalRuns
+  const activeRun = timeline ? activeBundle?.run ?? null : null
   const activeScenario = timeline ? activeRun?.scenario ?? null : activeDefinition.scenario
+  const routes = timeline ? activeBundle?.routes ?? null : staticRoutes
   const simulationEndMinute = activeScenario
     ? Math.max(0, ...activeScenario.routes.map((route) => route.returnMinute))
     : 0
@@ -57,7 +63,8 @@ export default function App() {
     if (!timeline) {
       setRunManifest(null)
       setSelectedRunId(null)
-      setActiveRun(null)
+      setPendingRunId(null)
+      setActiveBundle(null)
       setRunLoading(false)
       setRunError(false)
       return () => {
@@ -69,7 +76,8 @@ export default function App() {
 
     setRunManifest(null)
     setSelectedRunId(null)
-    setActiveRun(null)
+    setPendingRunId(null)
+    setActiveBundle(null)
     setRunLoading(true)
     setRunError(false)
 
@@ -86,12 +94,13 @@ export default function App() {
         if (!defaultEntry) throw new Error('No operational run is available for this scenario')
 
         setRunManifest(manifest)
-        setSelectedRunId(defaultEntry.id)
+        setPendingRunId(defaultEntry.id)
       } catch {
         if (!cancelled) {
           setRunManifest(null)
           setSelectedRunId(null)
-          setActiveRun(null)
+          setPendingRunId(null)
+          setActiveBundle(null)
           setRunError(true)
           setRunLoading(false)
         }
@@ -105,58 +114,55 @@ export default function App() {
   }, [scenarioId, timeline])
 
   useEffect(() => {
-    if (!timeline || !runManifest || !selectedRunId) return
+    if (!timeline || !runManifest || !pendingRunId) return
 
-    const manifestUrl = timeline.manifestUrl
-    let cancelled = false
-    const entry = runManifest.runs.find((candidate) => candidate.id === selectedRunId)
+    const entries: OperationalRunManifestEntry[] = [...runManifest.runs]
+    const entry = entries.find((candidate) => candidate.id === pendingRunId)
 
     if (!entry || entry.scenarioId !== scenarioId) {
-      setActiveRun(null)
+      setPendingRunId(null)
       setRunError(true)
       setRunLoading(false)
-      return () => {
-        cancelled = true
-      }
+      return
     }
 
-    const selectedEntry = entry
-
+    let cancelled = false
     setRunLoading(true)
     setRunError(false)
-    setActiveRun(null)
 
-    async function loadSelectedRun() {
-      try {
-        const run = await loadOperationalRun(selectedEntry, manifestUrl)
-        if (!cancelled) {
-          setActiveRun(run)
-          setRunError(false)
-        }
-      } catch {
-        if (!cancelled) {
-          setActiveRun(null)
-          setRunError(true)
-        }
-      } finally {
-        if (!cancelled) setRunLoading(false)
-      }
-    }
+    void loadOperationalBundle({
+      entry,
+      manifestUrl: timeline.manifestUrl,
+      legacyRouteAsset: activeDefinition.routeAsset,
+    }).then((bundle) => {
+      if (cancelled) return
+      setIsPlaying(false)
+      setSimulationMinute(0)
+      setActiveBundle(bundle)
+      setSelectedRunId(entry.id)
+      setPendingRunId(null)
+      setRunError(false)
+    }).catch(() => {
+      if (cancelled) return
+      setPendingRunId(null)
+      setRunError(true)
+    }).finally(() => {
+      if (!cancelled) setRunLoading(false)
+    })
 
-    void loadSelectedRun()
     return () => {
       cancelled = true
     }
-  }, [runManifest, scenarioId, selectedRunId, timeline])
+  }, [activeDefinition.routeAsset, pendingRunId, runManifest, scenarioId, timeline])
 
   useEffect(() => {
-    if (!activeScenario) {
-      setRoutes(null)
+    if (timeline) {
+      setStaticRoutes(null)
       setRouteError(false)
       return
     }
 
-    const scenario = activeScenario
+    const scenario = activeDefinition.scenario
     let cancelled = false
 
     async function loadRoutes() {
@@ -166,12 +172,12 @@ export default function App() {
         const collection = (await response.json()) as RouteGeometryCollection
         routeCollectionToIndex(collection, scenario)
         if (!cancelled) {
-          setRoutes(collection)
+          setStaticRoutes(collection)
           setRouteError(false)
         }
       } catch {
         if (!cancelled) {
-          setRoutes(null)
+          setStaticRoutes(null)
           setRouteError(true)
         }
       }
@@ -181,7 +187,7 @@ export default function App() {
     return () => {
       cancelled = true
     }
-  }, [activeDefinition.routeAsset, activeScenario])
+  }, [activeDefinition.routeAsset, activeDefinition.scenario, timeline])
 
   const routeIndex = useMemo(
     () => (routes && activeScenario ? routeCollectionToIndex(routes, activeScenario) : null),
@@ -245,32 +251,28 @@ export default function App() {
   }
 
   const changeOperationalRun = (nextId: string) => {
-    if (nextId === selectedRunId) return
-    setIsPlaying(false)
-    setSimulationMinute(0)
-    setRoutes(null)
-    setRouteError(false)
-    setActiveRun(null)
+    if (nextId === selectedRunId || nextId === pendingRunId) return
     setRunError(false)
-    setSelectedRunId(nextId)
+    setPendingRunId(nextId)
   }
 
   const changeScenario = (nextId: ScenarioId) => {
     if (nextId === scenarioId) return
     setIsPlaying(false)
     setSimulationMinute(0)
-    setRoutes(null)
+    setStaticRoutes(null)
     setRouteError(false)
     setRunManifest(null)
     setSelectedRunId(null)
-    setActiveRun(null)
+    setPendingRunId(null)
+    setActiveBundle(null)
     setRunLoading(false)
     setRunError(false)
     setScenarioId(nextId)
   }
 
-  const timelineEntries = runManifest
-    ? runManifest.runs.filter((entry) => entry.scenarioId === scenarioId)
+  const timelineEntries: OperationalRunManifestEntry[] = runManifest
+    ? [...runManifest.runs].filter((entry) => entry.scenarioId === scenarioId)
     : []
 
   const showRunLoading = Boolean(timeline && !runError && (runLoading || !activeScenario))
@@ -301,7 +303,7 @@ export default function App() {
 
       {activeScenario && routes && snapshot && metrics ? (
         <FleetMap
-          key={`${scenarioId}:${activeRun?.id ?? 'static'}`}
+          key={`${scenarioId}:${activeBundle?.run.id ?? 'static'}`}
           scenario={activeScenario}
           routes={routes}
           snapshot={snapshot}

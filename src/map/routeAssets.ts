@@ -1,14 +1,43 @@
 import type { Feature, FeatureCollection, LineString } from 'geojson'
 import type { FleetScenario } from '../domain/types'
+import type { OperationalRun } from '../scenario/operationalRuns/types'
 
 export interface RouteGeometryProperties {
   truckId: string
   waypointDistancesKm: number[]
 }
 
+export interface RouteGeometryBinding {
+  runId: string
+  targetDate: string
+  modelVersion: string
+}
+
 export type RouteGeometryFeature = Feature<LineString, RouteGeometryProperties>
-export type RouteGeometryCollection = FeatureCollection<LineString, RouteGeometryProperties>
+export type RouteGeometryCollection = FeatureCollection<LineString, RouteGeometryProperties> & {
+  metadata?: RouteGeometryBinding
+}
 export type RouteGeometryIndex = Record<string, RouteGeometryFeature>
+
+export function assertRouteCollectionMatchesRun(
+  collection: RouteGeometryCollection,
+  run: OperationalRun,
+): void {
+  const metadata = collection.metadata
+  if (!metadata) throw new Error('Route collection metadata is required')
+
+  const expected = {
+    runId: run.id,
+    targetDate: run.targetDate,
+    modelVersion: run.modelVersion,
+  } as const
+
+  for (const key of Object.keys(expected) as Array<keyof typeof expected>) {
+    if (metadata[key] !== expected[key]) {
+      throw new Error(`Route ${key} mismatch`)
+    }
+  }
+}
 
 export function routeDistanceKm(feature: RouteGeometryFeature): number {
   const distances = feature.properties.waypointDistancesKm

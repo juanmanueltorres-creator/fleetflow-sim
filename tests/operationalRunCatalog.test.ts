@@ -1,8 +1,12 @@
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { describe, expect, it, vi } from 'vitest'
 import type {
   OperationalRun,
   OperationalRunManifest,
   OperationalRunManifestEntry,
+  OperationalRunManifestEntryV2,
+  OperationalRunManifestV2,
 } from '../src/scenario/operationalRuns/types'
 import {
   loadOperationalRun,
@@ -32,6 +36,30 @@ function entry(overrides: Partial<OperationalRunManifestEntry> = {}): Operationa
 
 function manifest(runs: OperationalRunManifestEntry[] = [entry()]): OperationalRunManifest {
   return { schemaVersion: 1, runs }
+}
+
+function entryV2(
+  overrides: Partial<OperationalRunManifestEntryV2> = {},
+): OperationalRunManifestEntryV2 {
+  return {
+    id: 'cordoba-2026-08-31-v3',
+    targetDate: '2026-08-31',
+    issuedAt: '2026-08-30T21:00:00-03:00',
+    dataAsOf: '2026-08-30T21:00:00-03:00',
+    mode: 'FORECAST',
+    scenarioId: 'cordoba-calibrated',
+    modelVersion: 'fleetflow-v0.6',
+    artifact: './generated/cordoba-2026-08-31-v3.json',
+    routeArtifact: './generated/cordoba-2026-08-31-v3.routes.geojson',
+    contextArtifact: './generated/cordoba-2026-08-31-v3.context.json',
+    ...overrides,
+  }
+}
+
+function manifestV2(
+  runs: OperationalRunManifestEntryV2[] = [entryV2()],
+): OperationalRunManifestV2 {
+  return { schemaVersion: 2, runs }
 }
 
 function run(overrides: Partial<OperationalRun> = {}): OperationalRun {
@@ -67,8 +95,81 @@ describe('operational run manifest validation', () => {
     expect(requireValidOperationalRunManifest(manifest()).runs).toHaveLength(1)
   })
 
+  it('keeps the checked-in V0.5 manifest valid as schema V1', () => {
+    const checkedIn = JSON.parse(
+      readFileSync(
+        resolve(process.cwd(), 'public/data/operational-runs/manifest.json'),
+        'utf8',
+      ),
+    )
+
+    expect(checkedIn.schemaVersion).toBe(1)
+    expect(validateOperationalRunManifest(checkedIn)).toEqual([])
+    expect(
+      checkedIn.runs.every((manifestRun: Record<string, unknown>) => !('routeArtifact' in manifestRun)),
+    ).toBe(true)
+  })
+
+  it('accepts manifest V2 entries with a required route artifact', () => {
+    expect(validateOperationalRunManifest(manifestV2())).toEqual([])
+    expect(requireValidOperationalRunManifest(manifestV2()).schemaVersion).toBe(2)
+  })
+
+  it('rejects V2 without routeArtifact', () => {
+    const invalid = {
+      schemaVersion: 2,
+      runs: [{ ...entryV2(), routeArtifact: undefined }],
+    }
+
+    expect(validateOperationalRunManifest(invalid)).toContainEqual(
+      expect.stringMatching(/routeArtifact/i),
+    )
+  })
+
+  it.each([
+    '../escape.geojson',
+    './generated/../escape.geojson',
+    'https://example.com/routes.geojson',
+    '.\\generated\\routes.geojson',
+    './other/routes.geojson',
+  ])('rejects unsafe V2 route artifact path %s', (routeArtifact) => {
+    expect(validateOperationalRunManifest(manifestV2([
+      entryV2({ routeArtifact }),
+    ]))).toContainEqual(expect.stringMatching(/routeArtifact/i))
+  })
+
+  it.each([
+    '../escape.json',
+    './generated/../escape.context.json',
+    'https://example.com/context.json',
+    './other/context.json',
+  ])('rejects unsafe V2 context artifact path %s', (contextArtifact) => {
+    expect(validateOperationalRunManifest(manifestV2([
+      entryV2({ contextArtifact }),
+    ]))).toContainEqual(expect.stringMatching(/contextArtifact/i))
+  })
+
+  it('accepts V2 when optional contextArtifact is omitted', () => {
+    const { contextArtifact: _removed, ...withoutContext } = entryV2()
+    expect(validateOperationalRunManifest({ schemaVersion: 2, runs: [withoutContext] })).toEqual([])
+  })
+
+  it('rejects V1 entries containing V2-only fields', () => {
+    const invalid = {
+      schemaVersion: 1,
+      runs: [{
+        ...entry(),
+        routeArtifact: './generated/cordoba-2026-08-31-v3.routes.geojson',
+      }],
+    }
+
+    expect(validateOperationalRunManifest(invalid)).toContainEqual(
+      expect.stringMatching(/routeArtifact.*schemaVersion 1/i),
+    )
+  })
+
   it('rejects unsupported schema versions and non-array runs', () => {
-    expect(validateOperationalRunManifest({ schemaVersion: 2, runs: [] })).toContainEqual(
+    expect(validateOperationalRunManifest({ schemaVersion: 3, runs: [] })).toContainEqual(
       expect.stringMatching(/schemaVersion/i),
     )
     expect(validateOperationalRunManifest({ schemaVersion: 1, runs: {} })).toContainEqual(
