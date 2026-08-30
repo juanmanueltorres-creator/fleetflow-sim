@@ -2,13 +2,13 @@
 
 ## Status
 
-Approved architecture after design review on 2026-08-30. This document is the canonical design for the first FleetFlow what-if comparison slice. It must be reviewed and approved before implementation planning begins.
+Approved architecture after design review on 2026-08-30. This document is the canonical design for the first FleetFlow what-if comparison slice. It must receive final user approval before implementation planning begins.
 
 ## Purpose
 
-FleetFlow evolves toward an operational simulation engine that can evaluate explicit operational decisions against a frozen baseline state without becoming a generic digital twin, prediction oracle, risk-score engine, or autonomous optimizer.
+FleetFlow evolves toward an operational simulation engine that evaluates explicit operational decisions against a frozen baseline state without becoming a generic digital twin, prediction oracle, risk-score engine, or autonomous optimizer.
 
-The core conceptual model is:
+The conceptual model is:
 
 ```text
 S(t) + A(t) -> S'(t+1)
@@ -16,13 +16,13 @@ S(t) + A(t) -> S'(t+1)
 
 For FleetFlow:
 
-- `S(t)` is the validated operational baseline represented by an `OperationalRun` plus its matching route geometry and optional context state,
+- `S(t)` is the validated baseline `OperationalBundle`,
 - `A(t)` is a versioned, explicit `WhatIfActionSet`,
-- `S'(t+1)` is an immutable derived `OperationalRun` with `mode: WHAT_IF`,
-- the existing simulation engine consumes the derived `FleetScenario`,
-- a comparison layer derives explicit outcomes and Base-relative deltas.
+- `S'(t+1)` is an immutable derived `OperationalRun` with `mode: WHAT_IF` plus its bound route artifact,
+- the existing simulation engine consumes the resulting `FleetScenario`,
+- a separate comparison layer derives outcomes and Base-relative deltas.
 
-`S'(t+1)` means an alternative operational trajectory under the FleetFlow model. It is not a guaranteed future state.
+`S'(t+1)` means an alternative operational trajectory under FleetFlow assumptions. It is not a guaranteed future state.
 
 ## Product boundary
 
@@ -30,20 +30,20 @@ FleetFlow answers:
 
 > What happens under a different operational decision?
 
-It does not attempt to answer every question about the territory or system state.
+It does not attempt to represent every territorial fact or become a generic state model.
 
-The intended conceptual separation is:
+The intended separation is:
 
 ```text
 Territorial Score -> represents / explains S(t)
 FleetFlow         -> applies A(t) to S(t) and simulates consequences
 ```
 
-FleetFlow must not absorb Territorial Score or import a generic territorial-state model. Future integrations may adapt external state/context data into FleetFlow inputs, but the products remain independent.
+FleetFlow must not absorb Territorial Score. A future adapter may provide external context/state inputs, but the products remain independent.
 
 ## Epistemic contract
 
-The feature must preserve the following distinctions:
+The feature preserves these distinctions:
 
 ```text
 simulation != operation
@@ -52,21 +52,19 @@ modelled weather != observed road condition
 scenario outcome != guaranteed prediction
 ```
 
-Additional rules:
+Rules:
 
-1. A what-if result is a model output, not observed operational evidence.
-2. Missing data remains missing or unavailable; it is never silently replaced with zero.
-3. No synthetic global risk score is introduced.
-4. No scenario receives a universal winner or recommendation score.
-5. Actions and outcomes are stored/derived separately: an action describes what changed; an outcome describes what the model produced.
-6. Every what-if run must retain machine-readable lineage to an immutable baseline run and explicit action set.
+1. A WHAT_IF result is model output, not observed operational evidence.
+2. Missing data remains missing/unavailable; it is never silently replaced with zero.
+3. No global risk score is introduced.
+4. No universal scenario score, winner, or automatic recommendation is introduced.
+5. Actions and outcomes remain separate: an action describes what changed; an outcome describes what the model produced.
+6. Every WHAT_IF run retains machine-readable lineage to one immutable Base run and one explicit action set.
 7. A derived run may change only fields permitted by its action set.
 
 ## Relationship to the existing architecture
 
-FleetFlow already has the right boundaries for this feature.
-
-Current runtime flow:
+Current FleetFlow runtime:
 
 ```text
 OperationalRun catalog
@@ -83,7 +81,7 @@ existing simulation engine
 FleetSnapshot + FleetMetrics
 ```
 
-The simulation engine remains date-, provider-, and provenance-agnostic. It must not become a data-ingestion, scenario-generation, action-application, or comparison component.
+The simulation engine remains date-, provider-, provenance-, and action-agnostic. It must not become a data-ingestion, scenario-generation, routing, or comparison component.
 
 What-If V0 adds layers around the engine:
 
@@ -105,104 +103,90 @@ Base-relative ScenarioDelta
 
 ## Dependency on FleetFlow V0.6 Daily Spatial Demand
 
-What-If V0 should be implemented after the Daily Spatial Demand slice produces the first useful V0.6 baseline with:
+What-If V0 is implemented after Daily Spatial Demand produces the first suitable V0.6 baseline with:
 
 - 45–65 active synthetic destinations,
 - variable package demand,
 - fixed eight-vehicle fleet,
-- variable packages and stops per vehicle,
+- variable packages/stops per vehicle,
 - per-run road-following route geometry,
 - manifest V2,
 - immutable `OperationalBundle` semantics.
 
-What-If V0 does not expand or rewrite the Daily Spatial Demand scope.
-
-The intended implementation sequence is:
+Implementation sequence:
 
 ```text
 PR1  Operational Bundle Foundation               DONE
-PR2  Daily Spatial Demand                        NEXT BASELINE
+PR2  Daily Spatial Demand                        BASELINE DEPENDENCY
 V0   Scenario / What-If Comparison               THIS DESIGN
 PR3  Richer Córdoba Operational Context + UI     LATER
 ```
 
-Rich contextual data is not required for What-If V0. When context exists it is frozen from the baseline. When it is omitted or unavailable that status is preserved.
+The comparison target is the earliest published PR2 V0.6 Base run that satisfies the V0 eligibility checks in this spec. Its concrete date/run ID is frozen in `what-if-comparisons.json` when the experiment artifacts are generated. Tests read the published catalog rather than assuming a hard-coded date.
+
+Rich context is not required. When Base context exists, comparison semantics inherit it; when it is omitted or unavailable, that state remains explicit.
 
 ## Scope
 
 ### In scope
 
-- one published what-if experiment for one V0.6 operational date,
-- one immutable baseline `OperationalRun`,
+- exactly one published V0 comparison experiment,
+- one immutable V0.6 Base `OperationalRun`,
 - exactly two immutable WHAT_IF alternatives,
-- `SHIFT_DEPARTURE` action,
-- `REBALANCE_STOPS` with `BALANCE_PACKAGES` strategy,
+- `SHIFT_DEPARTURE`,
+- `REBALANCE_STOPS` with `BALANCE_PACKAGES`,
 - explicit Base -> Derived lineage,
 - deterministic offline derivation,
 - immutable per-run route artifacts,
-- separate comparison catalog outside the operational timeline,
-- differential invariant validation between Base and Derived runs,
+- a separate comparison catalog outside the timeline manifest,
+- differential Base/Derived invariant validation,
 - runtime `ScenarioOutcome` derivation,
-- Base-relative metric deltas,
+- Base-relative deltas,
 - one selected map/bundle at a time,
 - compact Base/A/B comparison UI,
-- comparison loading under demand,
-- independent comparison failure without breaking the base operation,
-- TDD coverage for contracts, determinism, conservation, lineage, routes, outcomes, and UI.
+- lazy comparison loading,
+- comparison failure isolated from the Base operation,
+- TDD for contracts, determinism, conservation, lineage, routes, outcomes, loading, and UI.
 
 ### Out of scope
 
-- live GPS or IoT,
-- live traffic in the browser,
-- live weather in the browser,
-- user-authored what-if actions,
-- runtime scenario generation,
-- runtime routing,
+- live GPS/IoT,
+- live traffic/weather browser calls,
+- user-authored actions,
+- runtime scenario generation/routing,
 - changing fleet size,
 - vehicle availability modelling,
 - autonomous agents,
 - reinforcement learning,
-- Monte Carlo simulation,
-- uncertainty distributions,
+- Monte Carlo/uncertainty distributions,
 - machine learning,
 - opaque optimization,
-- OR-Tools/full VRP optimization,
+- OR-Tools/full VRP,
 - generic digital-twin abstractions,
-- backend/database additions,
-- jobs/queues,
+- new backend/database/jobs,
 - recommendation engine,
-- global risk score,
-- global scenario score,
-- automatic “best scenario” selection,
+- global risk/scenario score,
+- automatic “best scenario”,
 - Territorial Score integration,
 - driver shifts/identities,
 - real SLA/late-delivery claims,
-- real observed road-condition claims.
+- observed-road-condition claims.
 
-## Architectural principle: `OperationalRun` remains the run abstraction
+## `OperationalRun` remains the run abstraction
 
-A What-If is not a new parallel `ScenarioRun` entity.
-
-It remains an `OperationalRun` with:
+A What-If is not a parallel `ScenarioRun` type. It remains an `OperationalRun` with:
 
 ```text
 mode = WHAT_IF
 ```
 
-This avoids duplicating:
+This reuses existing run validation, bundle loading, route binding, simulation, and switching semantics.
 
-- run validators,
-- run loaders,
-- manifest semantics,
-- route bindings,
-- bundle semantics,
-- switching behavior.
-
-`FleetScenario` remains the operational payload consumed by the simulation engine. It does not become the lineage or epistemic container for an experiment.
+`FleetScenario` stays the operational payload consumed by the engine. Experiment lineage belongs to `OperationalRun.provenance`, not to `FleetScenario`.
 
 ## WhatIfActionSet
 
-V0 introduces one small explicit decision contract:
+V0 introduces a small closed decision contract:
 
 ```ts
 interface WhatIfActionSet {
@@ -224,18 +208,18 @@ type WhatIfAction =
     }
 ```
 
-V0 does not use an open-ended `{ type: string, params: Record<string, unknown> }` contract. Unknown action types fail validation.
+Unknown action types fail validation. V0 does not use an open-ended params object.
 
-The first published comparison has exactly two alternatives:
+The published experiment contains exactly:
 
 ```text
 A: SHIFT_DEPARTURE -60 minutes
 B: REBALANCE_STOPS / BALANCE_PACKAGES
 ```
 
-## Lineage and what-if provenance
+## Lineage and provenance
 
-A derived WHAT_IF run must carry machine-readable lineage inside `OperationalRun.provenance`.
+`OperationalRun.provenance` is extended for WHAT_IF runs with a machine-readable `whatIf` block.
 
 Conceptual contract:
 
@@ -243,39 +227,46 @@ Conceptual contract:
 interface WhatIfProvenance {
   baseRunId: string
   actionSet: WhatIfActionSet
-  actionSetVersion: number
-  derivationModel: string
-  seed: string
+  actionSetVersion: 1
+  derivationModel: 'fleetflow-what-if-v0'
   inputFingerprint?: string
 }
 ```
 
-The required V0 fields are:
+The deterministic seed remains the existing top-level `OperationalRun.provenance.seed`; it is not duplicated inside `whatIf`.
 
-- `baseRunId`,
-- embedded `actionSet`,
+For V0:
+
+```text
+whatIf.actionSetVersion == whatIf.actionSet.schemaVersion == 1
+```
+
+Required lineage fields:
+
+- Base run ID,
+- embedded action set,
 - action-set version,
 - derivation-model identifier,
-- deterministic seed.
+- top-level deterministic provenance seed.
 
-`inputFingerprint` is optional in V0. It may be included if it can be generated without introducing unnecessary complexity.
+`inputFingerprint` is optional in V0.
 
-Example provenance shape:
+Example:
 
 ```json
 {
   "generator": "what-if-derivation-v1",
-  "seed": "fleetflow:what-if:v0:base=...:action=balanced-load-v1",
+  "seed": "fleetflow:what-if:v0:base=cordoba-...:action=balanced-load-v1",
   "notes": [
     "Deterministic WHAT_IF simulation derived from an immutable baseline; not observed operation."
   ],
   "whatIf": {
-    "baseRunId": "cordoba-2026-09-01-v3",
+    "baseRunId": "cordoba-...-v0-6",
     "actionSet": {
       "schemaVersion": 1,
       "id": "balanced-load-v1",
       "label": "Balanced load",
-      "baseRunId": "cordoba-2026-09-01-v3",
+      "baseRunId": "cordoba-...-v0-6",
       "actions": [
         {
           "type": "REBALANCE_STOPS",
@@ -289,16 +280,18 @@ Example provenance shape:
 }
 ```
 
-## Baseline and derived-run invariants
+The ellipses above are illustrative identifier abbreviations only; published artifacts contain complete IDs.
 
-All alternatives in the V0 comparison represent alternatives for the same operational date.
+## Baseline/Derived invariants
 
-The following are invariant across Base, Early Start, and Balanced Load:
+The three scenarios represent alternatives for one operational date.
+
+Invariant across Base, Early Start, and Balanced Load:
 
 ```text
 targetDate
 dataAsOf
-base demand / total packages
+base demand / total package count
 destination ID set
 cargo per destination
 depot
@@ -306,235 +299,210 @@ fleet size = 8
 truck identities
 vehicle capacities
 fuel coefficients
-context snapshot/status
-context/model factors when present
+effective context assumptions/factors used to generate the Base
 ```
 
-The derived run keeps the same `targetDate` as its baseline. It is an alternative decision for the same day, not another timeline entry.
+A derived run keeps Base `targetDate` and `dataAsOf`. It is an alternative for the same day, not another timeline day.
 
 ## Action A — SHIFT_DEPARTURE
 
-`SHIFT_DEPARTURE` V0 shifts the operational schedule by an exact minute offset.
-
-For `minutes = -60`, the transformation applies to:
+For `minutes = -60`, shift exactly:
 
 - `departureMinute`,
 - every `plannedArrivalMinute`,
 - every `plannedDepartureMinute`,
 - `returnMinute`.
 
-It must preserve:
+Preserve:
 
-- package total,
-- destination IDs,
-- cargo per destination,
+- packages,
+- destinations,
+- cargo by destination,
 - truck assignment,
 - stop order,
 - fleet,
-- context,
-- route geometry coordinates,
-- route distances.
+- route coordinates,
+- waypoint distances,
+- effective Base context assumptions.
 
-V0 explicitly does not recompute traffic or weather because the departure clock changes. Context remains frozen to isolate the schedule decision.
+V0 does not recompute traffic/weather when the clock changes.
 
-Expected outcome semantics for a pure -60 minute shift:
+Expected pure-shift deltas:
 
 ```text
 completion clock delta     -60 min
 operation span delta         0 min
 planned distance delta       0 km
-estimated fuel delta         0 L
+estimated fuel delta         0 L when derivable
 package-load spread delta    0
 ```
 
-The UI must not describe this as “60 minutes faster.” It means the operation finishes 60 minutes earlier on the clock while preserving the same operational span under frozen assumptions.
+The UI must not describe this as “60 minutes faster.”
 
 ## Action B — REBALANCE_STOPS / BALANCE_PACKAGES
 
-The unit of reassignment is a complete delivery stop. Cargo is never moved between destination records.
+The reassignment unit is the complete delivery stop. Cargo never moves between destination records.
 
-The algorithm is deterministic and transparent:
+Deterministic algorithm:
 
-1. Build `(destination, packageLoad)` records from the baseline stops.
-2. Sort stops by package load descending.
-3. Use stable destination ID order as the tie-breaker.
-4. Repeatedly assign the next stop to the truck with the lowest accumulated package load.
-5. Break truck-load ties by `truckId` ascending.
-6. After assignment, order each truck’s assigned destinations with deterministic nearest-neighbour ordering from the depot.
-7. Break equal-distance ordering ties by `storeId` ascending.
+1. Build `(destination, packageLoad)` records from Base stops.
+2. Sort by package load descending.
+3. Tie-break equal load by `storeId` ascending.
+4. Assign the next stop to the truck with the lowest accumulated package count.
+5. Tie-break equal truck load by `truckId` ascending.
+6. Order each truck’s assigned stops with deterministic nearest-neighbour ordering from the depot.
+7. Tie-break equal nearest-neighbour distance by `storeId` ascending.
 8. Route the resulting waypoint sequence offline.
-9. Derive the final schedule from the newly routed route basis and existing deterministic service-time rules.
+9. Derive final timings using the same route/timing contract established by PR2 for V0.6 per-run scenario generation.
+
+What-If V0 must not introduce a second timing model. If PR2 changes the internal route/timing mechanism while preserving its public contracts, What-If reuses that mechanism.
 
 V0 does not add 2-opt, OR-Tools, or an opaque optimizer.
 
-The feature may claim:
+Allowed claim:
 
 > Deterministic package-balancing strategy.
 
-It must not claim:
+Disallowed claim:
 
 > Globally optimal route or assignment.
 
-Required conservation properties:
+Conservation:
 
 ```text
 sum(packages BASE) == sum(packages BALANCED)
-Map<destinationId, packageCount>(BASE) == Map<destinationId, packageCount>(BALANCED)
+Map<destinationId, cargo>(BASE) == Map<destinationId, cargo>(BALANCED)
 Set<destinationId>(BASE) == Set<destinationId>(BALANCED)
 Set<truckId>(BASE) == Set<truckId>(BALANCED)
 ```
 
 Assignment, stop order, geometry, distance, and schedule may change.
 
-For the published V0 fixture, `BALANCE_PACKAGES` must reduce package-load spread relative to Base. It is not required to improve distance, fuel, or operational span.
+For the one published V0 fixture, `BALANCE_PACKAGES` must reduce package-count spread across trucks. It is not required to improve distance, fuel, or operation span.
 
-## Derivation pipeline
+## Offline derivation pipeline
 
-Derivation is offline. The browser does not apply actions or route new scenarios.
-
-Pipeline:
+The browser does not apply actions or route scenarios.
 
 ```text
 Base OperationalRun
         +
 WhatIfActionSet
         ↓
-derive candidate scenario
+derive candidate assignment/schedule
         ↓
-validate action-specific differential invariants
+validate action-specific invariants
         ↓
-prepare / copy bound route geometry
+copy or prepare bound route artifact
         ↓
-for route-changing actions: derive route-dependent schedule
+for route-changing action: reuse PR2 route/timing derivation
         ↓
 validate final FleetScenario
         ↓
 validate final OperationalRun
         ↓
-publish immutable WHAT_IF bundle
+publish immutable WHAT_IF artifacts
 ```
 
-Action derivation and road routing are separate responsibilities.
+Action derivation and routing remain separate responsibilities.
 
-### SHIFT_DEPARTURE routing
+### SHIFT_DEPARTURE route artifact
 
-No external route request is required because no waypoint changes.
-
-A separate route artifact is still published for the WHAT_IF run so the strong V2 `routeArtifact.metadata.runId == OperationalRun.id` binding remains intact.
-
-Its coordinates and waypoint distances are semantically equal to the baseline geometry, while metadata is rebound to the derived run identity.
-
-### BALANCE_PACKAGES routing
-
-The action changes truck waypoint membership and order, so a new road-following route artifact is required.
-
-The ordering is:
+No external routing request is made. A separate route artifact is still published so V2 binding remains strong:
 
 ```text
-assign stops
-→ order stops
-→ route
-→ obtain route basis
-→ derive final planned timing
-→ publish FleetScenario + route artifact
+route metadata.runId == derived run.id
 ```
 
-The existing simulation engine is not modified to perform this work.
+Coordinates and waypoint distances are equal to Base; binding metadata is rebound to the derived run.
+
+### BALANCE_PACKAGES route artifact
+
+Assignment/order changes require a new road-following route artifact. Route/timing generation reuses the PR2 V0.6 generator contract; the simulation engine is not modified to do this work.
 
 ## Determinism
 
-The required reproducibility contract is:
+Required contract:
 
 ```text
-same Base run
+same Base
 + same ActionSet
-+ same derivation-model version
++ same derivationModel
 = same semantic derived result
 ```
 
-The derivation seed is explicit even when the V0 algorithms do not require random choices:
+Seed:
 
 ```text
 fleetflow:what-if:v0:base=<baseRunId>:action=<actionSetId>
 ```
 
-Published route artifacts freeze external routing output. Re-running a third-party routing service in the future is not required to reproduce the already published experiment.
+Published route artifacts freeze external router output. Reproducing an already published experiment never requires a future live routing request.
 
-Published artifacts are append-only. A changed algorithm or semantics receives a new action/run/version rather than rewriting a previous WHAT_IF artifact.
+Artifacts are append-only. Changed semantics create a new version rather than rewriting prior WHAT_IF artifacts.
 
-## Validation model
-
-Validation occurs at three layers.
+## Validation layers
 
 ### 1. Run validity
 
-The derived `OperationalRun` must pass existing run/scenario validation plus new WHAT_IF provenance validation.
+Derived runs pass existing run/scenario validation plus WHAT_IF provenance validation.
 
 ### 2. Bundle validity
 
-The run and route artifact must satisfy existing OperationalBundle route binding and topology checks.
+Run and route artifact pass existing OperationalBundle topology/binding checks.
 
 ### 3. Experiment validity
 
-A Base/Derived comparison validates allowed differences and conservation rules.
+Base/Derived comparison validates permitted differences.
 
-For `SHIFT_DEPARTURE`, required equality includes:
+For `SHIFT_DEPARTURE`:
 
 ```text
-same package manifest
+same package/cargo manifest
 same destination set
-same cargo by destination
-same truck assignment
-same stop ordering
+same assignment
+same stop order
 same fleet
-same context
+same effective Base assumptions
 same route coordinates/distances
-all schedule fields shifted by the requested exact offset
+schedule fields shift by exactly the requested minutes
 ```
 
-For `REBALANCE_STOPS / BALANCE_PACKAGES`:
+For `BALANCE_PACKAGES`:
 
 ```text
-same package manifest
+same package/cargo manifest
 same destination set
-same cargo by destination
 same fleet
-same context
+same effective Base assumptions
 assignment may change
 stop order may change
 geometry may change
 schedule may change
 ```
 
-Every destination must be assigned exactly once. Every truck must retain at least one stop for the V0 fixture. Capacity constraints remain valid.
+Every destination is assigned exactly once. The V0 fixture keeps at least one stop per truck and must remain within existing capacity validation.
 
-## Operational timeline versus decision dimension
+## TIME and DECISION are separate dimensions
 
-WHAT_IF alternatives must not be inserted into the primary operational timeline as peer date entries.
-
-The current operational manifest remains the time dimension:
+WHAT_IF alternatives do not become peer entries in the primary operational timeline.
 
 ```text
-OperationalRun manifest
-→ which operational date/run?
+Operational manifest -> TIME
+Comparison catalog   -> DECISION
 ```
 
-A separate comparison catalog is the decision dimension:
-
-```text
-WhatIf comparison catalog
-→ which alternative decision for this baseline?
-```
-
-This prevents multiple same-date alternatives from contaminating default date selection or the `OperationalDateRail`.
+This prevents same-date alternatives from contaminating default date selection or `OperationalDateRail` semantics.
 
 ## What-If comparison catalog
 
-V0 adds a small separate artifact:
+V0 publishes:
 
 ```text
 public/data/operational-runs/what-if-comparisons.json
 ```
+
+Because alternatives do not live in `manifest.json`, the comparison catalog must contain enough V2 metadata to load them directly.
 
 Conceptual contract:
 
@@ -548,22 +516,49 @@ interface WhatIfComparisonDefinition {
   id: string
   label: string
   baseRunId: string
-  alternatives: WhatIfAlternative[]
+  alternatives: [WhatIfAlternative, WhatIfAlternative]
 }
 
 interface WhatIfAlternative {
   label: string
-  runId: string
+  entry: OperationalRunManifestEntryV2
 }
 ```
 
-The first V0 catalog publishes exactly one comparison with exactly two alternatives.
+For every alternative entry:
 
-The catalog references run identities. It does not persist outcome metrics or duplicated result values.
+```text
+entry.mode == WHAT_IF
+entry.scenarioId == Base.scenarioId
+entry.targetDate == Base.targetDate
+entry.dataAsOf == Base.dataAsOf
+```
 
-## Artifact layout
+`artifact`, `routeArtifact`, and optional `contextArtifact` use the same safe relative path rules as operational manifest V2 entries.
+
+The catalog stores identity/loading metadata only. It never stores outcome metrics or deltas.
+
+## Loading alternatives without polluting the timeline manifest
+
+`loadOperationalBundle()` already accepts a manifest-relative URL plus an entry. The comparison loader therefore treats the comparison catalog URL as the relative artifact base for WHAT_IF entries.
 
 Conceptually:
+
+```text
+active Base OperationalBundle
+        +
+comparison definition whose baseRunId matches Base.run.id
+        ↓
+load alternative.entry using comparisonCatalogUrl
+        ↓
+existing OperationalBundle validation
+```
+
+The Base is not duplicated or refetched merely to open Compare; the already validated active Base bundle is the authority for the experiment.
+
+This closes the loading boundary without adding WHAT_IF entries to `manifest.json`.
+
+## Artifact layout
 
 ```text
 public/data/operational-runs/
@@ -578,33 +573,25 @@ public/data/operational-runs/
     └── <BALANCED>.routes.geojson
 ```
 
-The Base artifacts are supplied by the Daily Spatial Demand slice. What-If V0 adds only the two derived runs, two derived route artifacts, and one catalog entry.
+Base artifacts come from PR2. What-If V0 adds two run artifacts, two route artifacts, and one comparison catalog definition.
 
-The two WHAT_IF alternatives are not required to appear in the operational-run timeline manifest.
-
-## Comparison loading
-
-Comparison loading is fail-closed and atomic.
+## Comparison loading is atomic
 
 Conceptual flow:
 
 ```text
-load comparison definition
+active validated Base bundle
         ↓
-resolve Base run/bundle
+find comparison by baseRunId
         ↓
-load alternative A bundle
+load A bundle
         ↓
-load alternative B bundle
+load B bundle
         ↓
-validate WHAT_IF lineage
-        ↓
-validate Base/Derived invariants
+validate lineage + differential invariants
         ↓
 commit ScenarioComparisonSet
 ```
-
-Conceptual runtime type:
 
 ```ts
 interface ScenarioComparisonSet {
@@ -617,34 +604,25 @@ interface ScenarioComparisonSet {
 }
 ```
 
-A comparison set is unavailable if any required alternative fails run loading, route binding, lineage, or experiment validation.
-
-The base operation remains independently usable when comparison loading fails.
+If either required alternative fails, the comparison set is unavailable. The Base operation remains usable.
 
 ## Context semantics
 
-What-If V0 freezes baseline context.
+The optional PR1 context artifact is run-bound by `runId`, so V0 does not attempt to share one Base `contextArtifact` across derived run entries.
 
-```text
-Base context
-    ↓ inherited/frozen
-Early Start
-Balanced Load
-```
+Instead:
 
-If the baseline context is:
+1. Effective timing/context factors already used to generate Base are frozen in the Base/run-generation provenance established by V0.6.
+2. WHAT_IF derivation uses those same effective assumptions and does not recompute them.
+3. The comparison UI treats the active Base bundle’s `context` state as the experiment context for Base/A/B.
+4. Derived V0 entries may omit `contextArtifact`; omission does not mean the experiment silently lost the Base assumptions.
+5. If Base context is `omitted` or `unavailable`, the comparison displays that exact Base state and does not synthesize replacement context.
 
-- `available`, both alternatives inherit the same frozen context semantics/factors,
-- `omitted`, both alternatives remain omitted,
-- `unavailable`, both alternatives preserve unavailable status.
-
-Changing departure time does not automatically trigger a different traffic profile in V0.
-
-No what-if action can create missing context or silently replace it with neutral values.
+This avoids duplicate explanatory context artifacts whose only difference would be run binding while preserving the actual modelling assumptions.
 
 ## ScenarioOutcome
 
-Comparison results are derived in runtime from validated bundles. They are not stored in the comparison catalog.
+Outcomes are runtime-derived from validated bundles; they are not persisted in the catalog.
 
 Conceptual contract:
 
@@ -666,56 +644,54 @@ interface ScenarioOutcome {
 }
 ```
 
-The exact type may reuse existing metrics where appropriate, but the semantic fields above are required unless the underlying model cannot derive a value, in which case nullable/missing semantics must be preserved.
+The implementation may reuse existing metric helpers, but these semantics are required. A value that cannot be derived is `null`/unavailable, never zero-filled.
 
-## Outcome evaluation point
+## Evaluation point
 
-Each scenario is evaluated at its own operation completion point:
+Each scenario is evaluated at its own complete-operation point:
 
 ```text
 max(route.returnMinute)
 ```
 
-This produces a complete-operation outcome rather than comparing scenarios at the same wall-clock minute.
+Time metrics distinguish:
 
-Time metrics must distinguish:
+- completion clock,
+- operation span.
 
-- operation completion clock,
-- operation span/duration.
-
-For example:
+Example:
 
 ```text
-BASE        07:00 -> 15:00   span 8h
-EARLY       06:00 -> 14:00   span 8h
+BASE   07:00 -> 15:00   span 8h
+EARLY  06:00 -> 14:00   span 8h
 ```
 
-The alternative finishes 60 minutes earlier but is not 60 minutes faster.
+Early finishes one hour earlier; it is not one hour faster.
 
 ## V0 comparison metrics
 
-Required V0 comparison metrics are:
+Required:
 
-- operation start clock,
-- operation completion clock,
+- operation start,
+- operation completion,
 - operation span,
 - planned distance,
-- estimated fuel used when derivable,
+- estimated fuel when derivable,
 - total packages,
 - total deliveries,
 - completed deliveries,
 - mean initial vehicle utilization when derivable,
 - maximum initial vehicle utilization when derivable,
-- package-load spread across vehicles when parcel cargo is available.
+- package-count spread across vehicles when parcel cargo is available.
 
-V0 does not introduce real-delay, SLA, real idle-time, risk, probability, or observed-road-condition metrics.
+V0 does not add real-delay, SLA, risk, probability, or observed-road-condition metrics.
 
 ## ScenarioDelta
 
-All deltas use one fixed direction:
+Fixed direction:
 
 ```text
-delta = alternative - base
+delta = alternative - Base
 ```
 
 Conceptual contract:
@@ -734,178 +710,126 @@ interface ScenarioDelta {
 }
 ```
 
-Missing optional metrics propagate as unavailable deltas rather than zero.
+Missing optional metrics propagate to unavailable deltas.
 
-## No global score or winner
+## No score and no winner
 
-V0 must not produce:
-
-```text
-Scenario score
-Risk score
-Winner
-Best scenario
-Recommended scenario
-```
-
-The UI exposes trade-offs and explicit deltas. It does not choose weights for the user.
-
-Positive/negative visual semantics must remain metric-specific and restrained. A lower completion time does not automatically make a scenario globally better.
+V0 does not produce a scenario score, risk score, winner, “best scenario,” or automatic recommendation. It exposes explicit trade-offs and metric deltas only.
 
 ## Runtime UX
 
-FleetFlow keeps the existing time-first navigation.
+FleetFlow keeps time-first navigation.
 
 ### Level 1 — TIME
 
-`OperationalDateRail` selects the operational baseline date/run.
+`OperationalDateRail` selects the Base operational day/run.
 
 ### Level 2 — DECISION
 
-When the selected Base has a published comparison, a separate decision selector becomes available:
+When the active Base has a catalog comparison:
 
 ```text
 [ BASE ] [ EARLY START ] [ BALANCED LOAD ]
 ```
 
-The two dimensions remain distinct:
+TIME and DECISION remain distinct.
 
-```text
-TIME
-27 -> 28 -> 29 -> 30 -> 01
-                         |
-                         v
-                      DECISION
-                   BASE / A / B
-```
+## Map/runtime behavior
 
-## Map behavior
-
-Only one bundle is rendered on the map at a time.
-
-The selected scenario drives the existing:
+Only one bundle is rendered/simulated at a time. Selecting Base/A/B changes the selected validated bundle atomically and reuses existing:
 
 - `FleetMap`,
 - simulation clock,
-- FleetPanel,
+- `FleetPanel`,
 - current-scenario KPIs.
 
-The application does not render three simultaneous maps or three simulation-engine instances.
-
-Switching Base/A/B swaps the selected validated bundle atomically.
+No three-map or three-engine layout is introduced.
 
 ## Comparison panel
 
-The comparison panel answers a different question from the existing current-scenario KPIs.
-
-Existing KPIs:
+Existing KPIs answer:
 
 > What is true in the currently selected simulated plan?
 
-Comparison panel:
+Comparison UI answers:
 
-> How does this scenario differ from the Base under the model?
+> How does this plan differ from Base?
 
-The panel should include a compact Base/A/B metric table and, for the selected alternative, a Base-relative delta summary.
+The panel contains:
 
-Example structure:
+- compact Base/A/B metric table,
+- selected alternative vs Base deltas,
+- explicit action description,
+- frozen-input summary,
+- compact provenance disclosure.
 
-```text
-              BASE       EARLY      BALANCED
-Packages       108         108         108
-Deliveries      55          55          55
-Vehicles         8           8           8
-Finish        15:08       14:08       14:51
-Span           8h08        8h08        7h51
-Distance      231 km      231 km      219 km
-Fuel est.      35.4 L      35.4 L      33.5 L
-Load spread       16          16           2
-```
+Illustrative layout values are not contractual. The UI must display actual derived outcomes.
 
-These numbers are illustrative only; tests and UI must display actual derived results.
+No column receives a winner badge.
 
-No column receives a “winner” badge.
+## Visible epistemic/provenance information
 
-## Action and provenance UI
-
-The selected WHAT_IF alternative visibly identifies:
+For WHAT_IF alternatives the UI identifies:
 
 - `WHAT_IF`,
-- `SIMULATED`,
-- action type and parameters,
-- frozen Base inputs such as packages/destinations/fleet count,
+- simulated/model output status,
+- action type/parameters,
 - Base run ID,
 - action-set ID/version,
-- derivation-model version,
-- context inherited from Base.
+- derivation model,
+- frozen package/destination/fleet inputs,
+- Base context state.
 
-A compact disclosure can expose technical provenance without showing raw JSON by default.
-
-Required epistemic copy must communicate that results are deterministic FleetFlow model outputs under frozen baseline assumptions, not observed operations or guaranteed predictions.
+Copy must state that results are deterministic model outputs under frozen baseline assumptions, not observed operations or guaranteed predictions.
 
 ## Date changes
 
-Changing the operational date exits the currently selected WHAT_IF alternative.
-
-Flow:
+Changing date exits the current experiment:
 
 ```text
 change date
 → clear selected alternative/comparison state
 → load new Base bundle
-→ discover whether that Base has a published comparison
+→ discover comparison availability for new Base
 ```
 
-A WHAT_IF alternative from one date must never remain selected against another Base date.
+An alternative from one Base can never remain selected against another date.
 
-## Comparison availability and lazy loading
+## Lazy loading
 
-FleetFlow starts and loads normal operational dates without eagerly fetching all what-if bundles.
-
-Preferred runtime flow:
+Normal FleetFlow does not eagerly load all alternatives.
 
 ```text
 load FleetFlow normally
-→ select Base date
-→ Base operation works normally
-→ catalog says comparison available
-→ user opens comparison
+→ select/load Base normally
+→ discover comparison definition by baseRunId
+→ user opens Compare
 → load A + B
-→ validate entire comparison
-→ show comparison panel
+→ validate complete set
+→ show comparison
 ```
 
-Days without a published comparison show no comparison controls and otherwise behave exactly as normal FleetFlow.
+A date without a comparison behaves exactly like normal FleetFlow and shows no comparison controls.
 
 ## Failure semantics
 
-### Base operation failure
+### Base failure
 
-Existing operational-run failure behavior applies. No comparison is available because the state itself is unavailable.
+Existing operational failure behavior applies. No comparison can open.
 
 ### Comparison failure
 
-If an alternative run, route, lineage, or differential invariant is invalid:
+Invalid/missing alternative run, route binding, lineage, or experiment invariants produce:
 
 ```text
 Scenario comparison unavailable
-Base operation remains available
 ```
 
-The application does not display a partially valid Base/A/B comparison.
+The Base remains usable. Partial comparisons are not shown.
 
 ### Optional metric failure
 
-A missing optional metric does not necessarily invalidate the experiment.
-
-It renders as unavailable:
-
-```text
-Fuel estimate   —
-Delta           —
-```
-
-The distinction is:
+A missing optional metric renders unavailable (`—`) but does not invalidate an otherwise valid experiment.
 
 ```text
 invalid experiment != unavailable optional metric
@@ -913,34 +837,35 @@ invalid experiment != unavailable optional metric
 
 ## TDD requirements
 
-Implementation must follow TDD. Tests are required before the corresponding production behavior.
+Implementation is test-first.
 
-### Action contract tests
+### SHIFT_DEPARTURE tests
 
-`SHIFT_DEPARTURE` must prove:
+Prove:
 
 - exact requested minute shift,
-- identical destinations,
+- identical destination set,
 - identical cargo by destination,
-- identical truck assignment,
-- identical stop order,
+- identical assignment/order,
 - identical route coordinates/distances,
-- identical total packages,
-- identical fleet/context.
+- identical package total,
+- identical fleet/effective Base assumptions.
 
-`BALANCE_PACKAGES` must prove:
+### BALANCE_PACKAGES tests
+
+Prove:
 
 - identical destination set,
 - identical cargo by destination,
-- identical total package count,
-- identical fleet/context,
-- each destination assigned exactly once,
+- identical total packages,
+- identical fleet/effective Base assumptions,
+- each destination exactly once,
 - capacity validity,
-- at least one stop per truck for the V0 fixture,
+- at least one stop per truck for the published fixture,
 - deterministic assignment/order,
-- lower package-load spread than the published Base fixture.
+- lower package-count spread than the published Base fixture.
 
-It must not assert that distance/fuel/span always improve.
+Do not require universally better distance/fuel/span.
 
 ### Determinism tests
 
@@ -950,67 +875,69 @@ For both actions:
 derive(base, action) == derive(base, action)
 ```
 
-Semantic derived outputs, IDs, assignments, ordering, and schedules must be stable for identical inputs/model version.
+IDs, assignments, ordering, schedules, and semantic derived output are stable for identical inputs/model version.
 
 ### Lineage tests
 
 Reject:
 
-- alternative lineage referencing the wrong Base,
-- alternative with mode other than `WHAT_IF`,
-- alternative `targetDate` different from Base,
-- V0 alternative `dataAsOf` different from Base,
-- action-set `baseRunId` different from lineage/catalog Base,
-- missing/invalid derivation-model metadata.
+- alternative referencing the wrong Base,
+- alternative entry/run with mode other than `WHAT_IF`,
+- different `targetDate`,
+- different `dataAsOf`,
+- action-set `baseRunId` mismatch,
+- invalid/missing derivation metadata,
+- actionSetVersion/schemaVersion mismatch.
 
 ### Conservation tests
 
-Require:
+Require equality across Base/A/B for:
 
 ```text
-sum packages equal across Base/A/B
-cargo-by-destination map equal across Base/A/B
-destination set equal across Base/A/B
-fleet/truck identity set equal across Base/A/B
+sum packages
+cargo-by-destination map
+destination set
+truck identity set
 ```
 
 ### Route tests
 
-Require each WHAT_IF route artifact to bind to the corresponding derived run via existing run/date/model metadata and topology checks.
+Require existing route/run/date/model binding and topology checks for each alternative.
 
-`SHIFT_DEPARTURE` route coordinates/distances must remain semantically equal to Base.
-
-`BALANCE_PACKAGES` route geometry may differ.
+Early route coordinates/distances equal Base; Balanced geometry may differ.
 
 ### Outcome tests
 
-For the pure -60 minute fixture:
+Pure -60 Early fixture:
 
 ```text
 operationEndDeltaMinutes    = -60
 operationSpanDeltaMinutes   = 0
 distanceDeltaKm             = 0
-estimatedFuelDeltaL         = 0 when fuel is derivable
+estimatedFuelDeltaL         = 0 when derivable
 packageLoadSpreadDelta      = 0
 ```
 
-For Balanced Load, require lower package-load spread. Do not require universally better distance/fuel/span.
+Balanced fixture requires lower package-count spread only; distance/fuel/span remain observed model outputs.
 
-### Comparison loading tests
+### Comparison catalog/loading tests
 
 Require:
 
+- catalog alternative contains a valid V2 entry,
+- unsafe artifact/route paths reject,
 - valid Base+A+B -> comparison available,
+- wrong Base ID -> reject,
 - invalid A route binding -> comparison unavailable while Base remains usable,
 - invalid B lineage -> comparison unavailable while Base remains usable,
-- unavailable optional metric -> comparison remains available with missing metric.
+- optional metric unavailable -> comparison remains available.
 
 ### UI tests
 
-The full flow must prove:
+Prove:
 
 ```text
-select comparison-enabled date
+select comparison-enabled Base date
 → Base map visible
 → open Compare
 → Base / Early / Balanced visible
@@ -1018,13 +945,13 @@ select comparison-enabled date
 → Early bundle displayed
 → select Balanced
 → Balanced bundle displayed
-→ comparison table remains Base/A/B
-→ change operational date
+→ table remains Base/A/B
+→ change date
 → comparison closes/resets
-→ new date Base loads
+→ new Base loads
 ```
 
-Also require:
+Also:
 
 ```text
 date without comparison
@@ -1033,69 +960,57 @@ date without comparison
 
 ## Compatibility
 
-The feature must preserve:
+Must preserve:
 
-- V0.5 OperationalRun artifacts,
-- V0.5 manifest V1 behavior,
+- V0.5 artifacts and manifest V1,
 - V0.6 timeline behavior,
 - static scenarios,
 - existing simulation-engine contracts,
-- existing OperationalBundle fail-closed validation,
-- existing date switching behavior outside comparison mode.
+- OperationalBundle fail-closed validation,
+- normal date switching outside comparison mode.
 
-No historical artifact is rewritten merely to support What-If V0.
+No historical artifact is rewritten to support What-If V0.
 
 ## Definition of Done
 
-What-If V0 is complete when all of the following are true:
-
 ```text
-✓ one published V0.6 Base OperationalRun supports a comparison
-✓ two immutable WHAT_IF OperationalRuns are derived from that Base
-✓ action sets are machine-readable and versioned
-✓ Base -> Derived lineage is validated
-✓ package, destination, cargo, and fleet conservation are validated
-✓ SHIFT_DEPARTURE is deterministic and shifts schedule only
+✓ one eligible V0.6 Base run has one published comparison
+✓ exactly two immutable WHAT_IF runs derive from that Base
+✓ action sets are machine-readable/versioned
+✓ Base -> Derived lineage validates
+✓ package, destination, cargo, and fleet conservation validate
+✓ SHIFT_DEPARTURE is deterministic and schedule-only
 ✓ BALANCE_PACKAGES is deterministic and rebalances complete stops
-✓ derived route artifacts are correctly bound to their runs
-✓ comparison catalog is separate from the timeline manifest
-✓ full comparison sets load atomically
-✓ Base remains usable when comparison loading fails
-✓ ScenarioOutcome is derived from validated bundles
-✓ Base-relative deltas use alternative - Base semantics
-✓ missing optional metrics remain unavailable, never zero-filled
-✓ no global score exists
-✓ no automatic winner/recommendation exists
-✓ only one map/bundle is selected at a time
-✓ changing date exits the current experiment
-✓ days without comparisons remain normal FleetFlow days
-✓ V0.5 and V0.6 historical behavior remains compatible
-✓ full automated test suite passes
+✓ Balanced timing reuses PR2 timing semantics
+✓ alternative V2 entries live in comparison catalog, not timeline manifest
+✓ derived route artifacts bind to their runs
+✓ comparison loading is atomic
+✓ Base remains usable when comparison fails
+✓ ScenarioOutcome derives from validated bundles
+✓ deltas use alternative - Base
+✓ missing optional metrics remain unavailable
+✓ no global score/winner/recommendation exists
+✓ one selected map/bundle at a time
+✓ changing date exits the experiment
+✓ days without comparison remain normal FleetFlow days
+✓ V0.5/V0.6 historical behavior remains compatible
+✓ full automated tests pass
 ✓ production build passes
 ```
 
 ## Architectural result
 
-The feature establishes a narrow, auditable decision-simulation loop:
-
 ```text
-Operational State
-      S(t)
-       │
-       ▼
-Explicit Action
-      A(t)
-       │
-       ▼
+Operational State S(t)
+        ↓
+Explicit Action A(t)
+        ↓
 Deterministic Derivation
-       │
-       ▼
+        ↓
 Operational Simulation
-       │
-       ▼
+        ↓
 Scenario Outcome
-       │
-       ▼
+        ↓
 Explicit Comparison
 ```
 
