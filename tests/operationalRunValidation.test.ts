@@ -103,6 +103,61 @@ describe('operational run validation', () => {
     expect(() => requireValidOperationalRun(run)).toThrow(/duplicate truck id/i)
   })
 
+  it.each([
+    ['depot longitude', (run: OperationalRun) => {
+      run.scenario.depot.position[0] = 'bad' as unknown as number
+    }],
+    ['store latitude', (run: OperationalRun) => {
+      run.scenario.stores[0].position[1] = Number.NaN
+    }],
+    ['store serviceMinutes', (run: OperationalRun) => {
+      run.scenario.stores[0].serviceMinutes = 'bad' as unknown as number
+    }],
+    ['store timeWindow', (run: OperationalRun) => {
+      run.scenario.stores[0].timeWindow = {
+        startMinute: 'bad' as unknown as number,
+        endMinute: 600,
+      }
+    }],
+    ['truck fuel consumption', (run: OperationalRun) => {
+      run.scenario.trucks[0].fuelConsumptionLPer100Km = Number.POSITIVE_INFINITY
+    }],
+    ['truck capacity', (run: OperationalRun) => {
+      const capacity = run.scenario.trucks[0].capacity
+      if (capacity.kind === 'MASS') {
+        capacity.capacityKg = 'bad' as unknown as number
+      } else {
+        capacity.capacityCm3 = 'bad' as unknown as number
+      }
+    }],
+    ['route departureMinute', (run: OperationalRun) => {
+      run.scenario.routes[0].departureMinute = Number.NaN
+    }],
+    ['route returnMinute', (run: OperationalRun) => {
+      run.scenario.routes[0].returnMinute = 'bad' as unknown as number
+    }],
+    ['stop plannedArrivalMinute', (run: OperationalRun) => {
+      run.scenario.routes[0].stops[0].plannedArrivalMinute = 'bad' as unknown as number
+    }],
+    ['stop plannedDepartureMinute', (run: OperationalRun) => {
+      run.scenario.routes[0].stops[0].plannedDepartureMinute = Number.NaN
+    }],
+    ['stop cargo quantity', (run: OperationalRun) => {
+      const cargo = run.scenario.routes[0].stops[0].cargo
+      if (cargo.kind === 'MASS') {
+        cargo.quantityKg = 'bad' as unknown as number
+      } else {
+        cargo.volumeCm3 = 'bad' as unknown as number
+      }
+    }],
+  ] as Array<[string, (run: OperationalRun) => void]>)('rejects nonnumeric nested scenario field %s', (_label, mutate) => {
+    const run = validRun()
+    mutate(run)
+
+    expect(validateOperationalRun(run)).toContainEqual(expect.stringMatching(/scenario shape/i))
+    expect(() => requireValidOperationalRun(run)).toThrow(/scenario shape/i)
+  })
+
   it('derives TODAY in Córdoba instead of viewer timezone', () => {
     expect(getCordobaOperationalDate(new Date('2026-08-31T02:00:00Z'))).toBe('2026-08-30')
   })
