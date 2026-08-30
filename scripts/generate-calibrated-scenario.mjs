@@ -138,6 +138,9 @@ function routeWaypointDistances(routeGeometryIndex, geometryId, truckId, stopCou
   if (!Array.isArray(distances) || distances.length !== stopCount + 2) {
     throw new Error(`Calibrated route ${geometryId} waypoint count must equal stops + 2`)
   }
+  if (distances.some((value) => typeof value !== 'number' || !Number.isFinite(value))) {
+    throw new Error(`Calibrated route ${geometryId} waypoint distances must be finite numbers`)
+  }
   if (distances[0] !== 0) throw new Error(`Calibrated route ${geometryId} must start at distance 0`)
   if (distances.some((value, index) => index > 0 && value < distances[index - 1])) {
     throw new Error(`Calibrated route ${geometryId} waypoint distances must be non-decreasing`)
