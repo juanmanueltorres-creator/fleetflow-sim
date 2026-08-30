@@ -325,23 +325,29 @@ export default function App() {
               />
             ) : null}
 
-            <div className="simulation-hud-controls">
-              <SimulationClock minute={simulationMinute} isPlaying={isPlaying} isComplete={isComplete} />
-              <SimulationControls
-                isPlaying={isPlaying}
-                isComplete={isComplete}
-                speed={speed}
-                onPlayPause={() => setIsPlaying((current) => !current)}
-                onReset={resetSimulation}
-                onSpeedChange={setSpeed}
-              />
-            </div>
+            <SimulationClock minute={simulationMinute} isPlaying={isPlaying} isComplete={isComplete} />
+            <SimulationControls
+              isPlaying={isPlaying}
+              isComplete={isComplete}
+              speed={speed}
+              onPlayPause={() => setIsPlaying((current) => !current)}
+              onReset={resetSimulation}
+              onSpeedChange={setSpeed}
+            />
           </div>
         </div>
 
         {activeScenario && snapshot && metrics ? (
           <aside className="operations-panel">
             <KpiPanel metrics={metrics} />
+            {timeline ? (
+              <section className="operational-explainer" aria-labelledby="operational-explainer-title">
+                <h2 id="operational-explainer-title">Qué estás viendo</h2>
+                <p>
+                  Acá la base del mapa no cambia: cambian las condiciones de la jornada. Por eso podés ver cómo se reparte el trabajo entre vehículos, cuánto tarda cada circuito y cómo se mueve la flota según la carga de ese día.
+                </p>
+              </section>
+            ) : null}
             <FleetPanel scenario={activeScenario} snapshot={snapshot} />
             <ScenarioProvenance
               provenance={activeDefinition.provenance}
