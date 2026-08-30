@@ -1,5 +1,7 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { dirname, resolve } from 'node:path'
+import length from '@turf/length'
+import { lineString } from '@turf/helpers'
 
 const legacyDepot = [-64.1888, -31.4201]
 const legacyRoutes = [
@@ -54,16 +56,50 @@ function parseArgs(argv) {
   return { scenarioPath: resolve(scenarioPath), outputPath }
 }
 
-function buildWaypointDistances(legs) {
-  const distances = [0]
-  let cumulativeMeters = 0
+function appendCoordinates(target, coordinates) {
+  for (const coordinate of coordinates) {
+    const previous = target[target.length - 1]
+    if (!previous || previous[0] !== coordinate[0] || previous[1] !== coordinate[1]) {
+      target.push(coordinate)
+    }
+  }
+}
+
+function geometryLengthKm(coordinates) {
+  if (coordinates.length < 2) return 0
+  return length(lineString(coordinates), { units: 'kilometers' })
+}
+
+function buildGeometryFromLegs(truckId, legs) {
+  const routeCoordinates = []
+  const waypointDistancesKm = [0]
+  let cumulativeKm = 0
 
   for (const leg of legs) {
-    cumulativeMeters += leg.distance
-    distances.push(cumulativeMeters / 1000)
+    if (!Array.isArray(leg.steps) || leg.steps.length === 0) {
+      throw new Error(`${truckId}: every route leg requires OSRM step geometry`)
+    }
+
+    const legCoordinates = []
+    for (const step of leg.steps) {
+      if (step.geometry?.type !== 'LineString' || !Array.isArray(step.geometry.coordinates)) {
+        throw new Error(`${truckId}: every route step requires GeoJSON LineString geometry`)
+      }
+      appendCoordinates(legCoordinates, step.geometry.coordinates)
+      appendCoordinates(routeCoordinates, step.geometry.coordinates)
+    }
+
+    cumulativeKm += geometryLengthKm(legCoordinates)
+    waypointDistancesKm.push(cumulativeKm)
   }
 
-  return distances
+  return {
+    geometry: {
+      type: 'LineString',
+      coordinates: routeCoordinates,
+    },
+    waypointDistancesKm,
+  }
 }
 
 function routeDefinitionsFromScenario(scenario) {
@@ -86,7 +122,7 @@ function routeDefinitionsFromScenario(scenario) {
 
 async function prepareRoute({ truckId, geometryId, coordinates }) {
   const coordinatePath = coordinates.map(([longitude, latitude]) => `${longitude},${latitude}`).join(';')
-  const url = `${baseUrl}/route/v1/driving/${coordinatePath}?overview=simplified&geometries=geojson&steps=false`
+  const url = `${baseUrl}/route/v1/driving/${coordinatePath}?overview=false&geometries=geojson&steps=true`
   const response = await fetch(url, {
     headers: { 'user-agent': 'fleetflow-sim route preparation' },
   })
@@ -107,13 +143,12 @@ async function prepareRoute({ truckId, geometryId, coordinates }) {
     throw new Error(`${truckId}: expected ${expectedLegs} route legs`)
   }
 
-  if (route.geometry?.type !== 'LineString' || !Array.isArray(route.geometry.coordinates)) {
-    throw new Error(`${truckId}: expected GeoJSON LineString geometry`)
-  }
-
-  const waypointDistancesKm = buildWaypointDistances(route.legs)
+  const { geometry, waypointDistancesKm } = buildGeometryFromLegs(truckId, route.legs)
   if (waypointDistancesKm.length !== coordinates.length) {
     throw new Error(`${truckId}: route waypoint count must match input coordinates`)
+  }
+  if (waypointDistancesKm.some((value) => typeof value !== 'number' || !Number.isFinite(value))) {
+    throw new Error(`${truckId}: route waypoint distances must be finite numbers`)
   }
   if (waypointDistancesKm.some((value, index) => index > 0 && value < waypointDistancesKm[index - 1])) {
     throw new Error(`${truckId}: route waypoint distances must be non-decreasing`)
@@ -129,7 +164,7 @@ async function prepareRoute({ truckId, geometryId, coordinates }) {
       truckId,
       waypointDistancesKm,
     },
-    geometry: route.geometry,
+    geometry,
   }
 }
 
