@@ -14,7 +14,7 @@ const ROUTE_ANCHORS = [
   [-64.2360, -31.4190],
 ]
 
-function hashSeed(text) {
+export function hashSeed(text) {
   let hash = 2166136261
   for (const char of text) {
     hash ^= char.charCodeAt(0)
@@ -23,7 +23,7 @@ function hashSeed(text) {
   return hash >>> 0
 }
 
-function mulberry32(seed) {
+export function mulberry32(seed) {
   return function next() {
     let t = seed += 0x6D2B79F5
     t = Math.imul(t ^ (t >>> 15), t | 1)
