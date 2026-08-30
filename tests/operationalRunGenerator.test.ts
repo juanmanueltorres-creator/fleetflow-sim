@@ -35,11 +35,15 @@ function runGenerator({
   from = '2026-08-30',
   to = '2026-08-31',
   suffix = 'v1',
+  issuedAtValue = issuedAt,
+  dataAsOfValue = dataAsOf,
 }: {
   outputDir: string
   from?: string
   to?: string
   suffix?: string
+  issuedAtValue?: string
+  dataAsOfValue?: string
 }): void {
   execFileSync(process.execPath, [
     generatorPath,
@@ -47,8 +51,8 @@ function runGenerator({
     '--routes', routeAssetPath,
     '--from', from,
     '--to', to,
-    '--issued-at', issuedAt,
-    '--data-as-of', dataAsOf,
+    '--issued-at', issuedAtValue,
+    '--data-as-of', dataAsOfValue,
     '--output-dir', outputDir,
     '--run-suffix', suffix,
   ], { stdio: 'pipe' })
@@ -159,5 +163,28 @@ describe('operational run generator', () => {
   ])('rejects malformed or reversed date range %s to %s', (from, to) => {
     const outputDir = tempOutputDir('operational-invalid-range')
     expect(() => runGenerator({ outputDir, from, to })).toThrow(/Invalid operational date range/)
+  })
+
+  it.each([
+    {
+      label: 'issued-at',
+      issuedAtValue: '2026-02-30T21:00:00-03:00',
+      dataAsOfValue: '2026-02-28T21:00:00-03:00',
+    },
+    {
+      label: 'data-as-of',
+      issuedAtValue: '2026-03-03T21:00:00-03:00',
+      dataAsOfValue: '2026-02-30T21:00:00-03:00',
+    },
+  ])('rejects calendar-invalid $label timestamps', ({ label, issuedAtValue, dataAsOfValue }) => {
+    const outputDir = tempOutputDir(`operational-invalid-${label}`)
+    expect(() => runGenerator({ outputDir, issuedAtValue, dataAsOfValue })).toThrow(
+      new RegExp(`Invalid ${label}`),
+    )
+  })
+
+  it.each(['v1.1', 'v1_1'])('rejects run suffix %s that cannot form a valid runtime run id', (suffix) => {
+    const outputDir = tempOutputDir('operational-invalid-suffix')
+    expect(() => runGenerator({ outputDir, suffix })).toThrow(/Invalid run-suffix/)
   })
 })
