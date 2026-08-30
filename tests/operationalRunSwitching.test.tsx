@@ -92,14 +92,18 @@ describe('operational run switching', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Play simulation' }))
     fireEvent.click(screen.getByRole('button', { name: /31 DE AGO DE 2026, FORECAST/i }))
 
-    expect(screen.getByText('06:00')).toBeInTheDocument()
-    expect(screen.getByText('Paused')).toBeInTheDocument()
-    expect(screen.queryByTestId('fleet-map')).not.toBeInTheDocument()
+    expect(screen.getByTestId('fleet-map')).toHaveTextContent(
+      `return-total:${returnTotal(run30.scenario)}`,
+    )
+    expect(screen.getByText('Running')).toBeInTheDocument()
     expect(screen.getByText('Loading operational run…')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /30 DE AGO DE 2026, SIMULATED/i })).toHaveAttribute('aria-current', 'date')
 
     run31Response.resolve(jsonResponse(run31))
 
     expect(await screen.findByTestId('fleet-map')).toHaveTextContent(`return-total:${returnTotal(run31.scenario)}`)
+    expect(screen.getByText('06:00')).toBeInTheDocument()
+    expect(screen.getByText('Paused')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /31 DE AGO DE 2026, FORECAST/i })).toHaveAttribute('aria-current', 'date')
     expect(screen.getByRole('region', { name: 'Resumen de la flota' })).toBeInTheDocument()
 
@@ -128,13 +132,20 @@ describe('operational run switching', () => {
     vi.stubGlobal('fetch', fetchMock)
 
     render(<App />)
-    expect(await screen.findByTestId('fleet-map')).toBeInTheDocument()
+    expect(await screen.findByTestId('fleet-map')).toHaveTextContent(
+      `return-total:${returnTotal(run30.scenario)}`,
+    )
 
     fireEvent.click(screen.getByRole('button', { name: /31 DE AGO DE 2026, FORECAST/i }))
 
     expect(await screen.findByRole('alert')).toHaveTextContent('Operational run unavailable.')
-    expect(screen.queryByTestId('fleet-map')).not.toBeInTheDocument()
-    expect(screen.queryByRole('region', { name: 'Resumen de la flota' })).not.toBeInTheDocument()
+    expect(screen.getByTestId('fleet-map')).toHaveTextContent(
+      `return-total:${returnTotal(run30.scenario)}`,
+    )
+    expect(screen.getByRole('region', { name: 'Resumen de la flota' })).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: /30 DE AGO DE 2026, SIMULATED/i }),
+    ).toHaveAttribute('aria-current', 'date')
 
     await waitFor(() => {
       expect(fetchMock.mock.calls.filter(([url]) => String(url) === RUN_31_URL)).toHaveLength(1)
