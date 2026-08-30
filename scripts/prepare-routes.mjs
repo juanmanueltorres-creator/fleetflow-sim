@@ -73,24 +73,20 @@ function geometryLengthKm(coordinates) {
 function buildGeometryFromLegs(truckId, legs) {
   const routeCoordinates = []
   const waypointDistancesKm = [0]
-  let cumulativeKm = 0
 
   for (const leg of legs) {
     if (!Array.isArray(leg.steps) || leg.steps.length === 0) {
       throw new Error(`${truckId}: every route leg requires OSRM step geometry`)
     }
 
-    const legCoordinates = []
     for (const step of leg.steps) {
       if (step.geometry?.type !== 'LineString' || !Array.isArray(step.geometry.coordinates)) {
         throw new Error(`${truckId}: every route step requires GeoJSON LineString geometry`)
       }
-      appendCoordinates(legCoordinates, step.geometry.coordinates)
       appendCoordinates(routeCoordinates, step.geometry.coordinates)
     }
 
-    cumulativeKm += geometryLengthKm(legCoordinates)
-    waypointDistancesKm.push(cumulativeKm)
+    waypointDistancesKm.push(geometryLengthKm(routeCoordinates))
   }
 
   return {
