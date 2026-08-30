@@ -1,4 +1,5 @@
 import { execFileSync } from 'node:child_process'
+import { createHash } from 'node:crypto'
 import {
   existsSync,
   mkdtempSync,
@@ -26,6 +27,7 @@ const profilePath = 'src/scenario/calibration/amazon-last-mile-v1.json'
 const routeAssetPath = 'public/data/cordoba-calibrated-routes.geojson'
 const issuedAt = '2026-08-30T21:00:00-03:00'
 const dataAsOf = '2026-08-30T21:00:00-03:00'
+const ACTIVE_VINTAGE = 'v2'
 const MAX_TRAVEL_SPEED_KMH = 60
 const expectedDatesAndModes = [
   ['2026-08-27', 'SIMULATED'],
@@ -37,6 +39,16 @@ const expectedDatesAndModes = [
   ['2026-09-02', 'FORECAST'],
   ['2026-09-03', 'FORECAST'],
 ] as const
+const publishedV1BlobShas: Record<string, string> = {
+  '2026-08-27': '3b9657e0b64671cb79ba2a2e4b66f33c90eb905b',
+  '2026-08-28': '0e7f6d35aec7230e9b04104ec96a8aaebd888738',
+  '2026-08-29': '40824409c158318198eb91377b5873e39ce2510a',
+  '2026-08-30': '4f9823df8b4be585323a3c69cfa1b2bf1b990549',
+  '2026-08-31': '644a885ad0314d663340d988524f8f91abcde93f',
+  '2026-09-01': '01c8335f4e663c0fcb21de48e37fd2805d9a5ada',
+  '2026-09-02': 'e0d14bff4eb672e2c28966771daccc5995ee588e',
+  '2026-09-03': '5103c81806267877ee62189e0d5ebf371757cf90',
+}
 const tempDirs: string[] = []
 
 afterEach(() => {
@@ -47,12 +59,20 @@ function readManifest(): OperationalRunManifest {
   return JSON.parse(readFileSync(manifestPath, 'utf8')) as OperationalRunManifest
 }
 
-function artifactPath(targetDate: string): string {
-  return `public/data/operational-runs/generated/cordoba-${targetDate}-v1.json`
+function artifactPath(targetDate: string, vintage = ACTIVE_VINTAGE): string {
+  return `public/data/operational-runs/generated/cordoba-${targetDate}-${vintage}.json`
 }
 
-function readRun(targetDate: string): OperationalRun {
-  return JSON.parse(readFileSync(artifactPath(targetDate), 'utf8')) as OperationalRun
+function readRun(targetDate: string, vintage = ACTIVE_VINTAGE): OperationalRun {
+  return JSON.parse(readFileSync(artifactPath(targetDate, vintage), 'utf8')) as OperationalRun
+}
+
+function gitBlobSha(path: string): string {
+  const content = readFileSync(path)
+  return createHash('sha1')
+    .update(`blob ${content.byteLength}\0`)
+    .update(content)
+    .digest('hex')
 }
 
 function totalPackages(run: OperationalRun): number {
@@ -101,7 +121,16 @@ function expectTravelGuard(
 }
 
 describe('checked-in operational run window', () => {
-  it('ships exactly eight valid immutable envelopes with manifest identity', () => {
+  it('keeps every previously published v1 artifact byte-for-byte immutable', () => {
+    for (const [targetDate] of expectedDatesAndModes) {
+      const path = artifactPath(targetDate, 'v1')
+      expect(existsSync(path), `${path} must remain published`).toBe(true)
+      if (!existsSync(path)) continue
+      expect(gitBlobSha(path), `${path} changed after publication`).toBe(publishedV1BlobShas[targetDate])
+    }
+  })
+
+  it('ships exactly eight valid v2 envelopes with manifest identity', () => {
     expect(existsSync(manifestPath)).toBe(true)
     if (!existsSync(manifestPath)) return
 
@@ -110,6 +139,8 @@ describe('checked-in operational run window', () => {
     expect(manifest.runs.map((entry) => [entry.targetDate, entry.mode])).toEqual(expectedDatesAndModes)
 
     for (const entry of manifest.runs) {
+      expect(entry.id).toBe(`cordoba-${entry.targetDate}-${ACTIVE_VINTAGE}`)
+      expect(entry.artifact).toBe(`./generated/cordoba-${entry.targetDate}-${ACTIVE_VINTAGE}.json`)
       expect(existsSync(artifactPath(entry.targetDate))).toBe(true)
       const run = readRun(entry.targetDate)
       expect(validateOperationalRun(run)).toEqual([])
@@ -155,7 +186,7 @@ describe('checked-in operational run window', () => {
     expect(operationalSignatures.size).toBeGreaterThan(1)
   })
 
-  it('matches every checked-in run to the prepared route asset and 60 km/h guard', () => {
+  it('matches every checked-in v2 run to the prepared route asset and 60 km/h guard', () => {
     const routeCollection = JSON.parse(
       readFileSync(routeAssetPath, 'utf8'),
     ) as RouteGeometryCollection
@@ -167,7 +198,7 @@ describe('checked-in operational run window', () => {
     }
   })
 
-  it('reproduces the 2026-08-31 golden artifact byte-for-byte', () => {
+  it('reproduces the 2026-08-31 v2 golden artifact byte-for-byte', () => {
     const outputDir = mkdtempSync(join(tmpdir(), 'fleetflow-operational-golden-'))
     tempDirs.push(outputDir)
 
@@ -180,12 +211,12 @@ describe('checked-in operational run window', () => {
       '--issued-at', issuedAt,
       '--data-as-of', dataAsOf,
       '--output-dir', outputDir,
-      '--run-suffix', 'v1',
+      '--run-suffix', ACTIVE_VINTAGE,
     ], { stdio: 'pipe' })
 
-    const regeneratedPath = join(outputDir, 'generated', 'cordoba-2026-08-31-v1.json')
+    const regeneratedPath = join(outputDir, 'generated', `cordoba-2026-08-31-${ACTIVE_VINTAGE}.json`)
     expect(readFileSync(regeneratedPath, 'utf8')).toBe(
-      readFileSync('public/data/operational-runs/generated/cordoba-2026-08-31-v1.json', 'utf8'),
+      readFileSync(artifactPath('2026-08-31'), 'utf8'),
     )
   })
 })
