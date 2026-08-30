@@ -47,21 +47,25 @@ describe('operational day comparison', () => {
   it('shows package load and a plain-language explanation that change with the selected day', async () => {
     render(<App />)
 
-    const kpis = await screen.findByRole('region', { name: 'Resumen de la flota' })
-    const explainer = screen.getByRole('region', { name: 'Qué estás viendo' })
+    const sundayKpis = await screen.findByRole('region', { name: 'Resumen de la flota' })
+    const sundayExplainer = screen.getByRole('region', { name: 'Qué estás viendo' })
 
-    expect(within(kpis).getByText('Paquetes del día')).toBeInTheDocument()
-    expect(within(kpis).getByText('74')).toBeInTheDocument()
-    expect(explainer).toHaveTextContent('Domingo · jornada muy liviana')
-    expect(explainer).toHaveTextContent(
+    expect(within(sundayKpis).getByText('Paquetes del día')).toBeInTheDocument()
+    expect(within(sundayKpis).getByText('74')).toBeInTheDocument()
+    expect(sundayExplainer).toHaveTextContent('Domingo · jornada muy liviana')
+    expect(sundayExplainer).toHaveTextContent(
       'Hoy hay menos carga para repartir y los recorridos usan un ritmo más fluido que una jornada base.',
     )
 
     fireEvent.click(screen.getByRole('button', { name: /31 DE AGO DE 2026, FORECAST/i }))
 
-    expect(await within(kpis).findByText('116')).toBeInTheDocument()
-    expect(explainer).toHaveTextContent('Lunes · jornada exigente')
-    expect(explainer).toHaveTextContent(
+    expect(await screen.findByText('Lunes · jornada exigente')).toBeInTheDocument()
+    const mondayKpis = screen.getByRole('region', { name: 'Resumen de la flota' })
+    const mondayExplainer = screen.getByRole('region', { name: 'Qué estás viendo' })
+
+    expect(within(mondayKpis).getByText('116')).toBeInTheDocument()
+    expect(mondayExplainer).toHaveTextContent('Lunes · jornada exigente')
+    expect(mondayExplainer).toHaveTextContent(
       'Hoy entra más carga y los recorridos usan un ritmo algo más lento que una jornada base.',
     )
   })
