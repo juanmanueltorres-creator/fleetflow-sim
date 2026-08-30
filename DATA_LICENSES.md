@@ -63,14 +63,20 @@ FleetFlow uses OSM-based road context for its prepared static route geometries. 
 © OpenStreetMap contributors
 ```
 
-The checked-in route assets are:
+Checked-in route assets include the historical shared routes:
 
 ```text
 public/data/coca-coqui-routes.geojson
 public/data/cordoba-calibrated-routes.geojson
 ```
 
-They are generated during development using an OSRM routing service and are not evidence of measured or observed vehicle tracks.
+and the V0.6 immutable per-run route artifacts referenced by `manifest-v0-6.json`:
+
+```text
+public/data/operational-runs/generated/cordoba-*-v3.routes.geojson
+```
+
+These route files are generated during development using an OSRM routing service and are not evidence of measured or observed vehicle tracks. V0.6 route metadata binds each artifact to its synthetic `OperationalRun`; that binding does not change the underlying OSM attribution boundary.
 
 ## OpenFreeMap
 
@@ -103,6 +109,7 @@ Amazon-derived aggregate profile     -> respect source terms / attribution
 Córdoba municipal GTFS               -> CC-BY-SA-AR (CBA) + attribution
 GTFS-derived candidate pool          -> synthetic derived artifact; preserve source terms
 OpenStreetMap map + road data        -> ODbL + attribution
+V0.6 per-run road GeoJSON            -> generated from OSM routing; retain OSM attribution
 OpenFreeMap public basemap service    -> OpenFreeMap terms + required attribution
 Synthetic Córdoba scenario content    -> generated FleetFlow scenario, with provenance disclosed
 ```
