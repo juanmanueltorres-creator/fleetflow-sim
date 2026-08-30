@@ -158,6 +158,6 @@ describe('operational run generator', () => {
     ['2026-09-01', '2026-08-31'],
   ])('rejects malformed or reversed date range %s to %s', (from, to) => {
     const outputDir = tempOutputDir('operational-invalid-range')
-    expect(() => runGenerator({ outputDir, from, to })).toThrow(/date|range/i)
+    expect(() => runGenerator({ outputDir, from, to })).toThrow(/Invalid operational date range/)
   })
 })
