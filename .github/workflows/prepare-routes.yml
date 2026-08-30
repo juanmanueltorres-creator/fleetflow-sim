@@ -26,7 +26,7 @@ jobs:
       - run: npm install --no-audit --no-fund
       - run: npm run prepare:routes
       - name: Generate provisional calibrated scenario
-        run: npm run generate:calibrated -- --output /tmp/cordoba-provisional.json
+        run: npm run generate:calibrated -- --mode provisional --output /tmp/cordoba-provisional.json
       - name: Prepare calibrated routes for provisional coordinates
         run: |
           node scripts/prepare-routes.mjs \
