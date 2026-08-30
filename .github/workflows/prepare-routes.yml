@@ -8,7 +8,7 @@ on:
       - .github/workflows/prepare-routes.yml
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   prepare:
@@ -22,6 +22,19 @@ jobs:
       - run: npm run prepare:routes
       - run: npm run prepare:routes:calibrated
       - run: npm run generate:calibrated
+      - name: Commit generated assets
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/data/coca-coqui-routes.geojson
+          git add public/data/cordoba-calibrated-routes.geojson
+          git add src/scenario/generated/cordoba-calibrated-v1.json
+          if git diff --cached --quiet; then
+            echo "Generated assets already match the branch."
+          else
+            git commit -m "data: align cumulative route offsets"
+            git push
+          fi
       - uses: actions/upload-artifact@v4
         with:
           name: prepared-route-assets
