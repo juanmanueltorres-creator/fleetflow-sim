@@ -69,9 +69,35 @@ describe('Coca Coqui V0 scenario', () => {
     )
   })
 
+  it('rejects nonnumeric mass cargo values from runtime scenario data', () => {
+    const invalidScenario = structuredClone(cocaCoquiScenario) as FleetScenario
+    const massStop = invalidScenario.routes[0].stops[0]
+
+    massStop.cargo = {
+      kind: 'MASS',
+      quantityKg: '125',
+    } as unknown as typeof massStop.cargo
+
+    expect(validateScenario(invalidScenario)).toContainEqual(
+      expect.stringMatching(/mass cargo/i),
+    )
+  })
+
   it('rejects time windows that begin before the simulation', () => {
     const invalidScenario = structuredClone(cocaCoquiScenario) as FleetScenario
     invalidScenario.stores[0].timeWindow = { startMinute: -10, endMinute: 5 }
+
+    expect(validateScenario(invalidScenario)).toContainEqual(
+      expect.stringMatching(/invalid time window/i),
+    )
+  })
+
+  it('rejects nonnumeric time-window values from runtime scenario data', () => {
+    const invalidScenario = structuredClone(cocaCoquiScenario) as FleetScenario
+    invalidScenario.stores[0].timeWindow = {
+      startMinute: '10',
+      endMinute: '20',
+    } as unknown as typeof invalidScenario.stores[number]['timeWindow']
 
     expect(validateScenario(invalidScenario)).toContainEqual(
       expect.stringMatching(/invalid time window/i),
