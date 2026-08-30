@@ -1,0 +1,44 @@
+name: Task 5 generate operational window
+
+on:
+  push:
+    branches:
+      - feat/v0.5-operational-timeline
+    paths:
+      - .github/workflows/task5-generate-operational-window.yml
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout feature branch
+        uses: actions/checkout@v4
+        with:
+          ref: feat/v0.5-operational-timeline
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Generate immutable operational run window
+        run: >-
+          npm run generate:operational-runs --
+          --from 2026-08-27
+          --to 2026-09-03
+          --issued-at 2026-08-30T21:00:00-03:00
+          --data-as-of 2026-08-30T21:00:00-03:00
+          --output-dir public/data/operational-runs
+          --run-suffix v1
+
+      - name: Commit canonical artifacts and remove one-shot workflow
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/task5-generate-operational-window.yml
+          git add public/data/operational-runs
+          git commit -m "data: add FleetFlow V0.5 operational run window"
+          git push origin HEAD:feat/v0.5-operational-timeline
