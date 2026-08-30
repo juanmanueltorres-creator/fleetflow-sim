@@ -23,6 +23,9 @@ export interface ScenarioDefinition {
   label: string
   badge: string
   routeAsset: string
+  operationalRuns?: {
+    manifestUrl: string
+  }
   scenario: FleetScenario
   provenance: ScenarioProvenance
 }
@@ -43,6 +46,9 @@ const definitions: Record<ScenarioId, ScenarioDefinition> = {
     label: 'Córdoba calibrado',
     badge: 'Calibrado',
     routeAsset: './data/cordoba-calibrated-routes.geojson',
+    operationalRuns: {
+      manifestUrl: './data/operational-runs/manifest.json',
+    },
     scenario: requireValidScenario('Calibrated Cordoba', calibratedScenario),
     provenance: {
       mode: 'CALIBRATED',
