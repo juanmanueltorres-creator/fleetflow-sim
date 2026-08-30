@@ -342,7 +342,7 @@ export default function App() {
           <aside className="operations-panel">
             <KpiPanel metrics={metrics} />
             {timeline && activeRun ? (
-              <OperationalExplainer targetDate={activeRun.targetDate} />
+              <OperationalExplainer run={activeRun} />
             ) : null}
             <FleetPanel scenario={activeScenario} snapshot={snapshot} />
             <ScenarioProvenance
