@@ -21,7 +21,7 @@ const ISO_TIMESTAMP_WITH_ZONE = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}
 const RUN_SUFFIX = /^[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*$/
 const WEEKLY_PROFILES = new Map(
   JSON.parse(
-    readFileSync(new URL('../../src/scenario/operationalRuns/weekly-profile.json', import.meta.url), 'utf8'),
+    readFileSync('src/scenario/operationalRuns/weekly-profile.json', 'utf8'),
   ).map((profile) => [profile.day, profile]),
 )
 
