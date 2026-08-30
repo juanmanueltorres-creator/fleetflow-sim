@@ -26,4 +26,17 @@ describe('operational profile provenance', () => {
       expect.stringMatching(/operational profile/i),
     )
   })
+
+  it('rejects a stored profile weekday that disagrees with targetDate', () => {
+    const candidate = structuredClone(run)
+    candidate.provenance.operationalProfile = {
+      ...candidate.provenance.operationalProfile,
+      day: 1,
+      dayLabel: 'Lunes',
+    }
+
+    expect(validateOperationalRun(candidate)).toContainEqual(
+      expect.stringMatching(/operational profile.*targetDate|targetDate.*operational profile/i),
+    )
+  })
 })
