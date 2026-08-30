@@ -40,10 +40,11 @@ describe('FleetFlow app shell', () => {
     vi.useRealTimers()
   })
 
-  it('renders the V0.4 identity, calibrated operational default and simulation controls', async () => {
+  it('renders the V0.5 identity, calibrated operational default and simulation controls', async () => {
     render(<App />)
 
     expect(screen.getByRole('heading', { name: 'FleetFlow Sim' })).toBeInTheDocument()
+    expect(screen.getByText('Operational timeline simulation · V0.5')).toBeInTheDocument()
     expect(screen.getByRole('radio', { name: /Córdoba calibrado/i })).toBeChecked()
     expect(screen.getByRole('radio', { name: /Coca Coqui/i })).not.toBeChecked()
     expect(screen.getByText('06:00')).toBeInTheDocument()
@@ -52,6 +53,7 @@ describe('FleetFlow app shell', () => {
     expect(await screen.findByText('Córdoba Last-Mile Calibrado')).toBeInTheDocument()
     expect(screen.getByRole('navigation', { name: 'Operational dates' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /30 DE AGO DE 2026, SIMULATED/i })).toHaveAttribute('aria-current', 'date')
+    expect(screen.getByText('SIMULATED · ESCENARIO CALIBRADO')).toBeInTheDocument()
     expect(await screen.findByTestId('fleet-map')).toBeInTheDocument()
   })
 })
