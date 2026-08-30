@@ -1,0 +1,116 @@
+.top-rail {
+  grid-template-columns: minmax(285px, 0.72fr) minmax(600px, 1.28fr);
+}
+
+.simulation-hud {
+  grid-template-columns: minmax(190px, 1fr) minmax(140px, auto) minmax(260px, auto);
+  gap: 0.9rem;
+  padding-inline: 1rem;
+}
+
+.simulation-hud > .operational-date-rail,
+.simulation-hud > .simulation-clock,
+.simulation-hud > .simulation-controls {
+  min-width: 0;
+}
+
+.simulation-hud > .simulation-clock {
+  padding-inline: 0.18rem;
+}
+
+.simulation-hud > .simulation-controls {
+  justify-content: flex-end;
+  gap: 0.48rem;
+}
+
+.operational-date-rail-track {
+  gap: 0.42rem;
+}
+
+.operational-run-metadata {
+  gap: 0.34rem 0.68rem;
+}
+
+.operational-explainer {
+  margin: 0.62rem 0 0.72rem;
+  padding: 0.66rem 0.62rem 0.7rem;
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+  background: rgba(210, 177, 115, 0.025);
+}
+
+.operational-explainer h2,
+.operational-explainer p {
+  margin: 0;
+}
+
+.operational-explainer h2 {
+  font-family: "Courier New", Courier, monospace;
+  font-size: 0.61rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-gold);
+}
+
+.operational-explainer p {
+  margin-top: 0.38rem;
+  font-family: "Courier New", Courier, monospace;
+  font-size: 0.61rem;
+  line-height: 1.48;
+  color: #cbbda8;
+}
+
+@media (max-width: 1360px) and (min-width: 1181px) {
+  .simulation-hud {
+    grid-template-columns: minmax(175px, 1fr) auto;
+    grid-template-areas:
+      "rail clock"
+      "rail controls";
+    row-gap: 0.38rem;
+  }
+
+  .simulation-hud > .operational-date-rail {
+    grid-area: rail;
+  }
+
+  .simulation-hud > .simulation-clock {
+    grid-area: clock;
+  }
+
+  .simulation-hud > .simulation-controls {
+    grid-area: controls;
+  }
+}
+
+@media (max-width: 1180px) {
+  .top-rail {
+    grid-template-columns: 1fr;
+  }
+
+  .simulation-hud {
+    grid-template-columns: minmax(180px, 1fr) minmax(132px, auto) minmax(250px, auto);
+  }
+}
+
+@media (max-width: 700px) {
+  .simulation-hud {
+    grid-template-columns: minmax(145px, 1fr) auto;
+    grid-template-areas:
+      "rail clock"
+      "rail controls";
+    row-gap: 0.36rem;
+  }
+
+  .simulation-hud > .operational-date-rail {
+    grid-area: rail;
+  }
+
+  .simulation-hud > .simulation-clock {
+    grid-area: clock;
+  }
+
+  .simulation-hud > .simulation-controls {
+    grid-area: controls;
+  }
+}
