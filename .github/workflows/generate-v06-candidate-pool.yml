@@ -8,13 +8,15 @@ on:
       - .github/workflows/generate-v06-candidate-pool.yml
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   generate:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: feat/v0.6-daily-spatial-demand
 
       - uses: actions/setup-node@v4
         with:
@@ -47,35 +49,31 @@ jobs:
           curl --fail --location --retry 3 "$gtfs_url" --output /tmp/fleetflow-cordoba-gtfs.zip
           unzip -p /tmp/fleetflow-cordoba-gtfs.zip stops.txt > /tmp/fleetflow-cordoba-gtfs/stops.txt
           test -s /tmp/fleetflow-cordoba-gtfs/stops.txt
-          sha256sum /tmp/fleetflow-cordoba-gtfs.zip
-          wc -l /tmp/fleetflow-cordoba-gtfs/stops.txt
 
       - name: Generate and validate candidate pool
         run: |
           set -euo pipefail
+          test ! -e src/scenario/operationalRuns/candidate-pool-v1.json
           node scripts/generate-candidate-pool.mjs \
             --stops /tmp/fleetflow-cordoba-gtfs/stops.txt \
-            --output /tmp/candidate-pool-v1.json
+            --output src/scenario/operationalRuns/candidate-pool-v1.json
           node - <<'NODE'
-          const pool = require('/tmp/candidate-pool-v1.json')
-          if (pool.candidates.length !== 240) {
-            throw new Error(`expected 240 candidates, got ${pool.candidates.length}`)
-          }
+          const pool = require('./src/scenario/operationalRuns/candidate-pool-v1.json')
+          if (pool.candidates.length !== 240) throw new Error(`expected 240 candidates, got ${pool.candidates.length}`)
           const counts = new Map()
-          for (const candidate of pool.candidates) {
-            counts.set(candidate.zoneId, (counts.get(candidate.zoneId) ?? 0) + 1)
-          }
+          for (const candidate of pool.candidates) counts.set(candidate.zoneId, (counts.get(candidate.zoneId) ?? 0) + 1)
           for (let zone = 0; zone < 8; zone += 1) {
             const id = `zone-${zone}`
-            if (counts.get(id) !== 30) {
-              throw new Error(`${id} expected 30 candidates, got ${counts.get(id) ?? 0}`)
-            }
+            if (counts.get(id) !== 30) throw new Error(`${id} expected 30 candidates, got ${counts.get(id) ?? 0}`)
           }
           console.log('Candidate pool verified:', pool.candidates.length, Object.fromEntries(counts))
           NODE
 
-      - uses: actions/upload-artifact@v4
-        with:
-          name: fleetflow-v06-candidate-pool
-          path: /tmp/candidate-pool-v1.json
-          if-no-files-found: error
+      - name: Commit generated pool
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add src/scenario/operationalRuns/candidate-pool-v1.json
+          git commit -m 'data: publish Cordoba candidate pool v1'
+          git push origin HEAD:feat/v0.6-daily-spatial-demand
