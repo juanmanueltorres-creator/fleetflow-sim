@@ -4,9 +4,78 @@ Open-source visual fleet simulator for testing last-mile operations on an intera
 
 **Live demo:** https://juanmanueltorres-creator.github.io/fleetflow-sim/
 
+## V0.6 — Daily Spatial Demand
+
+V0.6 makes the Córdoba operational timeline spatially variable while preserving the fixed eight-vehicle fleet and the existing simulation engine. Each published date is an immutable `OperationalRun` bundle with its own synthetic delivery set, parcel assignment, schedule, and road-following GeoJSON route artifact.
+
+The active timeline is referenced by:
+
+```text
+public/data/operational-runs/manifest-v0-6.json
+```
+
+For the checked-in 2026-08-27 through 2026-09-03 window, every run has:
+
+- exactly 8 synthetic delivery vehicles and the same Córdoba depot
+- 45–65 active synthetic delivery destinations selected from a versioned 240-point candidate pool
+- a deterministic package target derived from the calibrated weekly profile
+- every active destination assigned exactly once to one vehicle
+- parcel-volume capacity constraints enforced per vehicle
+- deterministic nearest-neighbour stop ordering
+- one immutable, run-bound road GeoJSON artifact carrying `runId`, `targetDate`, and `modelVersion`
+- planned and remaining package counts exposed per vehicle in the fleet panel
+
+**GTFS structure informs synthetic spatial weighting; it is not parcel-demand truth.** Córdoba municipal GTFS is used offline only as a spatial proxy for constructing the synthetic candidate universe. Candidate labels are neutral (`Entrega 001`, `Entrega 002`, etc.); they are not represented as real customers, businesses, homes, or transit stops.
+
+**V0.6 runs are deterministic model outputs, not observed Córdoba operations.** They do not represent live parcel demand, telemetry, traffic, weather, a real operator's customer list, or measured delivery routes.
+
+**V0.6 uses per-run route artifacts and `manifest-v0-6.json`.** The historical V0.5 `manifest.json` and its generated artifacts remain checked in and valid for compatibility, but they are no longer the active Córdoba timeline.
+
+### Reproducing the V0.6 spatial artifacts
+
+After extracting the official Córdoba GTFS so that `stops.txt` exists at the stated temporary path, regenerate candidate-pool v1 with the canonical command:
+
+```bash
+node scripts/generate-candidate-pool.mjs \
+  --stops /tmp/fleetflow-cordoba-gtfs/stops.txt \
+  --output src/scenario/operationalRuns/candidate-pool-v1.json
+```
+
+The published V0.6 operational window is generated with:
+
+```bash
+node scripts/generate-v0-6-operational-runs.mjs \
+  --profile src/scenario/calibration/amazon-last-mile-v1.json \
+  --candidate-pool src/scenario/operationalRuns/candidate-pool-v1.json \
+  --fleet-template src/scenario/generated/cordoba-calibrated-v1.json \
+  --from 2026-08-27 \
+  --to 2026-09-03 \
+  --issued-at 2026-08-30T21:00:00-03:00 \
+  --data-as-of 2026-08-30T21:00:00-03:00 \
+  --output-dir public/data/operational-runs \
+  --manifest-name manifest-v0-6.json \
+  --run-suffix v3
+```
+
+The V0.6 generator uses OSRM only during offline route preparation. It validates every run before publication and refuses to overwrite an existing manifest, run JSON, or route GeoJSON.
+
+### Stable What-If handoff
+
+PR2 intentionally stops at the immutable Base-run boundary. A later What-If implementation must consume the existing V0.6 contracts instead of inventing a parallel model:
+
+```text
+Base modelVersion: fleetflow-v0.6
+Base artifact: OperationalRun
+Route artifact: V2-bound GeoJSON
+Timing interface: scripts/lib/v0-6-route-timing.mjs#scheduleScenarioFromRoutes
+Candidate IDs/cargo: frozen inside each published Base run
+```
+
+What-If comparison is **not** implemented in V0.6 PR2.
+
 ## V0.5 — Operational Timeline Foundation
 
-V0.5 adds a date-aware operational layer above the existing calibrated `FleetScenario` and simulation engine. The browser loads an immutable `OperationalRun` selected from a checked-in manifest, then passes that run's scenario into the same simulation pipeline used by V0.4.
+V0.5 introduced a date-aware operational layer above the calibrated `FleetScenario` and simulation engine. The browser loads an immutable `OperationalRun` selected from a checked-in manifest, then passes that run's scenario into the same simulation pipeline used by V0.4. That bundle boundary remains the foundation used by V0.6.
 
 Each run carries explicit evidence metadata:
 
@@ -15,7 +84,7 @@ Each run carries explicit evidence metadata:
 - `dataAsOf` — latest information timestamp represented by the artifact
 - `mode` — evidence semantics for the run
 
-The initial immutable window contains eight checked-in dates:
+The historical V0.5 immutable window contains eight checked-in dates:
 
 ```text
 2026-08-27  SIMULATED
@@ -30,13 +99,13 @@ The initial immutable window contains eight checked-in dates:
 
 `SIMULATED` means a reproducible synthetic replay generated from the calibrated model. `FORECAST` means a reproducible synthetic operational forecast for a target date after the issuance date. Neither mode represents observed Córdoba delivery demand, live traffic, real telemetry, or a real operator's routes.
 
-Across the eight dates, FleetFlow keeps the same **8 vehicles, 60 delivery locations, depot, ownership, and road geometry** while varying operational package demand and timing deterministically by date. Artifacts are immutable JSON files referenced by:
+Across those historical V0.5 dates, FleetFlow kept the same **8 vehicles, 60 delivery locations, depot, ownership, and road geometry** while varying operational package demand and timing deterministically by date. Those compatibility artifacts remain referenced by:
 
 ```text
 public/data/operational-runs/manifest.json
 ```
 
-To regenerate an equivalent explicit window into a clean output directory:
+To regenerate an equivalent historical V0.5 window into a clean output directory:
 
 ```bash
 npm run generate:operational-runs -- \
@@ -76,14 +145,14 @@ The connected top rail lets you switch atomically between:
 
 | Scenario | Purpose | Vehicles | Stops | Cargo |
 | --- | --- | ---: | ---: | --- |
-| **Córdoba calibrado** | Public-data-calibrated behavior with a V0.5 operational timeline and synthetic Córdoba geography | 8 | 60 | Parcels / volume |
+| **Córdoba calibrado** | Public-data-calibrated behavior with the active V0.6 spatial timeline and synthetic Córdoba geography | 8 | 45–65 per day | Parcels / volume |
 | **Coca Coqui · Legacy V0** | Original fully synthetic proof of concept | 5 | 15 | Mass / kg |
 
-Switching scenarios resets the clock, pauses playback, loads the matching static route asset, and remounts the map so layers and popups cannot leak between scenarios. Legacy V0 has no operational timeline and remains on its original static scenario path.
+Switching scenarios resets the clock, pauses playback, loads the matching operational/static route asset, and remounts the map so layers and popups cannot leak between scenarios. Legacy V0 has no operational timeline and remains on its original static scenario path.
 
 ## Evidence pipeline
 
-The raw external dataset is used **offline only**. It is never bundled into the deployed application or committed to this repository.
+External source datasets are used **offline only**. They are never bundled into the deployed application or committed as raw source files merely to run FleetFlow.
 
 ```text
 Amazon Last Mile training data (external, offline)
@@ -94,26 +163,40 @@ bounded-memory calibration script
                 v
 compact aggregate profile
                 |
-                v
-seeded Córdoba scenario generator
-                |
-                v
-deterministic OperationalRun generator
-                |
-                v
-manifest + immutable run artifacts
-                |
-                v
-OperationalRun Catalog
-                |
-                v
-FleetScenario
-                |
-                v
-existing Simulation Engine -> FleetSnapshot -> map / HUD
+                +-------------------------------+
+                |                               |
+                v                               v
+V0.4 calibrated fleet template       Córdoba GTFS spatial proxy
+                                                |
+                                                v
+                                   240-point candidate pool
+                                                |
+                                                v
+                                  daily deterministic demand
+                                                |
+                                                v
+                                  8-truck assignment + ordering
+                                                |
+                                                v
+                                     offline OSRM preparation
+                                                |
+                                                v
+                                  V0.6 OperationalRun + routes
+                                                |
+                                                v
+                                      manifest-v0-6.json
+                                                |
+                                                v
+                                      OperationalRun Catalog
+                                                |
+                                                v
+                                         FleetScenario
+                                                |
+                                                v
+                         existing Simulation Engine -> FleetSnapshot -> map / HUD
 ```
 
-The checked-in calibration profile was derived from the `High` route subset and summarizes:
+The checked-in Amazon calibration profile was derived from the `High` route subset and summarizes:
 
 - **2,718 routes**
 - **379,444 drop-off stops**
@@ -137,21 +220,31 @@ Canonical V0.4 geography seed:
 fleetflow-cordoba-v0.4
 ```
 
-V0.5 keeps that geography seed stable and derives operational seeds from the target date:
+Historical V0.5 operational seed:
 
 ```text
 fleetflow:v0.5:cordoba:${targetDate}
 ```
 
-Production generation never calls `Math.random()`. Tests regenerate the calibrated scenario and operational artifacts and require deterministic output, including a byte-for-byte golden run.
+V0.6 freezes four per-date random streams plus a versioned candidate-pool seed:
 
-The generated calibrated scenario fixes route stop counts to:
+```text
+fleetflow:v0.6:cordoba:${targetDate}:demand
+fleetflow:v0.6:cordoba:${targetDate}:spatial
+fleetflow:v0.6:cordoba:${targetDate}:operations
+fleetflow:v0.6:cordoba:${targetDate}:assignment
+fleetflow:v0.6:cordoba:candidate-pool-v1
+```
+
+Production generation never calls `Math.random()`. Tests regenerate the calibrated scenario and V0.6 logical artifacts with deterministic inputs and validate the checked-in published bundles.
+
+The generated V0.4 calibrated scenario fixes route stop counts to:
 
 ```text
 [6, 9, 7, 8, 6, 10, 7, 7]
 ```
 
-V0.5 derives a deterministic daily package target around the 100-package baseline while retaining at least one package per stop.
+V0.5 derived a deterministic daily package target around the 100-package baseline while keeping the 60-point geography stable. V0.6 retains the weekly package target as demand authority but deterministically selects 45–65 active destinations and redistributes them across the fixed eight-vehicle fleet.
 
 ## Architecture
 
@@ -160,19 +253,21 @@ React + TypeScript + Vite
         |
         +-- Scenario Registry
         |     +-- Córdoba calibrated
-        |     |     `-- OperationalRun Catalog -> FleetScenario
+        |     |     `-- OperationalRun Catalog -> OperationalBundle
+        |     |                                  +-- run JSON
+        |     |                                  `-- bound route GeoJSON
         |     `-- Coca Coqui Legacy V0 -> static FleetScenario
         |
         +-- existing pure time-based simulation engine
         +-- MASS / PARCELS cargo contracts
         +-- Turf route interpolation / bearing
-        +-- static GeoJSON road routes
+        +-- checked-in GeoJSON road routes
         +-- one GeoJSON vehicle source
         +-- MapLibre GL + OpenFreeMap
         `-- React timeline / clock / controls / KPIs / fleet / provenance
 ```
 
-Operational runs are loaded lazily from `public/data`; the eight JSON artifacts are not imported into the JavaScript bundle. The deployed browser does **not** call OSRM or any routing API. Road geometry is prepared ahead of time and committed as static GeoJSON.
+Operational runs are loaded lazily from `public/data`; run JSON and route artifacts are not imported into the JavaScript bundle. The deployed browser does **not** call OSRM or any routing API. Road geometry is prepared ahead of time and committed as static GeoJSON.
 
 ## Static road routes
 
@@ -182,20 +277,26 @@ Legacy routes:
 public/data/coca-coqui-routes.geojson
 ```
 
-Calibrated Córdoba routes:
+Historical calibrated Córdoba V0.4/V0.5 shared routes:
 
 ```text
 public/data/cordoba-calibrated-routes.geojson
 ```
 
-To regenerate them during development:
+V0.6 active Córdoba routes are bound per run under:
+
+```text
+public/data/operational-runs/generated/cordoba-*-v3.routes.geojson
+```
+
+To regenerate the legacy/shared route assets during development:
 
 ```bash
 npm run prepare:routes
 npm run prepare:routes:calibrated
 ```
 
-Route preparation uses OpenStreetMap-based OSRM routing outside the browser. The script validates route-leg cardinality and strictly increasing cumulative waypoint distances before writing an asset.
+V0.6 per-run routes are produced by the V0.6 operational-run command shown above. Route preparation uses OpenStreetMap-based OSRM routing outside the browser. The scripts validate route-leg cardinality and strictly increasing cumulative waypoint distances before writing an asset.
 
 ## Reproducing the Amazon calibration
 
@@ -248,31 +349,32 @@ CI runs the full test suite and a production build on pushes and pull requests.
 
 ## Scope boundaries
 
-V0.5 intentionally has no backend, database, authentication, live GPS, IoT, live weather, live traffic, incident feed, dynamic road generation, production dispatch integration, or production-grade route optimizer.
+V0.6 PR2 intentionally has no backend, database, authentication, live GPS, IoT, live weather, live traffic, incident feed, browser routing, production dispatch integration, production-grade route optimizer, ML model, context score, or What-If implementation.
 
-The current project demonstrates an immutable operational-artifact boundary above the existing deterministic engine:
+The current project demonstrates an immutable operational-bundle boundary above the existing deterministic engine:
 
 ```text
-OperationalRun Catalog -> FleetScenario -> Simulation Engine -> FleetSnapshot -> map / dashboard
+OperationalRun Catalog -> OperationalBundle -> FleetScenario -> Simulation Engine -> FleetSnapshot -> map / dashboard
 ```
 
-Future observed or telemetry adapters can target those same boundaries without changing the current simulation engine contract.
+Future observed, context, telemetry, or What-If adapters can target those same boundaries without changing the current simulation engine contract.
 
 ## Roadmap
 
 High-value next increments:
 
-1. external operational context such as weather, traffic, holidays, and calendar demand signals
-2. multiple forecast vintages plus explicit observed-data adapters
-3. incidents, delays, replanning, and planned-versus-actual comparisons
-4. optimization experiments such as baseline versus CVRP/OR-Tools assignments
-5. live telemetry adapters through the existing `FleetSnapshot` contract
+1. What-If Base-versus-intervention comparison reusing the frozen V0.6 Base run and `scheduleScenarioFromRoutes`
+2. external operational context such as weather, traffic, holidays, and calendar demand signals
+3. multiple forecast vintages plus explicit observed-data adapters
+4. incidents, delays, replanning, and planned-versus-actual comparisons
+5. optimization experiments such as baseline versus CVRP/OR-Tools assignments
+6. live telemetry adapters through the existing `FleetSnapshot` contract
 
 ## Data, attribution and licenses
 
 Application source code is released under the MIT License.
 
-The calibrated workflow uses the **Amazon Last Mile Routing Research Challenge** public dataset under **CC BY-NC 4.0**. OpenStreetMap data used for route/map context is available under **ODbL** and requires attribution. The deployed basemap is served by OpenFreeMap and retains its required attribution.
+The calibrated workflow uses the **Amazon Last Mile Routing Research Challenge** public dataset under **CC BY-NC 4.0**. Córdoba municipal GTFS is used as an offline spatial proxy for the synthetic candidate pool and carries its source attribution/license terms. OpenStreetMap data used for route/map context is available under **ODbL** and requires attribution. The deployed basemap is served by OpenFreeMap and retains its required attribution.
 
 See [`DATA_LICENSES.md`](DATA_LICENSES.md) for the source URLs, artifact boundaries, and third-party attribution notes.
 
