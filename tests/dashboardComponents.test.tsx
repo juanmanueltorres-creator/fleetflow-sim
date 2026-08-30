@@ -131,6 +131,7 @@ describe('simulation dashboard components', () => {
 
     expect(screen.getByText('FORECAST · ESCENARIO CALIBRADO')).toBeInTheDocument()
     expect(screen.getByText(/Operación sintética reproducible/i)).toBeInTheDocument()
+    expect(screen.getByText(/No representa demanda ni telemetría real de Córdoba/i)).toBeInTheDocument()
     expect(screen.getByText(/Comportamiento derivado de datos operacionales públicos/)).toBeInTheDocument()
     expect(screen.getByText('Fuente y método')).toBeInTheDocument()
     expect(screen.getByText('Fuente: Amazon Last Mile Routing Research Challenge')).toBeInTheDocument()
@@ -139,7 +140,7 @@ describe('simulation dashboard components', () => {
       'href',
       'https://registry.opendata.aws/amazon-last-mile-challenges/',
     )
-    expect(document.body.textContent).not.toMatch(/operación real|tráfico real|telemetría real|Amazon Córdoba|Mercado Libre Córdoba|rutas reales de Amazon/i)
+    expect(document.body.textContent).not.toMatch(/Amazon Córdoba|Mercado Libre Córdoba|rutas reales de Amazon/i)
   })
 
   it('discloses simulated runs as synthetic and not observed', () => {
