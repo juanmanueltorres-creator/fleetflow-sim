@@ -61,7 +61,7 @@ describe('calibrated Cordoba scenario generator', () => {
     expect(scenario.routes.reduce((count, route) => count + route.stops.length, 0)).toBe(60)
     expect(totalPackages(scenario)).toBe(100)
     expect(scenario.trucks.every((truck) => truck.capacity.kind === 'PARCELS')).toBe(true)
-    expect(scenario.routes.every((route) => route.stops.every((stop) => stop.cargo.kind === 'PARCELS')).toBe(true)
+    expect(scenario.routes.every((route) => route.stops.every((stop) => stop.cargo.kind === 'PARCELS'))).toBe(true)
     expect(validateScenario(scenario)).toEqual([])
   })
 
