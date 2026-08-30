@@ -64,6 +64,8 @@ export default function App() {
       }
     }
 
+    const manifestUrl = timeline.manifestUrl
+
     setRunManifest(null)
     setSelectedRunId(null)
     setActiveRun(null)
@@ -72,7 +74,7 @@ export default function App() {
 
     async function loadManifest() {
       try {
-        const manifest = await loadOperationalRunManifest(timeline.manifestUrl)
+        const manifest = await loadOperationalRunManifest(manifestUrl)
         if (cancelled) return
 
         const defaultEntry = selectDefaultRunEntry(
@@ -104,6 +106,7 @@ export default function App() {
   useEffect(() => {
     if (!timeline || !runManifest || !selectedRunId) return
 
+    const manifestUrl = timeline.manifestUrl
     let cancelled = false
     const entry = runManifest.runs.find((candidate) => candidate.id === selectedRunId)
 
@@ -116,13 +119,15 @@ export default function App() {
       }
     }
 
+    const selectedEntry = entry
+
     setRunLoading(true)
     setRunError(false)
     setActiveRun(null)
 
     async function loadSelectedRun() {
       try {
-        const run = await loadOperationalRun(entry, timeline.manifestUrl)
+        const run = await loadOperationalRun(selectedEntry, manifestUrl)
         if (!cancelled) {
           setActiveRun(run)
           setRunError(false)
@@ -150,6 +155,7 @@ export default function App() {
       return
     }
 
+    const scenario = activeScenario
     let cancelled = false
 
     async function loadRoutes() {
@@ -157,7 +163,7 @@ export default function App() {
         const response = await fetch(activeDefinition.routeAsset)
         if (!response.ok) throw new Error(`Route asset HTTP ${response.status}`)
         const collection = (await response.json()) as RouteGeometryCollection
-        routeCollectionToIndex(collection, activeScenario)
+        routeCollectionToIndex(collection, scenario)
         if (!cancelled) {
           setRoutes(collection)
           setRouteError(false)
