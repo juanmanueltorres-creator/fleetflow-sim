@@ -5,8 +5,13 @@ interface KpiPanelProps {
 }
 
 export function KpiPanel({ metrics }: KpiPanelProps) {
+  const hasPackages = metrics.totalPackages !== null
+
   return (
-    <section className="kpi-panel" aria-label="Resumen de la flota">
+    <section
+      className={`kpi-panel${hasPackages ? ' has-packages' : ''}`}
+      aria-label="Resumen de la flota"
+    >
       <article>
         <span>Entregas</span>
         <strong>{metrics.completedDeliveries} / {metrics.totalDeliveries}</strong>
@@ -23,6 +28,12 @@ export function KpiPanel({ metrics }: KpiPanelProps) {
         <span>Combustible estimado</span>
         <strong>{metrics.estimatedFuelUsedL.toFixed(1)} L</strong>
       </article>
+      {hasPackages ? (
+        <article className="kpi-packages">
+          <span>Paquetes del día</span>
+          <strong>{metrics.totalPackages}</strong>
+        </article>
+      ) : null}
     </section>
   )
 }
