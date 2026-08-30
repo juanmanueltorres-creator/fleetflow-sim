@@ -113,4 +113,55 @@ describe('Córdoba synthetic delivery candidate pool', () => {
       candidatesPerZone: 2,
     })).toThrow(/zone-0|eligible source/i)
   })
+
+  it('locks the published candidate-pool-v1 artifact to 240 neutral candidates, 30 per zone', () => {
+    const pool = JSON.parse(
+      readFileSync('src/scenario/operationalRuns/candidate-pool-v1.json', 'utf8'),
+    ) as {
+      schemaVersion: number
+      version: string
+      generator: string
+      gtfsReference: string
+      seed: string
+      candidates: Array<{
+        id: string
+        label: string
+        position: [number, number]
+        zoneId: string
+        spatialWeight: number
+      }>
+    }
+
+    expect(pool).toMatchObject({
+      schemaVersion: 1,
+      version: VERSION,
+      generator: 'cordoba-gtfs-candidate-pool-v1',
+      gtfsReference: GTFS_REFERENCE,
+      seed: SEED,
+    })
+    expect(pool.candidates).toHaveLength(240)
+    expect(new Set(pool.candidates.map((candidate) => candidate.id)).size).toBe(240)
+
+    const countsByZone = new Map<string, number>()
+    for (const candidate of pool.candidates) {
+      countsByZone.set(candidate.zoneId, (countsByZone.get(candidate.zoneId) ?? 0) + 1)
+      expect(candidate.id).toMatch(/^delivery-candidate-\d{3}$/)
+      expect(candidate.label).toMatch(/^Entrega \d{3}$/)
+      expect(candidate.position).toHaveLength(2)
+      expect(candidate.position.every(Number.isFinite)).toBe(true)
+      expect(candidate.spatialWeight).toBeGreaterThan(0)
+      expect(candidate.spatialWeight).toBeLessThanOrEqual(1)
+    }
+
+    expect(Object.fromEntries([...countsByZone.entries()].sort())).toEqual({
+      'zone-0': 30,
+      'zone-1': 30,
+      'zone-2': 30,
+      'zone-3': 30,
+      'zone-4': 30,
+      'zone-5': 30,
+      'zone-6': 30,
+      'zone-7': 30,
+    })
+  })
 })
