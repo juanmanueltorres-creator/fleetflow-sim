@@ -1,6 +1,10 @@
 import { cargoFitsCapacity } from './cargo'
 import type { FleetScenario } from './types'
 
+function isFiniteNumber(value: unknown): value is number {
+  return typeof value === 'number' && Number.isFinite(value)
+}
+
 export function validateScenario(scenario: FleetScenario): string[] {
   const errors: string[] = []
   const truckIds = new Set<string>()
@@ -29,8 +33,16 @@ export function validateScenario(scenario: FleetScenario): string[] {
   }
 
   for (const store of scenario.stores) {
-    if (store.timeWindow && store.timeWindow.endMinute <= store.timeWindow.startMinute) {
-      errors.push(`Store ${store.id} has invalid time window`)
+    if (store.timeWindow) {
+      const { startMinute, endMinute } = store.timeWindow
+      if (
+        !isFiniteNumber(startMinute)
+        || !isFiniteNumber(endMinute)
+        || startMinute < 0
+        || endMinute <= startMinute
+      ) {
+        errors.push(`Store ${store.id} has invalid time window`)
+      }
     }
   }
 
@@ -66,10 +78,15 @@ export function validateScenario(scenario: FleetScenario): string[] {
       }
 
       if (stop.cargo.kind === 'MASS') {
-        if (stop.cargo.quantityKg <= 0) {
+        if (!isFiniteNumber(stop.cargo.quantityKg) || stop.cargo.quantityKg <= 0) {
           errors.push(`Route ${route.id} has non-positive mass cargo at ${stop.storeId}`)
         }
-      } else if (stop.cargo.packageCount <= 0 || stop.cargo.volumeCm3 <= 0) {
+      } else if (
+        !isFiniteNumber(stop.cargo.packageCount)
+        || !isFiniteNumber(stop.cargo.volumeCm3)
+        || stop.cargo.packageCount <= 0
+        || stop.cargo.volumeCm3 <= 0
+      ) {
         errors.push(`Route ${route.id} has non-positive parcel cargo at ${stop.storeId}`)
       }
 
