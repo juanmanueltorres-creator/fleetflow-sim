@@ -125,11 +125,12 @@ describe('simulation dashboard components', () => {
     expect(screen.getByText('5 vehículos')).toBeInTheDocument()
   })
 
-  it('discloses calibrated provenance without implying real Cordoba delivery routes', () => {
+  it('discloses forecast provenance without implying real Cordoba delivery routes', () => {
     const provenance = getScenarioDefinition('cordoba-calibrated').provenance
-    render(<ScenarioProvenance provenance={provenance} />)
+    render(<ScenarioProvenance provenance={provenance} runMode="FORECAST" />)
 
-    expect(screen.getByText('ESCENARIO CALIBRADO')).toBeInTheDocument()
+    expect(screen.getByText('FORECAST · ESCENARIO CALIBRADO')).toBeInTheDocument()
+    expect(screen.getByText(/Operación sintética reproducible/i)).toBeInTheDocument()
     expect(screen.getByText(/Comportamiento derivado de datos operacionales públicos/)).toBeInTheDocument()
     expect(screen.getByText('Fuente y método')).toBeInTheDocument()
     expect(screen.getByText('Fuente: Amazon Last Mile Routing Research Challenge')).toBeInTheDocument()
@@ -138,7 +139,15 @@ describe('simulation dashboard components', () => {
       'href',
       'https://registry.opendata.aws/amazon-last-mile-challenges/',
     )
-    expect(document.body.textContent).not.toMatch(/Amazon Córdoba|Mercado Libre Córdoba|rutas reales de Amazon/i)
+    expect(document.body.textContent).not.toMatch(/operación real|tráfico real|telemetría real|Amazon Córdoba|Mercado Libre Córdoba|rutas reales de Amazon/i)
+  })
+
+  it('discloses simulated runs as synthetic and not observed', () => {
+    const provenance = getScenarioDefinition('cordoba-calibrated').provenance
+    render(<ScenarioProvenance provenance={provenance} runMode="SIMULATED" />)
+
+    expect(screen.getByText('SIMULATED · ESCENARIO CALIBRADO')).toBeInTheDocument()
+    expect(screen.getByText('Jornada sintética reproducible. No representa una operación real observada.')).toBeInTheDocument()
   })
 
   it('labels the legacy scenario explicitly as synthetic', () => {
