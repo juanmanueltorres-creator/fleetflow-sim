@@ -17,6 +17,14 @@ function vehicleCountLabel(count: number): string {
   return `${count} ${count === 1 ? 'vehículo' : 'vehículos'}`
 }
 
+function statusLabel(status: TruckStatus, cargo: RemainingCargo): string {
+  if (status === 'UNLOADING' && cargo.kind === 'PARCELS') {
+    return 'Entregando'
+  }
+
+  return STATUS_LABELS[status]
+}
+
 function cargoLines(cargo: RemainingCargo): string[] {
   if (cargo.kind === 'MASS') {
     return [`${Math.round(cargo.quantityKg)} kg en carga`]
@@ -55,7 +63,7 @@ export function FleetPanel({ scenario, snapshot }: FleetPanelProps) {
               <div>
                 <strong>{truck.label}</strong>
                 <span className={`status-pill status-${truckSnapshot.status.toLowerCase()}`}>
-                  {STATUS_LABELS[truckSnapshot.status]}
+                  {statusLabel(truckSnapshot.status, truckSnapshot.remainingCargo)}
                 </span>
               </div>
               <p>{nextStore ? `Sigue · ${nextStore.name}` : 'Ruta completa'}</p>
