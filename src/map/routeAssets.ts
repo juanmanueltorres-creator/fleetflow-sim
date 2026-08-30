@@ -53,6 +53,9 @@ export function routeCollectionToIndex(
     if (distances.length !== route.stops.length + 2) {
       throw new Error(`Route ${route.id} waypoint count must equal stops + 2`)
     }
+    if (distances.some((value) => typeof value !== 'number' || !Number.isFinite(value))) {
+      throw new Error(`Route ${route.id} waypoint distances must be finite numbers`)
+    }
     if (distances[0] !== 0) {
       throw new Error(`Route ${route.id} must start at distance 0`)
     }
