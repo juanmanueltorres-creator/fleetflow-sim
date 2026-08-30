@@ -1124,7 +1124,7 @@ git commit -m "feat: switch operational bundles atomically"
 **Interfaces:**
 - Latest pending request wins. Effect cleanup is preferred; an explicit sequence ref is added only if the RED test proves it necessary.
 
-- [ ] **Step 1: Add a third concrete V1 run to the switching test**
+- [ ] **Step 1: Add a third concrete V1 run on a date not already present in the checked-in manifest**
 
 Extend imports:
 
@@ -1139,17 +1139,17 @@ import type {
 Add:
 
 ```ts
-const RUN_01_URL = './data/operational-runs/generated/cordoba-2026-09-01-v-race.json'
+const RUN_04_URL = './data/operational-runs/generated/cordoba-2026-09-04-v-race.json'
 
-const run01: OperationalRun = structuredClone(run31)
-run01.id = 'cordoba-2026-09-01-v-race'
-run01.targetDate = '2026-09-01'
-run01.provenance = {
+const run04: OperationalRun = structuredClone(run31)
+run04.id = 'cordoba-2026-09-04-v-race'
+run04.targetDate = '2026-09-04'
+run04.provenance = {
   generator: 'race-test',
-  seed: 'race-test:2026-09-01',
+  seed: 'race-test:2026-09-04',
   notes: ['Synthetic race fixture.'],
 }
-run01.scenario.routes[0].returnMinute += 17
+run04.scenario.routes[0].returnMinute += 17
 
 const manifestV1 = manifest as OperationalRunManifestV1
 const raceManifest: OperationalRunManifestV1 = {
@@ -1157,14 +1157,14 @@ const raceManifest: OperationalRunManifestV1 = {
   runs: [
     ...manifestV1.runs,
     {
-      id: run01.id,
-      targetDate: run01.targetDate,
-      issuedAt: run01.issuedAt,
-      dataAsOf: run01.dataAsOf,
-      mode: run01.mode,
-      scenarioId: run01.scenarioId,
-      modelVersion: run01.modelVersion,
-      artifact: './generated/cordoba-2026-09-01-v-race.json',
+      id: run04.id,
+      targetDate: run04.targetDate,
+      issuedAt: run04.issuedAt,
+      dataAsOf: run04.dataAsOf,
+      mode: run04.mode,
+      scenarioId: run04.scenarioId,
+      modelVersion: run04.modelVersion,
+      artifact: './generated/cordoba-2026-09-04-v-race.json',
     },
   ],
 }
@@ -1175,14 +1175,14 @@ const raceManifest: OperationalRunManifestV1 = {
 ```ts
 it('ignores a stale slower bundle after a newer date succeeds', async () => {
   const run31Response = deferred<Response>()
-  const run01Response = deferred<Response>()
+  const run04Response = deferred<Response>()
 
   const fetchMock = vi.fn((input: RequestInfo | URL) => {
     const url = String(input)
     if (url === MANIFEST_URL) return Promise.resolve(jsonResponse(raceManifest))
     if (url === RUN_30_URL) return Promise.resolve(jsonResponse(run30))
     if (url === RUN_31_URL) return run31Response.promise
-    if (url === RUN_01_URL) return run01Response.promise
+    if (url === RUN_04_URL) return run04Response.promise
     if (url === ROUTES_URL) return Promise.resolve(jsonResponse(calibratedRoutes))
     return Promise.resolve(jsonResponse({}, 404))
   })
@@ -1194,25 +1194,25 @@ it('ignores a stale slower bundle after a newer date succeeds', async () => {
   )
 
   fireEvent.click(screen.getByRole('button', { name: /31 DE AGO DE 2026, FORECAST/i }))
-  fireEvent.click(screen.getByRole('button', { name: /01 DE SEPT DE 2026, FORECAST/i }))
+  fireEvent.click(screen.getByRole('button', { name: /04 DE SEPT DE 2026, FORECAST/i }))
 
-  run01Response.resolve(jsonResponse(run01))
+  run04Response.resolve(jsonResponse(run04))
   await waitFor(() => {
     expect(screen.getByTestId('fleet-map')).toHaveTextContent(
-      `return-total:${returnTotal(run01.scenario)}`,
+      `return-total:${returnTotal(run04.scenario)}`,
     )
   })
 
   run31Response.resolve(jsonResponse(run31))
   await waitFor(() => {
     expect(screen.getByTestId('fleet-map')).toHaveTextContent(
-      `return-total:${returnTotal(run01.scenario)}`,
+      `return-total:${returnTotal(run04.scenario)}`,
     )
   })
 })
 ```
 
-`formatOperationalDate()` uses `es-AR` short month formatting and uppercases it, so the expected accessible label for `2026-09-01` is `01 DE SEPT DE 2026, FORECAST`, consistent with the existing `30 DE AGO...` test pattern.
+`2026-09-04` is outside the current checked-in V0.5 window ending 2026-09-03, so the accessible date label is unique in this test manifest.
 
 - [ ] **Step 3: Run the test**
 
@@ -1222,7 +1222,7 @@ npm test -- tests/operationalRunSwitching.test.tsx
 
 If it already passes, effect cleanup is sufficient and production code does not change.
 
-If it fails because 31 August overwrites 1 September, continue.
+If it fails because 31 August overwrites 4 September, continue.
 
 - [ ] **Step 4: Add a request sequence guard only after that failure**
 
