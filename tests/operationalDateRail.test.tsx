@@ -41,11 +41,14 @@ const entries: OperationalRunManifestEntry[] = [
   },
 ]
 
-function renderRail(onSelect = vi.fn()) {
+function renderRail(
+  onSelect = vi.fn(),
+  selectedRunId = 'cordoba-2026-08-31-v1',
+) {
   render(
     <OperationalDateRail
       entries={entries}
-      selectedRunId="cordoba-2026-08-31-v1"
+      selectedRunId={selectedRunId}
       onSelect={onSelect}
       now={now}
     />,
@@ -69,6 +72,20 @@ describe('OperationalDateRail', () => {
     expect(selectedMetadata).toHaveTextContent('FORECAST')
     expect(selectedMetadata).toHaveTextContent(/issued/i)
     expect(document.body.textContent).not.toContain('02 SEP')
+  })
+
+  it('keeps TODAY and the immutable evidence mode visible when another date is selected', () => {
+    renderRail(vi.fn(), 'cordoba-2026-09-01-v1')
+
+    const todayButton = screen.getByRole('button', {
+      name: `${formatOperationalDate('2026-08-31')}, FORECAST`,
+    })
+    expect(todayButton).toHaveTextContent('TODAY')
+    expect(todayButton).toHaveTextContent('FORECAST')
+
+    const selectedMetadata = screen.getByTestId('operational-run-metadata')
+    expect(selectedMetadata).toHaveTextContent(formatOperationalDate('2026-09-01'))
+    expect(selectedMetadata).toHaveTextContent('FORECAST')
   })
 
   it('marks the selected date with aria-current=date', () => {
