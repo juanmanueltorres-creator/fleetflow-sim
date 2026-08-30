@@ -6,6 +6,7 @@ on:
     paths:
       - scripts/prepare-routes.mjs
       - scripts/generate-calibrated-scenario.mjs
+      - scripts/lib/calibrated-scenario-generator.mjs
       - src/scenario/calibration/amazon-last-mile-v1.json
       - public/data/cordoba-calibrated-routes.geojson
       - src/scenario/generated/cordoba-calibrated-v1.json
