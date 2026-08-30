@@ -112,11 +112,14 @@ async function prepareRoute({ truckId, geometryId, coordinates }) {
   }
 
   const waypointDistancesKm = buildWaypointDistances(route.legs)
-  if (
-    waypointDistancesKm.length !== coordinates.length ||
-    waypointDistancesKm.some((value, index) => index > 0 && value <= waypointDistancesKm[index - 1])
-  ) {
-    throw new Error(`${truckId}: route waypoint distances must be strictly increasing`)
+  if (waypointDistancesKm.length !== coordinates.length) {
+    throw new Error(`${truckId}: route waypoint count must match input coordinates`)
+  }
+  if (waypointDistancesKm.some((value, index) => index > 0 && value < waypointDistancesKm[index - 1])) {
+    throw new Error(`${truckId}: route waypoint distances must be non-decreasing`)
+  }
+  if ((waypointDistancesKm.at(-1) ?? 0) <= 0) {
+    throw new Error(`${truckId}: route must have positive distance`)
   }
 
   return {
