@@ -12,7 +12,7 @@ const weeklyProfiles = JSON.parse(readFileSync('src/scenario/operationalRuns/wee
 const ISSUED_AT = '2026-08-30T21:00:00-03:00'
 const DATA_AS_OF = '2026-08-30T21:00:00-03:00'
 
-function fakeRoutePreparer({ scenario, metadata }: any) {
+async function fakeRoutePreparer({ scenario, metadata }: any) {
   const storeById = new Map(scenario.stores.map((store: any) => [store.id, store]))
 
   return {
@@ -63,8 +63,8 @@ function packagesInRun(run: any) {
 }
 
 describe('V0.6 operational run generator', () => {
-  it('builds a schema V2 bundle with bound per-run routes and a valid deterministic operation', () => {
-    const generated = generate('2026-08-31')
+  it('builds a schema V2 bundle with bound per-run routes and a valid deterministic operation', async () => {
+    const generated = await generate('2026-08-31')
 
     expect(generated.manifest.schemaVersion).toBe(2)
     expect(generated.manifest.runs).toHaveLength(1)
@@ -124,12 +124,14 @@ describe('V0.6 operational run generator', () => {
     })
   })
 
-  it('is deep-deterministic for identical inputs including route artifacts and manifest', () => {
-    expect(generate('2026-08-29', '2026-09-01')).toEqual(generate('2026-08-29', '2026-09-01'))
+  it('is deep-deterministic for identical inputs including route artifacts and manifest', async () => {
+    expect(await generate('2026-08-29', '2026-09-01')).toEqual(
+      await generate('2026-08-29', '2026-09-01'),
+    )
   })
 
-  it('varies spatial destination sets materially across the publication window', () => {
-    const generated = generate('2026-08-27', '2026-09-03')
+  it('varies spatial destination sets materially across the publication window', async () => {
+    const generated = await generate('2026-08-27', '2026-09-03')
     expect(generated.artifacts).toHaveLength(8)
 
     const destinationSets = generated.artifacts.map((artifact: any) =>
@@ -144,8 +146,8 @@ describe('V0.6 operational run generator', () => {
     }
   })
 
-  it('fails closed on invalid ranges, timestamps, candidate provenance, or route binding metadata', () => {
-    expect(() => generateV06OperationalRuns({
+  it('fails closed on invalid ranges, timestamps, candidate provenance, or route binding metadata', async () => {
+    await expect(generateV06OperationalRuns({
       profile,
       candidatePool,
       fleetTemplate,
@@ -155,9 +157,9 @@ describe('V0.6 operational run generator', () => {
       dataAsOf: DATA_AS_OF,
       runSuffix: 'v3',
       routePreparer: fakeRoutePreparer,
-    })).toThrow(/range|date/i)
+    })).rejects.toThrow(/range|date/i)
 
-    expect(() => generateV06OperationalRuns({
+    await expect(generateV06OperationalRuns({
       profile,
       candidatePool: { ...candidatePool, version: '' },
       fleetTemplate,
@@ -167,9 +169,9 @@ describe('V0.6 operational run generator', () => {
       dataAsOf: DATA_AS_OF,
       runSuffix: 'v3',
       routePreparer: fakeRoutePreparer,
-    })).toThrow(/candidate|pool|version/i)
+    })).rejects.toThrow(/candidate|pool|version/i)
 
-    expect(() => generateV06OperationalRuns({
+    await expect(generateV06OperationalRuns({
       profile,
       candidatePool,
       fleetTemplate,
@@ -179,9 +181,9 @@ describe('V0.6 operational run generator', () => {
       dataAsOf: DATA_AS_OF,
       runSuffix: 'v3',
       routePreparer: fakeRoutePreparer,
-    })).toThrow(/issued|timestamp|zone/i)
+    })).rejects.toThrow(/issued|timestamp|zone/i)
 
-    expect(() => generateV06OperationalRuns({
+    await expect(generateV06OperationalRuns({
       profile,
       candidatePool,
       fleetTemplate,
@@ -190,10 +192,10 @@ describe('V0.6 operational run generator', () => {
       issuedAt: ISSUED_AT,
       dataAsOf: DATA_AS_OF,
       runSuffix: 'v3',
-      routePreparer: ({ scenario, metadata }: any) => ({
-        ...fakeRoutePreparer({ scenario, metadata }),
+      routePreparer: async ({ scenario, metadata }: any) => ({
+        ...(await fakeRoutePreparer({ scenario, metadata })),
         metadata: { ...metadata, runId: 'wrong-run' },
       }),
-    })).toThrow(/route|metadata|binding|run/i)
+    })).rejects.toThrow(/route|metadata|binding|run/i)
   })
 })
