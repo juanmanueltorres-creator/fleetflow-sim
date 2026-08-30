@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import type { OperationalRun } from '../src/scenario/operationalRuns/types'
 import { getCordobaOperationalDate } from '../src/scenario/operationalRuns/date'
-import { validateOperationalRun } from '../src/scenario/operationalRuns/validation'
+import {
+  requireValidOperationalRun,
+  validateOperationalRun,
+} from '../src/scenario/operationalRuns/validation'
 import { getScenarioDefinition } from '../src/scenario/scenarioRegistry'
 
 function validRun(): OperationalRun {
@@ -24,7 +27,9 @@ function validRun(): OperationalRun {
 
 describe('operational run validation', () => {
   it('accepts valid FORECAST and SIMULATED envelopes', () => {
-    expect(validateOperationalRun(validRun())).toEqual([])
+    const forecast = validRun()
+    expect(validateOperationalRun(forecast)).toEqual([])
+    expect(requireValidOperationalRun(forecast)).toBe(forecast)
 
     const simulated = validRun()
     simulated.mode = 'SIMULATED'
@@ -55,6 +60,12 @@ describe('operational run validation', () => {
     expect(validateOperationalRun(run)).toContainEqual(expect.stringMatching(/dataAsOf/i))
   })
 
+  it.each(['', 'bad id', '../cordoba-run'])('rejects malformed run id %s', (id) => {
+    const run = validRun()
+    run.id = id
+    expect(validateOperationalRun(run)).toContainEqual(expect.stringMatching(/id/i))
+  })
+
   it('rejects unknown modes and empty provenance seed', () => {
     const run = validRun()
     run.mode = 'LIVE' as OperationalRun['mode']
@@ -75,10 +86,21 @@ describe('operational run validation', () => {
     expect(errors).toContainEqual(expect.stringMatching(/notes/i))
   })
 
+  it('rejects empty model version and unknown scenario id', () => {
+    const run = validRun()
+    run.modelVersion = '   '
+    run.scenarioId = 'unknown-scenario' as OperationalRun['scenarioId']
+
+    const errors = validateOperationalRun(run)
+    expect(errors).toContainEqual(expect.stringMatching(/modelVersion/i))
+    expect(errors).toContainEqual(expect.stringMatching(/scenarioId/i))
+  })
+
   it('rejects a nested invalid FleetScenario', () => {
     const run = validRun()
     run.scenario.trucks[0].id = run.scenario.trucks[1].id
     expect(validateOperationalRun(run)).toContainEqual(expect.stringMatching(/duplicate truck id/i))
+    expect(() => requireValidOperationalRun(run)).toThrow(/duplicate truck id/i)
   })
 
   it('derives TODAY in Córdoba instead of viewer timezone', () => {
