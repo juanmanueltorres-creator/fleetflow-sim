@@ -159,14 +159,15 @@ function main() {
   const { profile: profilePath, routes: routesPath, output, seed } = parseArgs(process.argv.slice(2))
   const profile = JSON.parse(readFileSync(profilePath, 'utf8'))
   const routeGeometryIndex = loadRouteGeometryIndex(routesPath)
-  const random = mulberry32(hashSeed(seed))
+  const operationsRandom = mulberry32(hashSeed(`${seed}:operations`))
+  const geographyRandom = mulberry32(hashSeed(`${seed}:geography`))
   const totalStops = STOP_COUNTS.reduce((sum, count) => sum + count, 0)
 
   const rawPackageCounts = Array.from({ length: totalStops }, () =>
-    sampleDistribution(profile.distributions.packagesPerStop, random),
+    sampleDistribution(profile.distributions.packagesPerStop, operationsRandom),
   )
   const packageCounts = normalizePackageCounts(rawPackageCounts, PACKAGE_TARGET)
-  const offsets = departureOffsets(profile, random)
+  const offsets = departureOffsets(profile, operationsRandom)
 
   const stores = []
   const trucks = []
@@ -191,23 +192,23 @@ function main() {
       const packageCount = packageCounts[globalStopIndex]
       let volumeCm3 = 0
       for (let packageIndex = 0; packageIndex < packageCount; packageIndex += 1) {
-        volumeCm3 += sampleDistribution(profile.distributions.packageVolumeCm3, random)
+        volumeCm3 += sampleDistribution(profile.distributions.packageVolumeCm3, operationsRandom)
       }
       volumeCm3 = Math.max(1, Math.round(volumeCm3))
       routeVolumeCm3 += volumeCm3
 
-      const sampledTravelSeconds = sampleDistribution(profile.distributions.travelSecondsBetweenStops, random)
+      const sampledTravelSeconds = sampleDistribution(profile.distributions.travelSecondsBetweenStops, operationsRandom)
       const sampledTravelMinutes = Math.max(1, Math.round(sampledTravelSeconds / 60))
       const legDistanceKm = waypointDistancesKm[localStopIndex + 1] - waypointDistancesKm[localStopIndex]
       const travelMinutes = Math.max(sampledTravelMinutes, minimumTravelMinutes(legDistanceKm))
       const plannedArrivalMinute = previousDeparture + travelMinutes
-      const serviceSeconds = sampleDistribution(profile.distributions.serviceSecondsPerStop, random)
+      const serviceSeconds = sampleDistribution(profile.distributions.serviceSecondsPerStop, operationsRandom)
       const serviceMinutes = Math.max(1, Math.round(serviceSeconds / 60))
       const plannedDepartureMinute = plannedArrivalMinute + serviceMinutes
 
       let timeWindow
-      if (random() < profile.distributions.timeWindowProbability) {
-        const sampledWidth = sampleDistribution(profile.distributions.timeWindowWidthMinutes, random)
+      if (operationsRandom() < profile.distributions.timeWindowProbability) {
+        const sampledWidth = sampleDistribution(profile.distributions.timeWindowWidthMinutes, operationsRandom)
         const widthMinutes = Math.max(1, Math.round(sampledWidth))
         const startMinute = Math.max(0, Math.round(plannedArrivalMinute - widthMinutes / 2))
         timeWindow = { startMinute, endMinute: startMinute + widthMinutes }
@@ -216,7 +217,7 @@ function main() {
       stores.push({
         id: storeId,
         name: `Entrega ${deliveryNumber}`,
-        position: jitter(anchor, random),
+        position: jitter(anchor, geographyRandom),
         serviceMinutes,
         ...(timeWindow ? { timeWindow } : {}),
       })
@@ -231,11 +232,11 @@ function main() {
       globalStopIndex += 1
     }
 
-    const sampledReturnSeconds = sampleDistribution(profile.distributions.travelSecondsBetweenStops, random)
+    const sampledReturnSeconds = sampleDistribution(profile.distributions.travelSecondsBetweenStops, operationsRandom)
     const sampledReturnMinutes = Math.max(1, Math.round(sampledReturnSeconds / 60))
     const returnDistanceKm = waypointDistancesKm[waypointDistancesKm.length - 1] - waypointDistancesKm[waypointDistancesKm.length - 2]
     const returnMinute = previousDeparture + Math.max(sampledReturnMinutes, minimumTravelMinutes(returnDistanceKm))
-    const sampledCapacity = sampleDistribution(profile.distributions.vehicleCapacityCm3, random)
+    const sampledCapacity = sampleDistribution(profile.distributions.vehicleCapacityCm3, operationsRandom)
     const capacityCm3 = Math.ceil(Math.max(sampledCapacity, routeVolumeCm3 * 1.15))
 
     trucks.push({
