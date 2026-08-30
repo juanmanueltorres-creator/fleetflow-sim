@@ -101,7 +101,11 @@ describe('operational run switching', () => {
 
     run31Response.resolve(jsonResponse(run31))
 
-    expect(await screen.findByTestId('fleet-map')).toHaveTextContent(`return-total:${returnTotal(run31.scenario)}`)
+    await waitFor(() => {
+      expect(screen.getByTestId('fleet-map')).toHaveTextContent(
+        `return-total:${returnTotal(run31.scenario)}`,
+      )
+    })
     expect(screen.getByText('06:00')).toBeInTheDocument()
     expect(screen.getByText('Paused')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /31 DE AGO DE 2026, FORECAST/i })).toHaveAttribute('aria-current', 'date')
