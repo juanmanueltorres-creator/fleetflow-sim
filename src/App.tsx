@@ -1,39 +1,54 @@
 import { useEffect, useMemo, useState } from 'react'
 import { FleetPanel } from './components/FleetPanel'
 import { KpiPanel } from './components/KpiPanel'
+import { ScenarioProvenance } from './components/ScenarioProvenance'
+import { ScenarioSwitcher } from './components/ScenarioSwitcher'
 import { SimulationClock } from './components/SimulationClock'
 import { SimulationControls } from './components/SimulationControls'
 import { FleetMap } from './map/FleetMap'
 import type { RouteGeometryCollection } from './map/routeAssets'
 import { routeCollectionToIndex } from './map/routeAssets'
-import { cocaCoquiScenario } from './scenario/cocaCoquiScenario'
+import {
+  DEFAULT_SCENARIO_ID,
+  getScenarioDefinition,
+  type ScenarioId,
+} from './scenario/scenarioRegistry'
 import { advanceSimulationMinute } from './simulation/clock'
 import { getFleetSnapshot } from './simulation/engine'
 import { deriveFleetMetrics } from './simulation/metrics'
 
-const SIMULATION_END_MINUTE = Math.max(
-  ...cocaCoquiScenario.routes.map((route) => route.returnMinute),
-)
-
 export default function App() {
+  const [scenarioId, setScenarioId] = useState<ScenarioId>(DEFAULT_SCENARIO_ID)
   const [routes, setRoutes] = useState<RouteGeometryCollection | null>(null)
   const [routeError, setRouteError] = useState(false)
   const [simulationMinute, setSimulationMinute] = useState(0)
   const [isPlaying, setIsPlaying] = useState(false)
   const [speed, setSpeed] = useState(60)
 
+  const activeDefinition = getScenarioDefinition(scenarioId)
+  const activeScenario = activeDefinition.scenario
+  const simulationEndMinute = Math.max(
+    ...activeScenario.routes.map((route) => route.returnMinute),
+  )
+
   useEffect(() => {
     let cancelled = false
 
     async function loadRoutes() {
       try {
-        const response = await fetch('./data/coca-coqui-routes.geojson')
+        const response = await fetch(activeDefinition.routeAsset)
         if (!response.ok) throw new Error(`Route asset HTTP ${response.status}`)
         const collection = (await response.json()) as RouteGeometryCollection
-        routeCollectionToIndex(collection)
-        if (!cancelled) setRoutes(collection)
+        routeCollectionToIndex(collection, activeScenario)
+        if (!cancelled) {
+          setRoutes(collection)
+          setRouteError(false)
+        }
       } catch {
-        if (!cancelled) setRouteError(true)
+        if (!cancelled) {
+          setRoutes(null)
+          setRouteError(true)
+        }
       }
     }
 
@@ -41,21 +56,21 @@ export default function App() {
     return () => {
       cancelled = true
     }
-  }, [])
+  }, [activeDefinition.routeAsset, activeScenario])
 
   const routeIndex = useMemo(
-    () => (routes ? routeCollectionToIndex(routes) : null),
-    [routes],
+    () => (routes ? routeCollectionToIndex(routes, activeScenario) : null),
+    [routes, activeScenario],
   )
 
   const snapshot = useMemo(() => {
     if (!routeIndex) return null
-    return getFleetSnapshot(cocaCoquiScenario, routeIndex, simulationMinute)
-  }, [routeIndex, simulationMinute])
+    return getFleetSnapshot(activeScenario, routeIndex, simulationMinute)
+  }, [activeScenario, routeIndex, simulationMinute])
 
   const metrics = useMemo(
-    () => (snapshot ? deriveFleetMetrics(cocaCoquiScenario, snapshot) : null),
-    [snapshot],
+    () => (snapshot && routeIndex ? deriveFleetMetrics(activeScenario, snapshot, routeIndex) : null),
+    [activeScenario, snapshot, routeIndex],
   )
 
   useEffect(() => {
@@ -72,7 +87,7 @@ export default function App() {
             currentMinute,
             elapsedRealMs,
             speed,
-            SIMULATION_END_MINUTE,
+            simulationEndMinute,
           ),
         )
       }
@@ -83,19 +98,28 @@ export default function App() {
 
     frameId = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(frameId)
-  }, [isPlaying, routeIndex, speed])
+  }, [isPlaying, routeIndex, speed, simulationEndMinute])
 
   useEffect(() => {
-    if (isPlaying && simulationMinute >= SIMULATION_END_MINUTE) {
+    if (isPlaying && simulationMinute >= simulationEndMinute) {
       setIsPlaying(false)
     }
-  }, [isPlaying, simulationMinute])
+  }, [isPlaying, simulationMinute, simulationEndMinute])
 
-  const isComplete = simulationMinute >= SIMULATION_END_MINUTE
+  const isComplete = simulationMinute >= simulationEndMinute
 
   const resetSimulation = () => {
     setIsPlaying(false)
     setSimulationMinute(0)
+  }
+
+  const changeScenario = (nextId: ScenarioId) => {
+    if (nextId === scenarioId) return
+    setIsPlaying(false)
+    setSimulationMinute(0)
+    setRoutes(null)
+    setRouteError(false)
+    setScenarioId(nextId)
   }
 
   return (
@@ -109,16 +133,21 @@ export default function App() {
       {!routes || !snapshot || !metrics ? (
         routeError ? null : <p className="loading-state">Loading simulation…</p>
       ) : (
-        <FleetMap scenario={cocaCoquiScenario} routes={routes} snapshot={snapshot} />
+        <FleetMap
+          key={scenarioId}
+          scenario={activeScenario}
+          routes={routes}
+          snapshot={snapshot}
+        />
       )}
 
       <div className="interface-frame">
         <div className="top-rail">
           <header className="brand-card">
-            <p className="eyebrow">Visual fleet simulation · V0</p>
+            <p className="eyebrow">Visual fleet simulation · V0.4</p>
             <h1>FleetFlow Sim</h1>
-            <p>Coca Coqui — Córdoba Distribution Run</p>
-            <span>Fictional operational scenario</span>
+            <p>{activeScenario.label}</p>
+            <ScenarioSwitcher value={scenarioId} onChange={changeScenario} />
           </header>
 
           <div className="simulation-hud">
@@ -137,7 +166,8 @@ export default function App() {
         {snapshot && metrics ? (
           <aside className="operations-panel">
             <KpiPanel metrics={metrics} />
-            <FleetPanel scenario={cocaCoquiScenario} snapshot={snapshot} />
+            <FleetPanel scenario={activeScenario} snapshot={snapshot} />
+            <ScenarioProvenance provenance={activeDefinition.provenance} />
           </aside>
         ) : null}
       </div>

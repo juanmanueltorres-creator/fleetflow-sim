@@ -1,11 +1,19 @@
-name: Prepare route asset
+name: Prepare route assets
 
 on:
   workflow_dispatch:
   push:
     paths:
       - scripts/prepare-routes.mjs
+      - scripts/generate-calibrated-scenario.mjs
+      - src/scenario/calibration/amazon-last-mile-v1.json
+      - public/data/cordoba-calibrated-routes.geojson
+      - src/scenario/generated/cordoba-calibrated-v1.json
+      - package.json
       - .github/workflows/prepare-routes.yml
+
+permissions:
+  contents: read
 
 jobs:
   prepare:
@@ -15,9 +23,22 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      - run: npm install --no-audit --no-fund
       - run: npm run prepare:routes
+      - name: Generate provisional calibrated scenario
+        run: npm run generate:calibrated -- --mode provisional --output /tmp/cordoba-provisional.json
+      - name: Prepare calibrated routes for provisional coordinates
+        run: |
+          node scripts/prepare-routes.mjs \
+            --scenario /tmp/cordoba-provisional.json \
+            --output public/data/cordoba-calibrated-routes.geojson
+      - name: Generate final calibrated scenario against reconciled routes
+        run: npm run generate:calibrated
       - uses: actions/upload-artifact@v4
         with:
-          name: coca-coqui-routes
-          path: public/data/coca-coqui-routes.geojson
+          name: prepared-route-assets
+          path: |
+            public/data/coca-coqui-routes.geojson
+            public/data/cordoba-calibrated-routes.geojson
+            src/scenario/generated/cordoba-calibrated-v1.json
           if-no-files-found: error

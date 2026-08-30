@@ -1,0 +1,74 @@
+name: Calibrate Amazon profile
+
+# Deliberately manual: raw public training data is an offline calibration input,
+# not part of normal CI or the deployed application.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  calibrate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Download public Amazon training inputs
+        run: |
+          set -euxo pipefail
+          input=/tmp/fleetflow-amazon-training
+          mkdir -p "$input"
+          base=s3://amazon-last-mile-challenges/almrrc2021/almrrc2021-data-training/model_build_inputs
+          aws s3 cp --no-sign-request "$base/route_data.json" "$input/route_data.json"
+          aws s3 cp --no-sign-request "$base/package_data.json" "$input/package_data.json"
+          aws s3 cp --no-sign-request "$base/actual_sequences.json" "$input/actual_sequences.json"
+          aws s3 cp --no-sign-request "$base/travel_times.json" "$input/travel_times.json"
+          du -h "$input"/*
+
+      - name: Run bounded-memory calibration
+        id: calibrate
+        run: |
+          set +e
+          node scripts/calibrate-amazon.mjs \
+            --input-dir /tmp/fleetflow-amazon-training \
+            --output /tmp/amazon-last-mile-v1.json \
+            >/tmp/calibrate.stdout 2>/tmp/calibrate.stderr
+          status=$?
+          echo "status=$status" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Preserve diagnostics on failure
+        if: steps.calibrate.outputs.status != '0'
+        uses: actions/upload-artifact@v4
+        with:
+          name: amazon-calibration-diagnostic
+          path: |
+            /tmp/calibrate.stderr
+            /tmp/calibrate.stdout
+          if-no-files-found: error
+          retention-days: 1
+
+      - name: Report calibration result
+        env:
+          CALIBRATION_STATUS: ${{ steps.calibrate.outputs.status }}
+        run: |
+          if [ "$CALIBRATION_STATUS" != "0" ]; then
+            echo "Amazon calibration exited with status $CALIBRATION_STATUS"
+            cat /tmp/calibrate.stderr
+            exit "$CALIBRATION_STATUS"
+          fi
+          cat /tmp/amazon-last-mile-v1.json
+
+      - name: Upload compact profile only
+        uses: actions/upload-artifact@v4
+        with:
+          name: amazon-last-mile-v1
+          path: /tmp/amazon-last-mile-v1.json
+          if-no-files-found: error
+          retention-days: 1

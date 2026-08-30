@@ -1,6 +1,7 @@
 import along from '@turf/along'
 import bearing from '@turf/bearing'
 import { point } from '@turf/helpers'
+import { remainingCargoAfter } from '../domain/cargo'
 import type {
   FleetScenario,
   FleetSnapshot,
@@ -11,6 +12,7 @@ import type {
   TruckStatus,
 } from '../domain/types'
 import type { RouteGeometryFeature, RouteGeometryIndex } from '../map/routeAssets'
+import { routeDistanceKm } from '../map/routeAssets'
 
 interface TravelLeg {
   startMinute: number
@@ -45,42 +47,31 @@ function bearingAtDistance(
   return bearing(point(start), point(end))
 }
 
-function buildTravelLegs(route: RoutePlan, distances: [number, number, number, number, number]): TravelLeg[] {
-  const [first, second, third] = route.stops
-  if (!first || !second || !third) {
-    throw new Error(`Route ${route.id} must contain exactly three stops in V0`)
+function buildTravelLegs(route: RoutePlan, distances: number[]): TravelLeg[] {
+  if (route.stops.length === 0) {
+    throw new Error(`Route ${route.id} requires at least one stop`)
   }
 
+  const outbound: TravelLeg[] = route.stops.map((stop, index) => ({
+    startMinute:
+      index === 0
+        ? route.departureMinute
+        : route.stops[index - 1].plannedDepartureMinute,
+    endMinute: stop.plannedArrivalMinute,
+    startDistanceKm: distances[index],
+    endDistanceKm: distances[index + 1],
+    nextStopId: stop.storeId,
+    status: 'EN_ROUTE',
+  }))
+  const lastStop = route.stops[route.stops.length - 1]
+
   return [
+    ...outbound,
     {
-      startMinute: route.departureMinute,
-      endMinute: first.plannedArrivalMinute,
-      startDistanceKm: distances[0],
-      endDistanceKm: distances[1],
-      nextStopId: first.storeId,
-      status: 'EN_ROUTE',
-    },
-    {
-      startMinute: first.plannedDepartureMinute,
-      endMinute: second.plannedArrivalMinute,
-      startDistanceKm: distances[1],
-      endDistanceKm: distances[2],
-      nextStopId: second.storeId,
-      status: 'EN_ROUTE',
-    },
-    {
-      startMinute: second.plannedDepartureMinute,
-      endMinute: third.plannedArrivalMinute,
-      startDistanceKm: distances[2],
-      endDistanceKm: distances[3],
-      nextStopId: third.storeId,
-      status: 'EN_ROUTE',
-    },
-    {
-      startMinute: third.plannedDepartureMinute,
+      startMinute: lastStop.plannedDepartureMinute,
       endMinute: route.returnMinute,
-      startDistanceKm: distances[3],
-      endDistanceKm: distances[4],
+      startDistanceKm: distances[route.stops.length],
+      endDistanceKm: distances[route.stops.length + 1],
       nextStopId: null,
       status: 'RETURNING',
     },
@@ -94,17 +85,13 @@ function snapshotForTruck(
   geometry: RouteGeometryFeature,
   simulationMinute: number,
 ): TruckSnapshot {
-  const assignedDemandKg = route.stops.reduce((sum, stop) => sum + stop.demandKg, 0)
   const completedStops = route.stops.filter(
     (stop) => simulationMinute >= stop.plannedDepartureMinute,
   )
   const completedDeliveries = completedStops.length
-  const cargoKg = Math.max(
-    0,
-    assignedDemandKg - completedStops.reduce((sum, stop) => sum + stop.demandKg, 0),
-  )
+  const remainingCargo = remainingCargoAfter(route.stops, completedDeliveries, truck.capacity)
   const waypointDistances = geometry.properties.waypointDistancesKm
-  const totalGeometryDistanceKm = waypointDistances[4]
+  const totalGeometryDistanceKm = routeDistanceKm(geometry)
 
   let position: Position = scenario.depot.position
   let bearingDegrees = 0
@@ -159,7 +146,7 @@ function snapshotForTruck(
     }
   }
 
-  const distanceTravelledKm = route.distanceKm * routeProgress
+  const distanceTravelledKm = totalGeometryDistanceKm * routeProgress
   const estimatedFuelUsedL =
     (distanceTravelledKm * truck.fuelConsumptionLPer100Km) / 100
 
@@ -171,7 +158,7 @@ function snapshotForTruck(
     currentStopId,
     nextStopId,
     routeProgress,
-    cargoKg,
+    remainingCargo,
     completedDeliveries,
     distanceTravelledKm,
     estimatedFuelUsedL,

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { validateScenario } from '../src/domain/scenarioValidation'
+import type { FleetScenario } from '../src/domain/types'
 import { cocaCoquiScenario } from '../src/scenario/cocaCoquiScenario'
 
 describe('Coca Coqui V0 scenario', () => {
@@ -11,5 +12,95 @@ describe('Coca Coqui V0 scenario', () => {
 
   it('assigns every store exactly once within capacity and chronological order', () => {
     expect(validateScenario(cocaCoquiScenario)).toEqual([])
+  })
+
+  it('rejects scenarios that mix MASS and PARCELS routes', () => {
+    const mixedScenario = structuredClone(cocaCoquiScenario) as FleetScenario
+    const parcelTruck = mixedScenario.trucks.find((truck) => truck.id === 'truck-05')
+    const parcelRoute = mixedScenario.routes.find((route) => route.truckId === 'truck-05')
+
+    if (!parcelTruck || !parcelRoute) throw new Error('Expected truck-05 route fixture')
+
+    parcelTruck.capacity = { kind: 'PARCELS', capacityCm3: 1_000_000 }
+    parcelRoute.stops = parcelRoute.stops.map((stop) => ({
+      ...stop,
+      cargo: { kind: 'PARCELS', packageCount: 1, volumeCm3: 100_000 },
+    }))
+
+    expect(validateScenario(mixedScenario)).toContainEqual(
+      expect.stringMatching(/scenario cargo mode/i),
+    )
+  })
+
+  it('rejects duplicate truck ids before route counting', () => {
+    const sourceTruck = structuredClone(cocaCoquiScenario.trucks[0])
+    const sourceStore = structuredClone(cocaCoquiScenario.stores[0])
+    const sourceRoute = structuredClone(cocaCoquiScenario.routes[0])
+
+    const duplicateTruckScenario: FleetScenario = {
+      ...structuredClone(cocaCoquiScenario),
+      stores: [sourceStore],
+      trucks: [sourceTruck, structuredClone(sourceTruck)],
+      routes: [{
+        ...sourceRoute,
+        stops: [sourceRoute.stops[0]],
+      }],
+    }
+
+    expect(validateScenario(duplicateTruckScenario)).toContainEqual(
+      expect.stringMatching(/duplicate truck id/i),
+    )
+  })
+
+  it('rejects nonnumeric parcel cargo values from runtime scenario data', () => {
+    const invalidScenario = structuredClone(cocaCoquiScenario) as FleetScenario
+    const parcelTruck = invalidScenario.trucks[0]
+    const parcelStop = invalidScenario.routes[0].stops[0]
+
+    parcelTruck.capacity = { kind: 'PARCELS', capacityCm3: 1_000_000 }
+    parcelStop.cargo = {
+      kind: 'PARCELS',
+      packageCount: '3',
+      volumeCm3: '200',
+    } as unknown as typeof parcelStop.cargo
+
+    expect(validateScenario(invalidScenario)).toContainEqual(
+      expect.stringMatching(/parcel cargo/i),
+    )
+  })
+
+  it('rejects nonnumeric mass cargo values from runtime scenario data', () => {
+    const invalidScenario = structuredClone(cocaCoquiScenario) as FleetScenario
+    const massStop = invalidScenario.routes[0].stops[0]
+
+    massStop.cargo = {
+      kind: 'MASS',
+      quantityKg: '125',
+    } as unknown as typeof massStop.cargo
+
+    expect(validateScenario(invalidScenario)).toContainEqual(
+      expect.stringMatching(/mass cargo/i),
+    )
+  })
+
+  it('rejects time windows that begin before the simulation', () => {
+    const invalidScenario = structuredClone(cocaCoquiScenario) as FleetScenario
+    invalidScenario.stores[0].timeWindow = { startMinute: -10, endMinute: 5 }
+
+    expect(validateScenario(invalidScenario)).toContainEqual(
+      expect.stringMatching(/invalid time window/i),
+    )
+  })
+
+  it('rejects nonnumeric time-window values from runtime scenario data', () => {
+    const invalidScenario = structuredClone(cocaCoquiScenario) as FleetScenario
+    invalidScenario.stores[0].timeWindow = {
+      startMinute: '10',
+      endMinute: '20',
+    } as unknown as typeof invalidScenario.stores[number]['timeWindow']
+
+    expect(validateScenario(invalidScenario)).toContainEqual(
+      expect.stringMatching(/invalid time window/i),
+    )
   })
 })

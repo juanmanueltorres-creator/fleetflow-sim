@@ -1,0 +1,44 @@
+{
+  "RouteID_HIGH_TEST": {
+    "AA": {
+      "PackageID_A1": {
+        "scan_status": "DELIVERED",
+        "time_window": { "start_time_utc": "2018-01-01 07:00:00", "end_time_utc": "2018-01-01 08:00:00" },
+        "planned_service_time_seconds": 60,
+        "dimensions": { "depth_cm": 10, "height_cm": 10, "width_cm": 10 }
+      }
+    },
+    "BB": {
+      "PackageID_B1": {
+        "scan_status": "DELIVERED",
+        "time_window": { "start_time_utc": null, "end_time_utc": null },
+        "planned_service_time_seconds": 120,
+        "dimensions": { "depth_cm": 20, "height_cm": 10, "width_cm": 5 }
+      },
+      "PackageID_B2": {
+        "scan_status": "DELIVERED",
+        "time_window": { "start_time_utc": null, "end_time_utc": null },
+        "planned_service_time_seconds": 30,
+        "dimensions": { "depth_cm": 5, "height_cm": 5, "width_cm": 5 }
+      }
+    },
+    "CC": {
+      "PackageID_C1": {
+        "scan_status": "DELIVERED",
+        "time_window": { "start_time_utc": null, "end_time_utc": null },
+        "planned_service_time_seconds": 90,
+        "dimensions": { "depth_cm": 10, "height_cm": 5, "width_cm": 4 }
+      }
+    }
+  },
+  "RouteID_LOW_TEST": {
+    "ZZ": {
+      "PackageID_Z1": {
+        "scan_status": "DELIVERED",
+        "time_window": { "start_time_utc": "2018-01-02 00:00:00", "end_time_utc": "2018-01-03 00:00:00" },
+        "planned_service_time_seconds": 999999,
+        "dimensions": { "depth_cm": 1000, "height_cm": 1000, "width_cm": 1000 }
+      }
+    }
+  }
+}

@@ -26,6 +26,14 @@ describe('FleetFlow map presentation', () => {
     expect(mapSource).toContain("id: 'fleet-truck-core'")
   })
 
+  it('assigns explicit route colors to all eight calibrated vehicles', () => {
+    const mapSource = read('src/map/FleetMap.tsx')
+
+    for (let index = 1; index <= 8; index += 1) {
+      expect(mapSource).toContain(`'vehicle-0${index}'`)
+    }
+  })
+
   it('opens plain-language details from stores, trucks and the depot', () => {
     const mapSource = read('src/map/FleetMap.tsx')
 
@@ -52,5 +60,24 @@ describe('FleetFlow map presentation', () => {
     expect(css).toContain('top: 0')
     expect(css).toContain('right: 0')
     expect(css).toContain('bottom: 0')
+  })
+
+  it('keeps scenario switching and provenance inside the connected operational frame', () => {
+    const app = read('src/App.tsx')
+    const switcher = read('src/components/ScenarioSwitcher.tsx')
+    const provenance = read('src/components/ScenarioProvenance.tsx')
+
+    expect(app).toContain('<ScenarioSwitcher')
+    expect(app).toContain('<ScenarioProvenance')
+    expect(app.indexOf('<ScenarioProvenance')).toBeGreaterThan(app.indexOf('<FleetPanel'))
+    expect(switcher).toContain('className="scenario-switcher"')
+    expect(provenance).toContain('Fuente y método')
+  })
+
+  it('names the map from the active scenario instead of hardcoding Coca Coqui', () => {
+    const mapSource = read('src/map/FleetMap.tsx')
+
+    expect(mapSource).toContain('aria-label={`Mapa de ${scenario.label}`}')
+    expect(mapSource).not.toContain('aria-label="Mapa de la flota Coca Coqui"')
   })
 })

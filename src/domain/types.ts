@@ -1,6 +1,23 @@
 export type Position = [longitude: number, latitude: number]
 export type TruckStatus = 'AT_DEPOT' | 'EN_ROUTE' | 'UNLOADING' | 'RETURNING' | 'DONE'
 
+export type StopCargo =
+  | { kind: 'MASS'; quantityKg: number }
+  | { kind: 'PARCELS'; packageCount: number; volumeCm3: number }
+
+export type VehicleCapacity =
+  | { kind: 'MASS'; capacityKg: number }
+  | { kind: 'PARCELS'; capacityCm3: number }
+
+export type RemainingCargo =
+  | { kind: 'MASS'; quantityKg: number; utilizationPct: number }
+  | { kind: 'PARCELS'; packageCount: number; volumeCm3: number; utilizationPct: number }
+
+export interface TimeWindow {
+  startMinute: number
+  endMinute: number
+}
+
 export interface Depot {
   id: string
   name: string
@@ -11,14 +28,14 @@ export interface Store {
   id: string
   name: string
   position: Position
-  demandKg: number
   serviceMinutes: number
+  timeWindow?: TimeWindow
 }
 
 export interface Truck {
   id: string
   label: string
-  capacityKg: number
+  capacity: VehicleCapacity
   fuelConsumptionLPer100Km: number
 }
 
@@ -26,7 +43,7 @@ export interface PlannedStop {
   storeId: string
   plannedArrivalMinute: number
   plannedDepartureMinute: number
-  demandKg: number
+  cargo: StopCargo
 }
 
 export interface RoutePlan {
@@ -35,7 +52,6 @@ export interface RoutePlan {
   departureMinute: number
   returnMinute: number
   stops: PlannedStop[]
-  distanceKm: number
   geometryId: string
 }
 
@@ -57,7 +73,7 @@ export interface TruckSnapshot {
   currentStopId: string | null
   nextStopId: string | null
   routeProgress: number
-  cargoKg: number
+  remainingCargo: RemainingCargo
   completedDeliveries: number
   distanceTravelledKm: number
   estimatedFuelUsedL: number

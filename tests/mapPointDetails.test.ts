@@ -20,19 +20,26 @@ function snapshotAt(
 ): FleetSnapshot {
   return {
     simulationMinute,
-    trucks: cocaCoquiScenario.trucks.map((truck) => ({
-      truckId: truck.id,
-      position: cocaCoquiScenario.depot.position,
-      bearing: 0,
-      status: truck.id === 'truck-03' ? (truck03.status ?? 'EN_ROUTE') : 'AT_DEPOT',
-      currentStopId: truck.id === 'truck-03' ? (truck03.currentStopId ?? null) : null,
-      nextStopId: truck.id === 'truck-03' ? (truck03.nextStopId ?? 'store-08') : null,
-      routeProgress: 0,
-      cargoKg: truck.id === 'truck-03' ? (truck03.cargoKg ?? 1080) : 0,
-      completedDeliveries: truck.id === 'truck-03' ? (truck03.completedDeliveries ?? 1) : 0,
-      distanceTravelledKm: 0,
-      estimatedFuelUsedL: truck.id === 'truck-03' ? (truck03.estimatedFuelUsedL ?? 0.8) : 0,
-    })),
+    trucks: cocaCoquiScenario.trucks.map((truck) => {
+      const quantityKg = truck.id === 'truck-03' ? (truck03.cargoKg ?? 1080) : 0
+      return {
+        truckId: truck.id,
+        position: cocaCoquiScenario.depot.position,
+        bearing: 0,
+        status: truck.id === 'truck-03' ? (truck03.status ?? 'EN_ROUTE') : 'AT_DEPOT',
+        currentStopId: truck.id === 'truck-03' ? (truck03.currentStopId ?? null) : null,
+        nextStopId: truck.id === 'truck-03' ? (truck03.nextStopId ?? 'store-08') : null,
+        routeProgress: 0,
+        remainingCargo: {
+          kind: 'MASS' as const,
+          quantityKg,
+          utilizationPct: (quantityKg / 2400) * 100,
+        },
+        completedDeliveries: truck.id === 'truck-03' ? (truck03.completedDeliveries ?? 1) : 0,
+        distanceTravelledKm: 0,
+        estimatedFuelUsedL: truck.id === 'truck-03' ? (truck03.estimatedFuelUsedL ?? 0.8) : 0,
+      }
+    }),
   }
 }
 
@@ -90,7 +97,7 @@ describe('map point details', () => {
     const details = getDepotPointDetails(cocaCoquiScenario)
 
     expect(details.title).toBe('Depósito Coca Coqui')
-    expect(details.headline).toBe('5 camiones · 15 entregas')
+    expect(details.headline).toBe('5 vehículos · 15 entregas')
     expect(details.lines).toContain('Primera salida 06:00 · último regreso 07:05')
     expect(details.note).toBe('Escenario simulado')
   })

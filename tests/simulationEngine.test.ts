@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import type { FleetScenario, PlannedStop, RoutePlan, Store } from '../src/domain/types'
 import type { RouteGeometryFeature, RouteGeometryIndex } from '../src/map/routeAssets'
 import { cocaCoquiScenario } from '../src/scenario/cocaCoquiScenario'
 import { formatSimulationTime } from '../src/simulation/clock'
@@ -35,6 +36,74 @@ function makeGeometries(): RouteGeometryIndex {
       return [route.geometryId, feature]
     }),
   )
+}
+
+function makeScenarioWithStops(stopCount: number): {
+  scenario: FleetScenario
+  geometries: RouteGeometryIndex
+  stops: PlannedStop[]
+  route: RoutePlan
+} {
+  const depot: [number, number] = [-64.18, -31.42]
+  const stores: Store[] = Array.from({ length: stopCount }, (_, index) => ({
+    id: `test-store-${index + 1}`,
+    name: `Test Store ${index + 1}`,
+    position: [-64.18 + (index + 1) * 0.001, -31.42],
+    serviceMinutes: 1,
+  }))
+  const stops: PlannedStop[] = stores.map((store, index) => {
+    const plannedArrivalMinute = 2 + index * 4
+    return {
+      storeId: store.id,
+      plannedArrivalMinute,
+      plannedDepartureMinute: plannedArrivalMinute + 1,
+      cargo: { kind: 'MASS', quantityKg: 10 },
+    }
+  })
+  const finalDeparture = stops[stops.length - 1]?.plannedDepartureMinute ?? 0
+  const route: RoutePlan = {
+    id: `test-route-${stopCount}`,
+    truckId: 'test-truck',
+    geometryId: `test-geometry-${stopCount}`,
+    departureMinute: 0,
+    returnMinute: finalDeparture + 3,
+    stops,
+  }
+  const scenario: FleetScenario = {
+    id: `test-scenario-${stopCount}`,
+    label: `${stopCount} stop test`,
+    simulationStartLabel: '06:00',
+    depot: { id: 'test-depot', name: 'Test Depot', position: depot },
+    stores,
+    trucks: [
+      {
+        id: 'test-truck',
+        label: 'Test Truck',
+        capacity: { kind: 'MASS', capacityKg: 1000 },
+        fuelConsumptionLPer100Km: 18,
+      },
+    ],
+    routes: [route],
+  }
+  const feature: RouteGeometryFeature = {
+    type: 'Feature',
+    id: route.geometryId,
+    properties: {
+      truckId: route.truckId,
+      waypointDistancesKm: Array.from({ length: stopCount + 2 }, (_, index) => index),
+    },
+    geometry: {
+      type: 'LineString',
+      coordinates: [depot, ...stores.map((store) => store.position), depot],
+    },
+  }
+
+  return {
+    scenario,
+    stops,
+    route,
+    geometries: { [route.geometryId]: feature },
+  }
 }
 
 const geometries = makeGeometries()
@@ -88,5 +157,52 @@ describe('fleet simulation engine', () => {
 
     expect(truck?.status).toBe('RETURNING')
     expect(truck?.nextStopId).toBeNull()
+  })
+})
+
+describe.each([1, 3, 6, 8, 10])('fleet simulation engine with %i stops', (stopCount) => {
+  it('moves through every travel, unload and return leg with the same engine', () => {
+    const fixture = makeScenarioWithStops(stopCount)
+
+    const firstTravel = getFleetSnapshot(fixture.scenario, fixture.geometries, 1).trucks[0]
+    expect(firstTravel.status).toBe('EN_ROUTE')
+    expect(firstTravel.nextStopId).toBe(fixture.stops[0].storeId)
+
+    fixture.stops.forEach((stop, index) => {
+      const unloading = getFleetSnapshot(
+        fixture.scenario,
+        fixture.geometries,
+        stop.plannedArrivalMinute,
+      ).trucks[0]
+      expect(unloading.status).toBe('UNLOADING')
+      expect(unloading.currentStopId).toBe(stop.storeId)
+
+      const nextStop = fixture.stops[index + 1]
+      if (nextStop) {
+        const betweenStops = getFleetSnapshot(
+          fixture.scenario,
+          fixture.geometries,
+          stop.plannedDepartureMinute + 1,
+        ).trucks[0]
+        expect(betweenStops.status).toBe('EN_ROUTE')
+        expect(betweenStops.nextStopId).toBe(nextStop.storeId)
+      }
+    })
+
+    const lastStop = fixture.stops[fixture.stops.length - 1]
+    const returning = getFleetSnapshot(
+      fixture.scenario,
+      fixture.geometries,
+      lastStop.plannedDepartureMinute + 1,
+    ).trucks[0]
+    expect(returning.status).toBe('RETURNING')
+    expect(returning.nextStopId).toBeNull()
+
+    const done = getFleetSnapshot(
+      fixture.scenario,
+      fixture.geometries,
+      fixture.route.returnMinute,
+    ).trucks[0]
+    expect(done.status).toBe('DONE')
   })
 })

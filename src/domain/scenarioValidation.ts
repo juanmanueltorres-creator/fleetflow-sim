@@ -1,10 +1,50 @@
+import { cargoFitsCapacity } from './cargo'
 import type { FleetScenario } from './types'
+
+function isFiniteNumber(value: unknown): value is number {
+  return typeof value === 'number' && Number.isFinite(value)
+}
 
 export function validateScenario(scenario: FleetScenario): string[] {
   const errors: string[] = []
+  const truckIds = new Set<string>()
+
+  for (const truck of scenario.trucks) {
+    if (truckIds.has(truck.id)) {
+      errors.push(`Duplicate truck id ${truck.id}`)
+    }
+    truckIds.add(truck.id)
+  }
+
   const stores = new Map(scenario.stores.map((store) => [store.id, store]))
   const trucks = new Map(scenario.trucks.map((truck) => [truck.id, truck]))
   const assignmentCounts = new Map(scenario.stores.map((store) => [store.id, 0]))
+  const routeCounts = new Map(scenario.trucks.map((truck) => [truck.id, 0]))
+  const scenarioCargoModes = new Set<string>(scenario.trucks.map((truck) => truck.capacity.kind))
+
+  for (const route of scenario.routes) {
+    for (const stop of route.stops) {
+      scenarioCargoModes.add(stop.cargo.kind)
+    }
+  }
+
+  if (scenarioCargoModes.size > 1) {
+    errors.push(`Scenario cargo mode must be uniform; found ${[...scenarioCargoModes].join(', ')}`)
+  }
+
+  for (const store of scenario.stores) {
+    if (store.timeWindow) {
+      const { startMinute, endMinute } = store.timeWindow
+      if (
+        !isFiniteNumber(startMinute)
+        || !isFiniteNumber(endMinute)
+        || startMinute < 0
+        || endMinute <= startMinute
+      ) {
+        errors.push(`Store ${store.id} has invalid time window`)
+      }
+    }
+  }
 
   for (const route of scenario.routes) {
     const truck = trucks.get(route.truckId)
@@ -14,12 +54,14 @@ export function validateScenario(scenario: FleetScenario): string[] {
       continue
     }
 
-    if (route.distanceKm <= 0) {
-      errors.push(`Route ${route.id} must have positive distance`)
+    routeCounts.set(truck.id, (routeCounts.get(truck.id) ?? 0) + 1)
+
+    if (route.stops.length === 0) {
+      errors.push(`Route ${route.id} must contain at least one stop`)
     }
 
     let previousMinute = route.departureMinute
-    let assignedDemandKg = 0
+    let cargoModeMismatch = false
 
     for (const stop of route.stops) {
       const store = stores.get(stop.storeId)
@@ -30,7 +72,23 @@ export function validateScenario(scenario: FleetScenario): string[] {
       }
 
       assignmentCounts.set(stop.storeId, (assignmentCounts.get(stop.storeId) ?? 0) + 1)
-      assignedDemandKg += stop.demandKg
+
+      if (stop.cargo.kind !== truck.capacity.kind) {
+        cargoModeMismatch = true
+      }
+
+      if (stop.cargo.kind === 'MASS') {
+        if (!isFiniteNumber(stop.cargo.quantityKg) || stop.cargo.quantityKg <= 0) {
+          errors.push(`Route ${route.id} has non-positive mass cargo at ${stop.storeId}`)
+        }
+      } else if (
+        !isFiniteNumber(stop.cargo.packageCount)
+        || !isFiniteNumber(stop.cargo.volumeCm3)
+        || stop.cargo.packageCount <= 0
+        || stop.cargo.volumeCm3 <= 0
+      ) {
+        errors.push(`Route ${route.id} has non-positive parcel cargo at ${stop.storeId}`)
+      }
 
       if (stop.plannedArrivalMinute < previousMinute) {
         errors.push(`Route ${route.id} has non-monotonic arrival at ${stop.storeId}`)
@@ -47,7 +105,9 @@ export function validateScenario(scenario: FleetScenario): string[] {
       errors.push(`Route ${route.id} must return after its final stop`)
     }
 
-    if (assignedDemandKg > truck.capacityKg) {
+    if (cargoModeMismatch) {
+      errors.push(`Route ${route.id} cargo mode must match ${truck.id} capacity`)
+    } else if (!cargoFitsCapacity(route.stops, truck.capacity)) {
       errors.push(`Route ${route.id} exceeds ${truck.id} capacity`)
     }
   }
@@ -56,6 +116,13 @@ export function validateScenario(scenario: FleetScenario): string[] {
     const count = assignmentCounts.get(store.id) ?? 0
     if (count !== 1) {
       errors.push(`Store ${store.id} must be assigned exactly once; found ${count}`)
+    }
+  }
+
+  for (const truck of scenario.trucks) {
+    const count = routeCounts.get(truck.id) ?? 0
+    if (count !== 1) {
+      errors.push(`Truck ${truck.id} must have exactly one route; found ${count}`)
     }
   }
 

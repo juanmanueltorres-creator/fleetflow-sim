@@ -12,8 +12,8 @@ export function KpiPanel({ metrics }: KpiPanelProps) {
         <strong>{metrics.completedDeliveries} / {metrics.totalDeliveries}</strong>
       </article>
       <article>
-        <span>Camiones activos</span>
-        <strong>{metrics.activeTrucks} / 5</strong>
+        <span>Vehículos activos</span>
+        <strong>{metrics.activeTrucks} / {metrics.totalVehicles}</strong>
       </article>
       <article>
         <span>Distancia prevista</span>
