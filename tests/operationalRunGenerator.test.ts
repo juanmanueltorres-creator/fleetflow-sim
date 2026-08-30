@@ -116,6 +116,20 @@ describe('operational run generator', () => {
     )
   })
 
+  it('embeds the applied weekly profile in immutable provenance', () => {
+    const outputDir = tempOutputDir('operational-profile-provenance')
+    runGenerator({ outputDir, from: '2026-08-30', to: '2026-08-30' })
+
+    expect(readRun(outputDir, '2026-08-30').provenance).toHaveProperty('operationalProfile', {
+      day: 0,
+      dayLabel: 'Domingo',
+      intensityLabel: 'jornada muy liviana',
+      demandMultiplier: 0.72,
+      travelTimeMultiplier: 0.9,
+      summary: 'Hoy hay menos carga para repartir y los recorridos usan un ritmo más fluido que una jornada base.',
+    })
+  })
+
   it('classifies target dates after the issued Cordoba date as FORECAST', () => {
     const outputDir = tempOutputDir('operational-modes')
     runGenerator({ outputDir })
