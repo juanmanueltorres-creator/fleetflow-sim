@@ -29,10 +29,14 @@ function parseArgs(argv) {
   const routes = args.get('--routes')
   const output = args.get('--output')
   const seed = args.get('--seed')
+  const mode = args.get('--mode') ?? 'final'
   if (!profile || !routes || !output || !seed) {
-    throw new Error('Usage: node scripts/generate-calibrated-scenario.mjs --profile <file> --routes <geojson> --output <file> --seed <text>')
+    throw new Error('Usage: node scripts/generate-calibrated-scenario.mjs --profile <file> --routes <geojson> --output <file> --seed <text> [--mode final|provisional]')
   }
-  return { profile: resolve(profile), routes: resolve(routes), output: resolve(output), seed }
+  if (mode !== 'final' && mode !== 'provisional') {
+    throw new Error(`Unsupported generation mode ${mode}`)
+  }
+  return { profile: resolve(profile), routes: resolve(routes), output: resolve(output), seed, mode }
 }
 
 function hashSeed(text) {
@@ -156,9 +160,9 @@ function minimumTravelMinutes(distanceKm) {
 }
 
 function main() {
-  const { profile: profilePath, routes: routesPath, output, seed } = parseArgs(process.argv.slice(2))
+  const { profile: profilePath, routes: routesPath, output, seed, mode } = parseArgs(process.argv.slice(2))
   const profile = JSON.parse(readFileSync(profilePath, 'utf8'))
-  const routeGeometryIndex = loadRouteGeometryIndex(routesPath)
+  const routeGeometryIndex = mode === 'final' ? loadRouteGeometryIndex(routesPath) : null
   const operationsRandom = mulberry32(hashSeed(`${seed}:operations`))
   const geographyRandom = mulberry32(hashSeed(`${seed}:geography`))
   const totalStops = STOP_COUNTS.reduce((sum, count) => sum + count, 0)
@@ -179,7 +183,9 @@ function main() {
     const truckId = `vehicle-${routeNumber}`
     const geometryId = `route-calibrated-${routeNumber}`
     const stopCount = STOP_COUNTS[routeIndex]
-    const waypointDistancesKm = routeWaypointDistances(routeGeometryIndex, geometryId, truckId, stopCount)
+    const waypointDistancesKm = routeGeometryIndex
+      ? routeWaypointDistances(routeGeometryIndex, geometryId, truckId, stopCount)
+      : null
     const anchor = ROUTE_ANCHORS[routeIndex]
     const departureMinute = offsets[routeIndex]
     const plannedStops = []
@@ -199,8 +205,12 @@ function main() {
 
       const sampledTravelSeconds = sampleDistribution(profile.distributions.travelSecondsBetweenStops, operationsRandom)
       const sampledTravelMinutes = Math.max(1, Math.round(sampledTravelSeconds / 60))
-      const legDistanceKm = waypointDistancesKm[localStopIndex + 1] - waypointDistancesKm[localStopIndex]
-      const travelMinutes = Math.max(sampledTravelMinutes, minimumTravelMinutes(legDistanceKm))
+      const travelMinutes = waypointDistancesKm
+        ? Math.max(
+            sampledTravelMinutes,
+            minimumTravelMinutes(waypointDistancesKm[localStopIndex + 1] - waypointDistancesKm[localStopIndex]),
+          )
+        : sampledTravelMinutes
       const plannedArrivalMinute = previousDeparture + travelMinutes
       const serviceSeconds = sampleDistribution(profile.distributions.serviceSecondsPerStop, operationsRandom)
       const serviceMinutes = Math.max(1, Math.round(serviceSeconds / 60))
@@ -234,8 +244,15 @@ function main() {
 
     const sampledReturnSeconds = sampleDistribution(profile.distributions.travelSecondsBetweenStops, operationsRandom)
     const sampledReturnMinutes = Math.max(1, Math.round(sampledReturnSeconds / 60))
-    const returnDistanceKm = waypointDistancesKm[waypointDistancesKm.length - 1] - waypointDistancesKm[waypointDistancesKm.length - 2]
-    const returnMinute = previousDeparture + Math.max(sampledReturnMinutes, minimumTravelMinutes(returnDistanceKm))
+    const returnTravelMinutes = waypointDistancesKm
+      ? Math.max(
+          sampledReturnMinutes,
+          minimumTravelMinutes(
+            waypointDistancesKm[waypointDistancesKm.length - 1] - waypointDistancesKm[waypointDistancesKm.length - 2],
+          ),
+        )
+      : sampledReturnMinutes
+    const returnMinute = previousDeparture + returnTravelMinutes
     const sampledCapacity = sampleDistribution(profile.distributions.vehicleCapacityCm3, operationsRandom)
     const capacityCm3 = Math.ceil(Math.max(sampledCapacity, routeVolumeCm3 * 1.15))
 
