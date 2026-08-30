@@ -15,6 +15,11 @@ const GENERATOR = 'daily-calibrated-v1'
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/
 const ISO_TIMESTAMP_WITH_ZONE = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.\d+)?(Z|[+-]\d{2}:\d{2})$/
 const RUN_SUFFIX = /^[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*$/
+const WEEKLY_PROFILES = new Map(
+  JSON.parse(
+    readFileSync(new URL('../src/scenario/operationalRuns/weekly-profile.json', import.meta.url), 'utf8'),
+  ).map((profile) => [profile.day, profile]),
+)
 
 function parseArgs(argv) {
   const args = {}
@@ -117,9 +122,17 @@ function getCordobaDate(timestamp) {
   return `${byType.year}-${byType.month}-${byType.day}`
 }
 
-function dailyPackageTarget(targetDate) {
+function weeklyProfileForDate(targetDate) {
+  const day = new Date(`${targetDate}T00:00:00Z`).getUTCDay()
+  const profile = WEEKLY_PROFILES.get(day)
+  if (!profile) throw new Error(`Missing weekly operational profile for day ${day}`)
+  return profile
+}
+
+function dailyPackageTarget(targetDate, demandMultiplier) {
   const random = mulberry32(hashSeed(`fleetflow:v0.5:cordoba:${targetDate}:demand`))
-  return Math.round(100 * (0.90 + random() * 0.28))
+  const dailyJitter = 0.97 + random() * 0.06
+  return Math.round(100 * demandMultiplier * dailyJitter)
 }
 
 function main() {
@@ -171,12 +184,14 @@ function main() {
   const generated = plannedArtifacts.map(({ id, targetDate, artifactPath, artifact }) => {
     const operationsSeed = `fleetflow:v0.5:cordoba:${targetDate}`
     const mode = targetDate > issuedOperationalDate ? 'FORECAST' : 'SIMULATED'
+    const weeklyProfile = weeklyProfileForDate(targetDate)
     const scenario = generateCalibratedScenario({
       profile,
       routeGeometryIndex,
       operationsSeed,
       geographySeed: GEOGRAPHY_SEED,
-      packageTarget: dailyPackageTarget(targetDate),
+      packageTarget: dailyPackageTarget(targetDate, weeklyProfile.demandMultiplier),
+      travelTimeMultiplier: weeklyProfile.travelTimeMultiplier,
     })
 
     const run = {
@@ -194,7 +209,16 @@ function main() {
           mode === 'FORECAST'
             ? 'Synthetic/calibrated operational forecast; not observed Córdoba delivery data.'
             : 'Synthetic/calibrated replay; not observed Córdoba delivery data.',
+          `${weeklyProfile.dayLabel}: ${weeklyProfile.intensityLabel}; weekly demand and travel cadence profile.`,
         ],
+        operationalProfile: {
+          day: weeklyProfile.day,
+          dayLabel: weeklyProfile.dayLabel,
+          intensityLabel: weeklyProfile.intensityLabel,
+          demandMultiplier: weeklyProfile.demandMultiplier,
+          travelTimeMultiplier: weeklyProfile.travelTimeMultiplier,
+          summary: weeklyProfile.summary,
+        },
       },
       scenario,
     }

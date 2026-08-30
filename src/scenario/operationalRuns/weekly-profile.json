@@ -1,0 +1,58 @@
+[
+  {
+    "day": 0,
+    "dayLabel": "Domingo",
+    "intensityLabel": "jornada muy liviana",
+    "demandMultiplier": 0.72,
+    "travelTimeMultiplier": 0.9,
+    "summary": "Hoy hay menos carga para repartir y los recorridos usan un ritmo más fluido que una jornada base."
+  },
+  {
+    "day": 1,
+    "dayLabel": "Lunes",
+    "intensityLabel": "jornada exigente",
+    "demandMultiplier": 1.18,
+    "travelTimeMultiplier": 1.14,
+    "summary": "Hoy entra más carga y los recorridos usan un ritmo algo más lento que una jornada base."
+  },
+  {
+    "day": 2,
+    "dayLabel": "Martes",
+    "intensityLabel": "jornada activa",
+    "demandMultiplier": 1.08,
+    "travelTimeMultiplier": 1.03,
+    "summary": "La carga se mantiene por encima de una jornada base y los recorridos conservan un ritmo casi normal."
+  },
+  {
+    "day": 3,
+    "dayLabel": "Miércoles",
+    "intensityLabel": "jornada base",
+    "demandMultiplier": 1,
+    "travelTimeMultiplier": 1,
+    "summary": "La jornada usa la referencia base de carga y ritmo para comparar el resto de la semana."
+  },
+  {
+    "day": 4,
+    "dayLabel": "Jueves",
+    "intensityLabel": "jornada activa",
+    "demandMultiplier": 1.07,
+    "travelTimeMultiplier": 1.04,
+    "summary": "La carga sube un poco sobre la referencia y los recorridos usan un ritmo apenas más lento."
+  },
+  {
+    "day": 5,
+    "dayLabel": "Viernes",
+    "intensityLabel": "jornada exigente",
+    "demandMultiplier": 1.16,
+    "travelTimeMultiplier": 1.12,
+    "summary": "Hay más carga para repartir y los recorridos usan un ritmo más lento que una jornada base."
+  },
+  {
+    "day": 6,
+    "dayLabel": "Sábado",
+    "intensityLabel": "jornada liviana",
+    "demandMultiplier": 0.88,
+    "travelTimeMultiplier": 0.94,
+    "summary": "Hay menos carga para repartir y los recorridos usan un ritmo algo más fluido que una jornada base."
+  }
+]

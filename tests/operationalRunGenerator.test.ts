@@ -116,6 +116,20 @@ describe('operational run generator', () => {
     )
   })
 
+  it('embeds the applied weekly profile in immutable provenance', () => {
+    const outputDir = tempOutputDir('operational-profile-provenance')
+    runGenerator({ outputDir, from: '2026-08-30', to: '2026-08-30' })
+
+    expect(readRun(outputDir, '2026-08-30').provenance).toHaveProperty('operationalProfile', {
+      day: 0,
+      dayLabel: 'Domingo',
+      intensityLabel: 'jornada muy liviana',
+      demandMultiplier: 0.72,
+      travelTimeMultiplier: 0.9,
+      summary: 'Hoy hay menos carga para repartir y los recorridos usan un ritmo más fluido que una jornada base.',
+    })
+  })
+
   it('classifies target dates after the issued Cordoba date as FORECAST', () => {
     const outputDir = tempOutputDir('operational-modes')
     runGenerator({ outputDir })
@@ -124,7 +138,7 @@ describe('operational run generator', () => {
     expect(readRun(outputDir, '2026-08-31').mode).toBe('FORECAST')
   })
 
-  it('keeps package totals between 90 and 118 with at least one package per stop', () => {
+  it('keeps weekly package totals within the profile envelope with at least one package per stop', () => {
     const outputDir = tempOutputDir('operational-demand')
     runGenerator({ outputDir, from: '2026-08-27', to: '2026-09-03' })
 
@@ -133,8 +147,8 @@ describe('operational run generator', () => {
 
     for (const entry of manifest.runs) {
       const run = readRun(outputDir, entry.targetDate)
-      expect(totalPackages(run)).toBeGreaterThanOrEqual(90)
-      expect(totalPackages(run)).toBeLessThanOrEqual(118)
+      expect(totalPackages(run)).toBeGreaterThanOrEqual(70)
+      expect(totalPackages(run)).toBeLessThanOrEqual(121)
       expect(
         run.scenario.routes.every((route) =>
           route.stops.every((stop) => stop.cargo.kind === 'PARCELS' && stop.cargo.packageCount >= 1),

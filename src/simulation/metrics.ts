@@ -9,9 +9,25 @@ export interface FleetMetrics {
   totalVehicles: number
   plannedDistanceKm: number
   estimatedFuelUsedL: number
+  totalPackages: number | null
 }
 
 const ACTIVE_STATUSES = new Set<TruckStatus>(['EN_ROUTE', 'UNLOADING', 'RETURNING'])
+
+function totalPackageLoad(scenario: FleetScenario): number | null {
+  let hasParcelCargo = false
+  let totalPackages = 0
+
+  for (const route of scenario.routes) {
+    for (const stop of route.stops) {
+      if (stop.cargo.kind !== 'PARCELS') continue
+      hasParcelCargo = true
+      totalPackages += stop.cargo.packageCount
+    }
+  }
+
+  return hasParcelCargo ? totalPackages : null
+}
 
 export function deriveFleetMetrics(
   scenario: FleetScenario,
@@ -37,5 +53,6 @@ export function deriveFleetMetrics(
       (total, truck) => total + truck.estimatedFuelUsedL,
       0,
     ),
+    totalPackages: totalPackageLoad(scenario),
   }
 }

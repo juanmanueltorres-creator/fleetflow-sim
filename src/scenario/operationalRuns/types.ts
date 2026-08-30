@@ -4,10 +4,20 @@ import type { ScenarioId } from '../scenarioRegistry'
 export const OPERATIONAL_RUN_MODES = ['FORECAST', 'SIMULATED', 'OBSERVED', 'WHAT_IF'] as const
 export type OperationalRunMode = (typeof OPERATIONAL_RUN_MODES)[number]
 
+export interface OperationalProfileProvenance {
+  day: number
+  dayLabel: string
+  intensityLabel: string
+  demandMultiplier: number
+  travelTimeMultiplier: number
+  summary: string
+}
+
 export interface OperationalRunProvenance {
   generator: string
   seed: string
   notes: string[]
+  operationalProfile?: OperationalProfileProvenance
 }
 
 export interface OperationalRun {

@@ -15,7 +15,7 @@ const manifest = JSON.parse(
   readFileSync(resolve(process.cwd(), 'public/data/operational-runs/manifest.json'), 'utf8'),
 )
 const run30 = JSON.parse(
-  readFileSync(resolve(process.cwd(), 'public/data/operational-runs/generated/cordoba-2026-08-30-v1.json'), 'utf8'),
+  readFileSync(resolve(process.cwd(), 'public/data/operational-runs/generated/cordoba-2026-08-30-v2.json'), 'utf8'),
 )
 const calibratedRoutes = JSON.parse(
   readFileSync(resolve(process.cwd(), 'public/data/cordoba-calibrated-routes.geojson'), 'utf8'),
@@ -43,7 +43,7 @@ describe('scenario switching', () => {
     const fetchMock = vi.fn((input: RequestInfo | URL) => {
       const url = String(input)
       if (url === './data/operational-runs/manifest.json') return response(manifest)
-      if (url === './data/operational-runs/generated/cordoba-2026-08-30-v1.json') return response(run30)
+      if (url === './data/operational-runs/generated/cordoba-2026-08-30-v2.json') return response(run30)
       if (url === './data/cordoba-calibrated-routes.geojson') return response(calibratedRoutes)
       if (url === './data/coca-coqui-routes.geojson') return response(legacyRoutes)
       return Promise.resolve({ ok: false, status: 404, json: async () => ({}) } as Response)
@@ -54,7 +54,7 @@ describe('scenario switching', () => {
 
     await waitFor(() => {
       expect(fetchMock).toHaveBeenCalledWith('./data/operational-runs/manifest.json')
-      expect(fetchMock).toHaveBeenCalledWith('./data/operational-runs/generated/cordoba-2026-08-30-v1.json')
+      expect(fetchMock).toHaveBeenCalledWith('./data/operational-runs/generated/cordoba-2026-08-30-v2.json')
       expect(fetchMock).toHaveBeenCalledWith('./data/cordoba-calibrated-routes.geojson')
     })
     expect(await screen.findByTestId('fleet-map')).toHaveTextContent('Córdoba Last-Mile Calibrado')
@@ -79,7 +79,7 @@ describe('scenario switching', () => {
 
     await waitFor(() => {
       expect(fetchMock.mock.calls.filter(([url]) => String(url) === './data/operational-runs/manifest.json')).toHaveLength(2)
-      expect(fetchMock.mock.calls.filter(([url]) => String(url) === './data/operational-runs/generated/cordoba-2026-08-30-v1.json')).toHaveLength(2)
+      expect(fetchMock.mock.calls.filter(([url]) => String(url) === './data/operational-runs/generated/cordoba-2026-08-30-v2.json')).toHaveLength(2)
       expect(fetchMock.mock.calls.filter(([url]) => String(url) === './data/cordoba-calibrated-routes.geojson')).toHaveLength(2)
     })
     expect(screen.getByRole('radio', { name: /Córdoba calibrado/i })).toBeChecked()

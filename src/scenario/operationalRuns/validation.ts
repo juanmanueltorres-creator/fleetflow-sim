@@ -3,6 +3,7 @@ import type { FleetScenario } from '../../domain/types'
 import { SCENARIO_IDS } from '../scenarioRegistry'
 import {
   OPERATIONAL_RUN_MODES,
+  type OperationalProfileProvenance,
   type OperationalRun,
 } from './types'
 
@@ -153,6 +154,25 @@ function isScenarioShape(value: unknown): value is FleetScenario {
     && value.routes.every(isRouteShape)
 }
 
+function isNonEmptyString(value: unknown): value is string {
+  return typeof value === 'string' && value.trim() !== ''
+}
+
+function isOperationalProfileShape(value: unknown): value is OperationalProfileProvenance {
+  return isRecord(value)
+    && Number.isInteger(value.day)
+    && isFiniteNumber(value.day)
+    && value.day >= 0
+    && value.day <= 6
+    && isNonEmptyString(value.dayLabel)
+    && isNonEmptyString(value.intensityLabel)
+    && isFiniteNumber(value.demandMultiplier)
+    && value.demandMultiplier > 0
+    && isFiniteNumber(value.travelTimeMultiplier)
+    && value.travelTimeMultiplier > 0
+    && isNonEmptyString(value.summary)
+}
+
 function duplicateStoreId(scenario: FleetScenario): string | null {
   const seen = new Set<string>()
 
@@ -227,6 +247,18 @@ export function validateOperationalRun(value: unknown): string[] {
       || value.provenance.notes.some((note) => typeof note !== 'string')
     ) {
       errors.push('Operational run provenance notes are invalid')
+    }
+
+    const operationalProfile = value.provenance.operationalProfile
+    if (operationalProfile !== undefined) {
+      if (!isOperationalProfileShape(operationalProfile)) {
+        errors.push('Operational run provenance operational profile is invalid')
+      } else if (
+        isRealIsoDate(value.targetDate)
+        && operationalProfile.day !== new Date(`${value.targetDate}T00:00:00Z`).getUTCDay()
+      ) {
+        errors.push('Operational run provenance operational profile day does not match targetDate')
+      }
     }
   }
 
