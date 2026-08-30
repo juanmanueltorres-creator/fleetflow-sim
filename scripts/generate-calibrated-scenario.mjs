@@ -3,6 +3,7 @@ import { dirname, resolve } from 'node:path'
 
 const STOP_COUNTS = [6, 9, 7, 8, 6, 10, 7, 7]
 const PACKAGE_TARGET = 100
+const MAX_TRAVEL_SPEED_KMH = 60
 const DEPOT_POSITION = [-64.1888, -31.4201]
 const ROUTE_ANCHORS = [
   [-64.2220, -31.3970],
@@ -25,12 +26,13 @@ function parseArgs(argv) {
   }
 
   const profile = args.get('--profile')
+  const routes = args.get('--routes')
   const output = args.get('--output')
   const seed = args.get('--seed')
-  if (!profile || !output || !seed) {
-    throw new Error('Usage: node scripts/generate-calibrated-scenario.mjs --profile <file> --output <file> --seed <text>')
+  if (!profile || !routes || !output || !seed) {
+    throw new Error('Usage: node scripts/generate-calibrated-scenario.mjs --profile <file> --routes <geojson> --output <file> --seed <text>')
   }
-  return { profile: resolve(profile), output: resolve(output), seed }
+  return { profile: resolve(profile), routes: resolve(routes), output: resolve(output), seed }
 }
 
 function hashSeed(text) {
@@ -110,9 +112,50 @@ function departureOffsets(profile, random) {
   return samples.map((value) => Math.round(((value - min) / (max - min)) * 18))
 }
 
+function loadRouteGeometryIndex(routesPath) {
+  const collection = JSON.parse(readFileSync(routesPath, 'utf8'))
+  if (collection?.type !== 'FeatureCollection' || !Array.isArray(collection.features)) {
+    throw new Error('Calibrated route asset must be a GeoJSON FeatureCollection')
+  }
+
+  const index = new Map()
+  for (const feature of collection.features) {
+    if (typeof feature?.id !== 'string') throw new Error('Every calibrated route feature requires a string id')
+    if (index.has(feature.id)) throw new Error(`Duplicate calibrated route geometry ${feature.id}`)
+    index.set(feature.id, feature)
+  }
+  return index
+}
+
+function routeWaypointDistances(routeGeometryIndex, geometryId, truckId, stopCount) {
+  const feature = routeGeometryIndex.get(geometryId)
+  if (!feature) throw new Error(`Missing calibrated route geometry ${geometryId}`)
+  if (feature.properties?.truckId !== truckId) {
+    throw new Error(`Calibrated route ${geometryId} truck id mismatch`)
+  }
+
+  const distances = feature.properties?.waypointDistancesKm
+  if (!Array.isArray(distances) || distances.length !== stopCount + 2) {
+    throw new Error(`Calibrated route ${geometryId} waypoint count must equal stops + 2`)
+  }
+  if (distances[0] !== 0) throw new Error(`Calibrated route ${geometryId} must start at distance 0`)
+  if (distances.some((value, index) => index > 0 && value < distances[index - 1])) {
+    throw new Error(`Calibrated route ${geometryId} waypoint distances must be non-decreasing`)
+  }
+  if ((distances.at(-1) ?? 0) <= 0) throw new Error(`Calibrated route ${geometryId} must have positive distance`)
+  return distances
+}
+
+function minimumTravelMinutes(distanceKm) {
+  if (distanceKm < 0) throw new Error('Travel distance cannot be negative')
+  if (distanceKm === 0) return 0
+  return Math.max(1, Math.ceil((distanceKm / MAX_TRAVEL_SPEED_KMH) * 60))
+}
+
 function main() {
-  const { profile: profilePath, output, seed } = parseArgs(process.argv.slice(2))
+  const { profile: profilePath, routes: routesPath, output, seed } = parseArgs(process.argv.slice(2))
   const profile = JSON.parse(readFileSync(profilePath, 'utf8'))
+  const routeGeometryIndex = loadRouteGeometryIndex(routesPath)
   const random = mulberry32(hashSeed(seed))
   const totalStops = STOP_COUNTS.reduce((sum, count) => sum + count, 0)
 
@@ -130,7 +173,9 @@ function main() {
   for (let routeIndex = 0; routeIndex < STOP_COUNTS.length; routeIndex += 1) {
     const routeNumber = String(routeIndex + 1).padStart(2, '0')
     const truckId = `vehicle-${routeNumber}`
+    const geometryId = `route-calibrated-${routeNumber}`
     const stopCount = STOP_COUNTS[routeIndex]
+    const waypointDistancesKm = routeWaypointDistances(routeGeometryIndex, geometryId, truckId, stopCount)
     const anchor = ROUTE_ANCHORS[routeIndex]
     const departureMinute = offsets[routeIndex]
     const plannedStops = []
@@ -148,8 +193,10 @@ function main() {
       volumeCm3 = Math.max(1, Math.round(volumeCm3))
       routeVolumeCm3 += volumeCm3
 
-      const travelSeconds = sampleDistribution(profile.distributions.travelSecondsBetweenStops, random)
-      const travelMinutes = Math.max(1, Math.round(travelSeconds / 60))
+      const sampledTravelSeconds = sampleDistribution(profile.distributions.travelSecondsBetweenStops, random)
+      const sampledTravelMinutes = Math.max(1, Math.round(sampledTravelSeconds / 60))
+      const legDistanceKm = waypointDistancesKm[localStopIndex + 1] - waypointDistancesKm[localStopIndex]
+      const travelMinutes = Math.max(sampledTravelMinutes, minimumTravelMinutes(legDistanceKm))
       const plannedArrivalMinute = previousDeparture + travelMinutes
       const serviceSeconds = sampleDistribution(profile.distributions.serviceSecondsPerStop, random)
       const serviceMinutes = Math.max(1, Math.round(serviceSeconds / 60))
@@ -181,8 +228,10 @@ function main() {
       globalStopIndex += 1
     }
 
-    const returnTravelSeconds = sampleDistribution(profile.distributions.travelSecondsBetweenStops, random)
-    const returnMinute = previousDeparture + Math.max(1, Math.round(returnTravelSeconds / 60))
+    const sampledReturnSeconds = sampleDistribution(profile.distributions.travelSecondsBetweenStops, random)
+    const sampledReturnMinutes = Math.max(1, Math.round(sampledReturnSeconds / 60))
+    const returnDistanceKm = waypointDistancesKm[waypointDistancesKm.length - 1] - waypointDistancesKm[waypointDistancesKm.length - 2]
+    const returnMinute = previousDeparture + Math.max(sampledReturnMinutes, minimumTravelMinutes(returnDistanceKm))
     const sampledCapacity = sampleDistribution(profile.distributions.vehicleCapacityCm3, random)
     const capacityCm3 = Math.ceil(Math.max(sampledCapacity, routeVolumeCm3 * 1.15))
 
@@ -193,12 +242,12 @@ function main() {
       fuelConsumptionLPer100Km: 18,
     })
     routes.push({
-      id: `route-calibrated-${routeNumber}`,
+      id: geometryId,
       truckId,
       departureMinute,
       returnMinute,
       stops: plannedStops,
-      geometryId: `route-calibrated-${routeNumber}`,
+      geometryId,
     })
   }
 
