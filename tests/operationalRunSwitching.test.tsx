@@ -4,7 +4,11 @@ import { resolve } from 'node:path'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import App from '../src/App'
 import type { FleetScenario } from '../src/domain/types'
-import type { OperationalRun, OperationalRunManifest } from '../src/scenario/operationalRuns/types'
+import type {
+  OperationalRun,
+  OperationalRunManifest,
+  OperationalRunManifestV1,
+} from '../src/scenario/operationalRuns/types'
 
 vi.mock('../src/map/FleetMap', () => ({
   FleetMap: ({ scenario }: { scenario: FleetScenario }) => (
@@ -17,6 +21,7 @@ vi.mock('../src/map/FleetMap', () => ({
 const MANIFEST_URL = './data/operational-runs/manifest.json'
 const RUN_30_URL = './data/operational-runs/generated/cordoba-2026-08-30-v2.json'
 const RUN_31_URL = './data/operational-runs/generated/cordoba-2026-08-31-v2.json'
+const RUN_04_URL = './data/operational-runs/generated/cordoba-2026-09-04-v-race.json'
 const ROUTES_URL = './data/cordoba-calibrated-routes.geojson'
 
 const manifest = JSON.parse(
@@ -31,6 +36,34 @@ const run31 = JSON.parse(
 const calibratedRoutes = JSON.parse(
   readFileSync(resolve(process.cwd(), 'public/data/cordoba-calibrated-routes.geojson'), 'utf8'),
 )
+
+const run04: OperationalRun = structuredClone(run31)
+run04.id = 'cordoba-2026-09-04-v-race'
+run04.targetDate = '2026-09-04'
+run04.provenance = {
+  generator: 'race-test',
+  seed: 'race-test:2026-09-04',
+  notes: ['Synthetic race fixture.'],
+}
+run04.scenario.routes[0].returnMinute += 17
+
+const manifestV1 = manifest as OperationalRunManifestV1
+const raceManifest: OperationalRunManifestV1 = {
+  schemaVersion: 1,
+  runs: [
+    ...manifestV1.runs,
+    {
+      id: run04.id,
+      targetDate: run04.targetDate,
+      issuedAt: run04.issuedAt,
+      dataAsOf: run04.dataAsOf,
+      mode: run04.mode,
+      scenarioId: run04.scenarioId,
+      modelVersion: run04.modelVersion,
+      artifact: './generated/cordoba-2026-09-04-v-race.json',
+    },
+  ],
+}
 
 function jsonResponse(payload: unknown, status = 200): Response {
   return {
@@ -153,6 +186,44 @@ describe('operational run switching', () => {
 
     await waitFor(() => {
       expect(fetchMock.mock.calls.filter(([url]) => String(url) === RUN_31_URL)).toHaveLength(1)
+    })
+  })
+
+  it('ignores a stale slower bundle after a newer date succeeds', async () => {
+    const run31Response = deferred<Response>()
+    const run04Response = deferred<Response>()
+
+    const fetchMock = vi.fn((input: RequestInfo | URL) => {
+      const url = String(input)
+      if (url === MANIFEST_URL) return Promise.resolve(jsonResponse(raceManifest))
+      if (url === RUN_30_URL) return Promise.resolve(jsonResponse(run30))
+      if (url === RUN_31_URL) return run31Response.promise
+      if (url === RUN_04_URL) return run04Response.promise
+      if (url === ROUTES_URL) return Promise.resolve(jsonResponse(calibratedRoutes))
+      return Promise.resolve(jsonResponse({}, 404))
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    render(<App />)
+    expect(await screen.findByTestId('fleet-map')).toHaveTextContent(
+      `return-total:${returnTotal(run30.scenario)}`,
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: /31 DE AGO DE 2026, FORECAST/i }))
+    fireEvent.click(screen.getByRole('button', { name: /04 DE SEPT DE 2026, FORECAST/i }))
+
+    run04Response.resolve(jsonResponse(run04))
+    await waitFor(() => {
+      expect(screen.getByTestId('fleet-map')).toHaveTextContent(
+        `return-total:${returnTotal(run04.scenario)}`,
+      )
+    })
+
+    run31Response.resolve(jsonResponse(run31))
+    await waitFor(() => {
+      expect(screen.getByTestId('fleet-map')).toHaveTextContent(
+        `return-total:${returnTotal(run04.scenario)}`,
+      )
     })
   })
 })
