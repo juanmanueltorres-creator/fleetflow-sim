@@ -45,7 +45,7 @@ npm run generate:operational-runs -- \
   --issued-at 2026-08-30T21:00:00-03:00 \
   --data-as-of 2026-08-30T21:00:00-03:00 \
   --output-dir public/data/operational-runs \
-  --run-suffix v1
+  --run-suffix v2
 ```
 
 The generator is deterministic, offline, and fail-closed: existing artifacts are not overwritten.
