@@ -153,6 +153,25 @@ function isScenarioShape(value: unknown): value is FleetScenario {
     && value.routes.every(isRouteShape)
 }
 
+function isNonEmptyString(value: unknown): value is string {
+  return typeof value === 'string' && value.trim() !== ''
+}
+
+function isOperationalProfileShape(value: unknown): boolean {
+  return isRecord(value)
+    && Number.isInteger(value.day)
+    && isFiniteNumber(value.day)
+    && value.day >= 0
+    && value.day <= 6
+    && isNonEmptyString(value.dayLabel)
+    && isNonEmptyString(value.intensityLabel)
+    && isFiniteNumber(value.demandMultiplier)
+    && value.demandMultiplier > 0
+    && isFiniteNumber(value.travelTimeMultiplier)
+    && value.travelTimeMultiplier > 0
+    && isNonEmptyString(value.summary)
+}
+
 function duplicateStoreId(scenario: FleetScenario): string | null {
   const seen = new Set<string>()
 
@@ -227,6 +246,13 @@ export function validateOperationalRun(value: unknown): string[] {
       || value.provenance.notes.some((note) => typeof note !== 'string')
     ) {
       errors.push('Operational run provenance notes are invalid')
+    }
+
+    if (
+      value.provenance.operationalProfile !== undefined
+      && !isOperationalProfileShape(value.provenance.operationalProfile)
+    ) {
+      errors.push('Operational run provenance operational profile is invalid')
     }
   }
 
