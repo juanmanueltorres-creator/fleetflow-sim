@@ -2,77 +2,98 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Publish the first FleetFlow V0.6 daily operational runs with 45–65 deterministic synthetic Córdoba delivery destinations per day, variable per-truck load, per-run road-following routes, and a schema-V2 manifest while preserving V0.5 artifacts and the existing simulation engine.
+**Goal:** Publish FleetFlow V0.6 daily operational runs with 45–65 deterministic synthetic Córdoba destinations, variable per-truck package load, per-run road-following geometry, and schema-V2 bundle loading while preserving V0.5 artifacts and the existing simulation engine.
 
-**Architecture:** Add an offline Daily Spatial Demand pipeline around the existing `FleetScenario` model. A versioned synthetic candidate pool derived from Córdoba GTFS structure feeds deterministic daily selection, cargo generation, eight-truck assignment, logical stop ordering, road routing, and a shared V0.6 timing contract. The browser continues to consume validated `OperationalBundle`s; `src/simulation/*` remains unchanged.
+**Architecture:** Build the new behavior entirely in the offline generation path. A versioned candidate pool derived from Córdoba GTFS structure feeds deterministic daily selection, parcel generation, eight-truck assignment, stop ordering, road routing, and one reusable V0.6 timing function. The browser continues to consume `OperationalBundle`; `src/simulation/*` is not changed.
 
-**Tech Stack:** Node.js ESM generation scripts, TypeScript/React runtime, Vitest, GeoJSON, MapLibre, Turf utilities already in the repo, offline OSRM route preparation, GitHub Actions for reproducible artifact generation.
+**Tech Stack:** Node.js ESM scripts, TypeScript, React 19, Vitest 3, GeoJSON, existing Turf dependencies, MapLibre, OSRM route preparation.
 
 **Spec:** `docs/superpowers/specs/2026-08-30-fleetflow-v0-6-cordoba-operational-context-design.md`
 
 ## Global Constraints
 
-- Fleet size is exactly 8 vehicles for every V0.6 run.
-- Active delivery destinations are deterministic and bounded to `45 <= deliveryCount <= 65`.
-- Daily package target remains the demand authority; package totals must be conserved exactly.
-- GTFS is a spatial proxy only; candidate locations are synthetic and use neutral `Entrega NNN` labels.
-- V0.6 model version is `fleetflow-v0.6`; generator version is `daily-spatial-demand-v1`; candidate pool version is `cordoba-delivery-pool-v1`.
-- Random streams are separated by responsibility: `demand`, `spatial`, `operations`, and `assignment`.
-- V0.5 `public/data/operational-runs/manifest.json` and existing V0.5 artifacts remain unchanged.
-- PR2 publishes a separate schema-V2 manifest at `public/data/operational-runs/manifest-v0-6.json` and updates the Córdoba timeline registry to use it.
-- PR2 does not add traffic/weather context factors; optional context remains omitted until the later context slice.
-- No browser-side routing, backend, database, OR-Tools, ML, risk score, changing fleet size, or runtime optimizer.
-- `src/simulation/engine.ts`, `src/simulation/clock.ts`, and the core snapshot semantics remain unchanged.
-- Public route artifacts are immutable and bound to their run through `runId`, `targetDate`, and `modelVersion` metadata.
-- Official GTFS reference for candidate-pool provenance: `https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319`.
+- Exactly 8 vehicles per V0.6 run.
+- `45 <= deliveryCount <= 65`.
+- Daily package target remains authoritative; package cargo is conserved exactly.
+- GTFS is a spatial proxy only. No candidate may be represented as a real customer/business/address.
+- Candidate labels are neutral: `Entrega 001`, `Entrega 002`, etc.
+- `modelVersion = fleetflow-v0.6`.
+- `generator = daily-spatial-demand-v1`.
+- `candidatePoolVersion = cordoba-delivery-pool-v1`.
+- Seeds use `fleetflow:v0.6:cordoba:<date>:demand|spatial|operations|assignment`; the candidate pool uses `fleetflow:v0.6:cordoba:candidate-pool-v1`.
+- Historical `public/data/operational-runs/manifest.json` and all V0.5 artifacts remain unchanged.
+- Active V0.6 manifest is a new file: `public/data/operational-runs/manifest-v0-6.json`.
+- PR2 has no traffic/weather timing factors and no context UI; context remains omitted.
+- No backend, DB, browser routing, OR-Tools, ML, risk score, variable fleet size, or runtime optimizer.
+- `src/simulation/engine.ts` and `src/simulation/clock.ts` remain untouched.
+- Route artifacts are immutable and carry `runId`, `targetDate`, `modelVersion` binding metadata.
+- Official GTFS source page: `https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319`.
 
 ---
 
-## File Structure
+## File Map
 
-New focused generation modules:
+Create:
 
-- `scripts/lib/route-preparation.mjs` — reusable road-route preparation previously embedded in the CLI.
-- `scripts/lib/candidate-pool.mjs` — GTFS stop parsing, octant zoning, density weighting, deterministic candidate-pool creation.
-- `scripts/generate-candidate-pool.mjs` — one-shot CLI for the versioned pool.
-- `scripts/lib/daily-spatial-demand.mjs` — delivery-count model, weighted daily selection, cargo/service generation.
-- `scripts/lib/daily-route-plan.mjs` — capacity-aware deterministic eight-truck assignment and nearest-neighbour stop ordering.
-- `scripts/lib/v0-6-route-timing.mjs` — shared V0.6 departure/travel/service timing contract; this is the contract future What-If derivation must reuse.
-- `scripts/generate-v0-6-operational-runs.mjs` — orchestration and immutable artifact publication.
-- `src/scenario/operationalRuns/candidate-pool-v1.json` — checked-in derived synthetic candidate pool.
-- `public/data/operational-runs/manifest-v0-6.json` — active V0.6 timeline manifest.
-- `public/data/operational-runs/generated/*-v3.json` and `*.routes.geojson` — immutable V0.6 run bundles.
+```text
+scripts/lib/route-preparation.mjs
+scripts/lib/candidate-pool.mjs
+scripts/generate-candidate-pool.mjs
+scripts/lib/daily-spatial-demand.mjs
+scripts/lib/daily-route-plan.mjs
+scripts/lib/v0-6-route-timing.mjs
+scripts/lib/v0-6-operational-run-generator.mjs
+scripts/generate-v0-6-operational-runs.mjs
+src/scenario/operationalRuns/candidate-pool-v1.json
+public/data/operational-runs/manifest-v0-6.json
+tests/fixtures/gtfs-stops-small.csv
+tests/routePreparationLib.test.ts
+tests/candidatePool.test.ts
+tests/dailySpatialDemand.test.ts
+tests/dailyRoutePlan.test.ts
+tests/v06RouteTiming.test.ts
+tests/v06OperationalRunGenerator.test.ts
+tests/v06PublishedArtifacts.test.ts
+```
 
-Existing files changed deliberately:
+Modify:
 
-- `scripts/prepare-routes.mjs` — becomes a thin CLI wrapper over `route-preparation.mjs`.
-- `scripts/lib/calibrated-scenario-generator.mjs` — only exports existing sampling helpers required by V0.6; V0.5 behavior must not change.
-- `src/scenario/operationalRuns/types.ts` / `validation.ts` — add structured spatial-demand provenance.
-- `src/scenario/scenarioRegistry.ts` — point Córdoba operational timeline to `manifest-v0-6.json`.
-- `src/components/FleetPanel.tsx` — make planned and remaining package load simultaneously visible per truck.
-- `package.json` — add explicit V0.6 generation commands.
-- `DATA_LICENSES.md` / `README.md` — document GTFS proxy semantics, generation commands, and immutable vintages.
+```text
+scripts/prepare-routes.mjs
+scripts/lib/calibrated-scenario-generator.mjs
+src/scenario/operationalRuns/types.ts
+src/scenario/operationalRuns/validation.ts
+src/scenario/scenarioRegistry.ts
+src/components/FleetPanel.tsx
+package.json
+README.md
+DATA_LICENSES.md
+```
 
 ---
 
-### Task 1: Extract reusable route preparation and V2 binding metadata
+### Task 1: Extract reusable route preparation
 
 **Files:**
 - Create: `scripts/lib/route-preparation.mjs`
 - Modify: `scripts/prepare-routes.mjs`
 - Test: `tests/routePreparationLib.test.ts`
-- Regression: `tests/routeAssets.test.ts`
 
 **Interfaces:**
-- Consumes: a logical `FleetScenario`, an injectable `fetcher`, an OSRM base URL, and optional `{ runId, targetDate, modelVersion }` metadata.
-- Produces: `routeDefinitionsFromScenario(scenario)` and `prepareRouteCollection({ scenario, fetcher, baseUrl, metadata })`.
 
-- [ ] **Step 1: Write the failing route-preparation library tests**
+```js
+routeDefinitionsFromScenario(scenario)
+prepareRouteCollection({ scenario, fetcher, baseUrl, metadata })
+```
 
-Create `tests/routePreparationLib.test.ts` with a minimal two-stop parcel scenario and a fake OSRM response. Assert:
+`metadata` is either absent or exactly `{ runId, targetDate, modelVersion }`.
+
+- [ ] **Step 1: Write the failing library test**
+
+Create a minimal scenario with one truck/two stops and a fake OSRM response containing three legs. Assert:
 
 ```ts
-const collection = await prepareRouteCollection({
+const routes = await prepareRouteCollection({
   scenario,
   fetcher,
   baseUrl: 'https://router.test',
@@ -83,42 +104,59 @@ const collection = await prepareRouteCollection({
   },
 })
 
-expect(collection.metadata).toEqual({
+expect(routes.metadata).toEqual({
   runId: 'cordoba-2026-08-31-v3',
   targetDate: '2026-08-31',
   modelVersion: 'fleetflow-v0.6',
 })
-expect(collection.features[0].properties.waypointDistancesKm).toHaveLength(4)
+expect(routes.features[0].properties.waypointDistancesKm).toHaveLength(4)
 ```
 
-Also assert that omitted metadata produces the legacy collection shape with no `metadata` property and that missing OSRM step geometry rejects.
+Also test legacy metadata omission and rejection of missing step geometry.
 
 - [ ] **Step 2: Run RED**
-
-Run:
 
 ```bash
 npm test -- tests/routePreparationLib.test.ts
 ```
 
-Expected: FAIL because `scripts/lib/route-preparation.mjs` does not exist.
+Expected: module-not-found failure.
 
-- [ ] **Step 3: Move route-preparation logic into the focused library**
+- [ ] **Step 3: Move the existing route logic into the library**
 
-Implement and export:
+Implement `routeDefinitionsFromScenario` exactly as:
 
 ```js
-export function routeDefinitionsFromScenario(scenario) { /* current CLI logic */ }
+export function routeDefinitionsFromScenario(scenario) {
+  const storeById = new Map(scenario.stores.map((store) => [store.id, store]))
 
+  return scenario.routes.map((routePlan) => ({
+    truckId: routePlan.truckId,
+    geometryId: routePlan.geometryId,
+    coordinates: [
+      scenario.depot.position,
+      ...routePlan.stops.map((stop) => {
+        const store = storeById.get(stop.storeId)
+        if (!store) throw new Error(`Missing store ${stop.storeId}`)
+        return store.position
+      }),
+      scenario.depot.position,
+    ],
+  }))
+}
+```
+
+Move `appendCoordinates`, `geometryLengthKm`, `buildGeometryFromLegs`, and `prepareRoute` from the current CLI without semantic changes. Implement collection assembly as:
+
+```js
 export async function prepareRouteCollection({
   scenario,
   fetcher = fetch,
   baseUrl = 'https://router.project-osrm.org',
   metadata,
 }) {
-  const definitions = routeDefinitionsFromScenario(scenario)
   const features = []
-  for (const definition of definitions) {
+  for (const definition of routeDefinitionsFromScenario(scenario)) {
     features.push(await prepareRoute(definition, { fetcher, baseUrl }))
   }
   return {
@@ -129,80 +167,63 @@ export async function prepareRouteCollection({
 }
 ```
 
-Move `appendCoordinates`, `geometryLengthKm`, `buildGeometryFromLegs`, route-definition construction, and OSRM response validation without changing their semantics.
+- [ ] **Step 4: Make `scripts/prepare-routes.mjs` a thin wrapper**
 
-- [ ] **Step 4: Reduce `scripts/prepare-routes.mjs` to CLI parsing + library call**
+Keep existing legacy/scenario arguments. Add `--run-id`, `--target-date`, `--model-version`; require either all three or none. Use `prepareRouteCollection()` and preserve existing output behavior.
 
-Legacy invocation must still work. Scenario invocation must still write exactly one GeoJSON collection. Add optional CLI flags `--run-id`, `--target-date`, `--model-version`; require all three together or none.
-
-- [ ] **Step 5: Run GREEN + regression**
-
-Run:
+- [ ] **Step 5: Run GREEN**
 
 ```bash
 npm test -- tests/routePreparationLib.test.ts tests/routeAssets.test.ts
 npm run build
 ```
 
-Expected: PASS.
-
 - [ ] **Step 6: Commit**
 
 ```bash
-git add scripts/lib/route-preparation.mjs scripts/prepare-routes.mjs tests/routePreparationLib.test.ts tests/routeAssets.test.ts
+git add scripts/lib/route-preparation.mjs scripts/prepare-routes.mjs tests/routePreparationLib.test.ts
 git commit -m "refactor: expose reusable route preparation"
 ```
 
 ---
 
-### Task 2: Build the versioned synthetic Córdoba candidate pool
+### Task 2: Generate the 240-point versioned candidate pool
 
 **Files:**
 - Create: `scripts/lib/candidate-pool.mjs`
 - Create: `scripts/generate-candidate-pool.mjs`
 - Create: `tests/fixtures/gtfs-stops-small.csv`
 - Create: `tests/candidatePool.test.ts`
-- Create: `src/scenario/operationalRuns/candidate-pool-v1.json`
+- Create after generation: `src/scenario/operationalRuns/candidate-pool-v1.json`
 - Modify: `DATA_LICENSES.md`
 
 **Interfaces:**
-- Produces `buildCandidatePool({ gtfsStops, depotPosition, seed, version, gtfsReference, candidatesPerZone })`.
-- Published pool contract:
+
+```js
+parseGtfsStops(csvText)
+buildCandidatePool({ gtfsStops, depotPosition, seed, version, gtfsReference, candidatesPerZone })
+```
+
+Published candidate shape:
 
 ```ts
-interface DeliveryCandidatePool {
-  schemaVersion: 1
-  version: 'cordoba-delivery-pool-v1'
-  generator: 'cordoba-gtfs-candidate-pool-v1'
-  gtfsReference: string
-  seed: 'fleetflow:v0.6:cordoba:candidate-pool-v1'
-  candidates: DeliveryCandidate[]
+interface DeliveryCandidate {
+  id: string
+  label: string
+  position: [number, number]
+  zoneId: string
+  spatialWeight: number
+  provenance: {
+    generator: 'cordoba-gtfs-candidate-pool-v1'
+    candidatePoolVersion: 'cordoba-delivery-pool-v1'
+    gtfsReference: string
+  }
 }
 ```
 
-- [ ] **Step 1: Write RED tests for GTFS parsing and candidate semantics**
+- [ ] **Step 1: Write RED parsing/pool tests**
 
-The fixture must contain `stop_id,stop_name,stop_lat,stop_lon` rows distributed around the Córdoba depot. Test:
-
-```ts
-const pool = buildCandidatePool({
-  gtfsStops: parsedStops,
-  depotPosition: [-64.1888, -31.4201],
-  seed: 'fleetflow:v0.6:cordoba:candidate-pool-v1',
-  version: 'cordoba-delivery-pool-v1',
-  gtfsReference: OFFICIAL_GTFS_URL,
-  candidatesPerZone: 2,
-})
-
-expect(pool.candidates).toHaveLength(16)
-expect(new Set(pool.candidates.map((c) => c.id)).size).toBe(16)
-expect(new Set(pool.candidates.map((c) => c.zoneId))).toEqual(
-  new Set(['zone-0','zone-1','zone-2','zone-3','zone-4','zone-5','zone-6','zone-7']),
-)
-expect(pool.candidates.every((c) => c.spatialWeight > 0)).toBe(true)
-```
-
-Assert generated IDs/labels do not include real GTFS `stop_id` or `stop_name` values.
+Use a fixture with at least two stops in each octant around `[-64.1888, -31.4201]`. With `candidatesPerZone: 2`, assert 16 unique synthetic candidates, two per zone, positive finite weights, and no source `stop_id`/`stop_name` leakage into `id` or `label`.
 
 - [ ] **Step 2: Run RED**
 
@@ -210,84 +231,86 @@ Assert generated IDs/labels do not include real GTFS `stop_id` or `stop_name` va
 npm test -- tests/candidatePool.test.ts
 ```
 
-Expected: FAIL because the module does not exist.
+- [ ] **Step 3: Implement exact pool algorithm**
 
-- [ ] **Step 3: Implement deterministic candidate-pool generation**
+1. Parse finite `stop_lat`/`stop_lon`.
+2. Keep stops within 15 km of the depot using an internal haversine helper.
+3. Compute bearing from depot and assign eight 45° octants `zone-0` through `zone-7`.
+4. Set raw density weight to `1 + number of other eligible stops within 600 m`.
+5. Within each zone, sample without replacement using deterministic seeded weighted roulette.
+6. For each selected proxy, use the same RNG stream to choose radius `80 + random()*140` metres and angle `random()*2π`; convert that offset to lon/lat and store the resulting synthetic point.
+7. Candidate IDs are `delivery-candidate-001` through `delivery-candidate-240`; labels are `Entrega 001` through `Entrega 240`.
+8. `spatialWeight = rawDensity / maxRawDensityInZone`; require `0 < spatialWeight <= 1`.
+9. Fail if any zone has fewer than the requested source proxies.
 
-Implement:
+- [ ] **Step 4: Implement CLI with fixed production constants**
 
-1. Parse finite GTFS coordinates.
-2. Keep source stops within 15 km of `[-64.1888, -31.4201]`.
-3. Assign one of eight 45° bearing octants (`zone-0` ... `zone-7`).
-4. Compute local stop density as `1 + count(other stops <= 600 m)` using an internal haversine helper.
-5. Within each zone, perform deterministic weighted sampling without replacement using the seeded RNG and density as weight.
-6. For each selected proxy, create a synthetic point by applying a deterministic 80–220 m radial offset; never expose source stop IDs/names in the candidate contract.
-7. Normalize `spatialWeight` to a positive finite relative value.
-8. Emit neutral candidate IDs `delivery-candidate-001` ... and no customer/business identity.
-
-Fail closed if any zone has fewer than `candidatesPerZone` eligible source stops.
-
-- [ ] **Step 4: Implement the CLI**
-
-Usage:
+Exact invocation after extracting the official feed to the stated temporary path:
 
 ```bash
 node scripts/generate-candidate-pool.mjs \
-  --stops <path-to-official-gtfs-stops.txt> \
+  --stops /tmp/fleetflow-cordoba-gtfs/stops.txt \
   --output src/scenario/operationalRuns/candidate-pool-v1.json
 ```
 
-The CLI fixes production constants to 30 candidates per zone = exactly 240 candidates, the approved seed/version, Córdoba depot, and the official GTFS reference URL. Refuse to overwrite an existing output file.
+Production constants inside the CLI:
 
-- [ ] **Step 5: Generate and validate the production pool from the official static GTFS**
-
-Download the static GTFS from the official Córdoba open-data dataset page referenced in Global Constraints, extract `stops.txt`, and run the CLI once. Then assert in `tests/candidatePool.test.ts` against the checked-in artifact:
-
-```ts
-expect(pool.candidates).toHaveLength(240)
-for (const zone of zones) {
-  expect(pool.candidates.filter((c) => c.zoneId === zone)).toHaveLength(30)
-}
+```text
+candidatesPerZone = 30
+seed = fleetflow:v0.6:cordoba:candidate-pool-v1
+version = cordoba-delivery-pool-v1
+depot = [-64.1888, -31.4201]
 ```
 
-The raw GTFS feed is not required at runtime and should not be committed merely to run the app.
+Refuse overwrite.
 
-- [ ] **Step 6: Document source/license and run tests**
+- [ ] **Step 5: Generate the production pool from the official static GTFS**
 
-Update `DATA_LICENSES.md` with the official dataset page, GTFS role as spatial proxy, derived-candidate semantics, and the source license shown by the official feed/registry. Then run:
+Download the static feed from the official source page in Global Constraints, extract it so `stops.txt` exists at `/tmp/fleetflow-cordoba-gtfs/stops.txt`, run the command above, then add a test over the checked-in artifact asserting exactly 240 candidates and exactly 30 per zone.
+
+- [ ] **Step 6: Document data provenance**
+
+Add the official page and note that the pool is a derived synthetic artifact. Record `CC-BY-SA-4.0` as the feed license reported for Transitland feed `f-cordoba~ar`; do not claim that GTFS measures parcel demand.
+
+- [ ] **Step 7: Run GREEN and commit**
 
 ```bash
 npm test -- tests/candidatePool.test.ts
-```
-
-Expected: PASS.
-
-- [ ] **Step 7: Commit**
-
-```bash
 git add scripts/lib/candidate-pool.mjs scripts/generate-candidate-pool.mjs tests/fixtures/gtfs-stops-small.csv tests/candidatePool.test.ts src/scenario/operationalRuns/candidate-pool-v1.json DATA_LICENSES.md
 git commit -m "feat: add versioned Cordoba delivery candidate pool"
 ```
 
 ---
 
-### Task 3: Add deterministic daily destination and cargo generation
+### Task 3: Generate deterministic daily destinations, packages, volumes, and service times
 
 **Files:**
 - Create: `scripts/lib/daily-spatial-demand.mjs`
 - Modify: `scripts/lib/calibrated-scenario-generator.mjs`
 - Test: `tests/dailySpatialDemand.test.ts`
-- Regression: `tests/calibratedScenario.test.ts`
 
 **Interfaces:**
-- `deliveryCountForDemandMultiplier(multiplier): number`
-- `dailyPackageTarget(targetDate, demandMultiplier): number`
-- `selectDailyCandidates({ pool, targetDate, count }): DeliveryCandidate[]`
-- `materializeDailyDeliveries({ candidates, targetDate, packageTarget, profile }): { stores, cargoByStoreId }`
 
-- [ ] **Step 1: Write RED tests for the delivery-count model**
+```js
+deliveryCountForDemandMultiplier(multiplier)
+dailyPackageTarget(targetDate, demandMultiplier)
+selectDailyCandidates({ pool, targetDate, count })
+materializeDailyDeliveries({ candidates, targetDate, packageTarget, profile })
+```
 
-Use the existing weekly multipliers and assert the exact approved mapping:
+`materializeDailyDeliveries` returns:
+
+```ts
+interface DailyDelivery {
+  store: Store
+  cargo: { kind: 'PARCELS'; packageCount: number; volumeCm3: number }
+  zoneId: string
+}
+```
+
+- [ ] **Step 1: Write RED delivery-count tests**
+
+Assert exact mapping:
 
 ```ts
 expect(deliveryCountForDemandMultiplier(0.72)).toBe(45)
@@ -302,41 +325,26 @@ expect(deliveryCountForDemandMultiplier(1.18)).toBe(65)
 Formula:
 
 ```js
-clamp(
-  Math.round(45 + ((multiplier - 0.72) / (1.18 - 0.72)) * 20),
-  45,
-  65,
-)
+Math.min(65, Math.max(45,
+  Math.round(45 + ((multiplier - 0.72) / 0.46) * 20),
+))
 ```
 
-- [ ] **Step 2: Write RED tests for deterministic spatial selection**
+- [ ] **Step 2: Write RED spatial-selection tests**
 
-Assert identical date/pool gives identical candidate IDs, different dates normally give different IDs, selection is unique, and each zone quota differs from `count / 8` by at most one.
+Zone quotas:
 
-Zone quota algorithm is fixed:
-
-```text
-baseQuota = floor(count / 8)
-remainder = count % 8
-startZone = hashSeed("fleetflow:v0.6:cordoba:<date>:spatial") % 8
-baseQuota to every zone
-+1 to `remainder` consecutive zones starting at startZone
+```js
+const baseQuota = Math.floor(count / 8)
+const remainder = count % 8
+const startZone = hashSeed(`fleetflow:v0.6:cordoba:${targetDate}:spatial`) % 8
 ```
 
-Within each zone use deterministic weighted sampling without replacement by `spatialWeight`.
+Every zone gets `baseQuota`; the next `remainder` zones cyclically from `startZone` get one extra. Within a zone use deterministic weighted sampling without replacement by `spatialWeight`. Assert same date is identical, different dates normally differ, no duplicate IDs, and no zone count differs from another by more than one.
 
-- [ ] **Step 3: Write RED tests for package conservation and service semantics**
+- [ ] **Step 3: Write RED cargo/service tests**
 
-Assert:
-
-```ts
-sumPackageCounts(deliveries) === packageTarget
-all packageCount >= 1
-all volumeCm3 >= 1
-store.serviceMinutes >= 1
-```
-
-If `packageTarget < candidates.length`, generation must throw instead of inventing zero-package stops.
+Assert package sum equals target, every stop has at least one package, volume is positive finite, and service minutes are at least one. `packageTarget < selectedCandidates.length` must throw.
 
 - [ ] **Step 4: Run RED**
 
@@ -344,53 +352,33 @@ If `packageTarget < candidates.length`, generation must throw instead of inventi
 npm test -- tests/dailySpatialDemand.test.ts
 ```
 
-Expected: FAIL because the module does not exist.
+- [ ] **Step 5: Export existing calibration helpers only**
 
-- [ ] **Step 5: Export existing calibration helpers without changing behavior**
+Add `export` to the existing `sampleDistribution`, `normalizePackageCounts`, `minimumTravelMinutes`, and `scaledTravelMinutes` functions in `calibrated-scenario-generator.mjs`; do not alter their bodies.
 
-In `scripts/lib/calibrated-scenario-generator.mjs`, add exports to the existing implementations used by V0.5:
+- [ ] **Step 6: Implement separated V0.6 streams**
 
-```js
-export function sampleDistribution(...) { ... }
-export function normalizePackageCounts(...) { ... }
-export function minimumTravelMinutes(...) { ... }
-export function scaledTravelMinutes(...) { ... }
-```
-
-Do not alter function bodies. This avoids duplicating calibration math.
-
-- [ ] **Step 6: Implement V0.6 demand streams**
-
-Use exact seeds:
-
-```text
-fleetflow:v0.6:cordoba:<date>:demand
-fleetflow:v0.6:cordoba:<date>:spatial
-fleetflow:v0.6:cordoba:<date>:operations
-```
-
-`dailyPackageTarget` keeps the V0.5 weekly-demand formula but uses the V0.6 demand stream:
+Package target:
 
 ```js
-const jitter = 0.97 + random() * 0.06
-return Math.round(100 * demandMultiplier * jitter)
+const random = mulberry32(hashSeed(`fleetflow:v0.6:cordoba:${targetDate}:demand`))
+const dailyJitter = 0.97 + random() * 0.06
+return Math.round(100 * demandMultiplier * dailyJitter)
 ```
 
-`materializeDailyDeliveries` samples package counts and package volumes from the existing Amazon calibration distributions. Service time is stable per destination/date using:
+Sample package counts/volumes from the existing calibration distributions. Service time for each candidate uses its own stable seed:
 
 ```text
 fleetflow:v0.6:cordoba:<date>:operations:service:<candidateId>
 ```
 
-and the existing `serviceSecondsPerStop` distribution. Do not generate time windows in PR2; they are optional in the domain and not required by the V0.6 slice.
+Do not generate time windows in PR2.
 
-- [ ] **Step 7: Run GREEN and V0.5 regression**
+- [ ] **Step 7: Run GREEN + historical regression**
 
 ```bash
 npm test -- tests/dailySpatialDemand.test.ts tests/calibratedScenario.test.ts tests/operationalRunGenerator.test.ts
 ```
-
-Expected: PASS, proving helper exports did not alter V0.5 generation.
 
 - [ ] **Step 8: Commit**
 
@@ -401,77 +389,70 @@ git commit -m "feat: generate deterministic daily spatial demand"
 
 ---
 
-### Task 4: Assign daily deliveries to the fixed eight-truck fleet and order stops
+### Task 4: Assign demand to the fixed fleet and order stops
 
 **Files:**
 - Create: `scripts/lib/daily-route-plan.mjs`
 - Test: `tests/dailyRoutePlan.test.ts`
 
 **Interfaces:**
-- `assignDeliveriesToFleet({ deliveries, trucks }): Map<truckId, delivery[]>`
-- `orderStopsNearestNeighbour({ depotPosition, deliveries }): delivery[]`
-- `buildLogicalScenario({ targetDate, depot, trucks, deliveries }): FleetScenario-like object`
 
-- [ ] **Step 1: Write RED tests for assignment invariants**
-
-Create eight parcel trucks and 45+ synthetic deliveries. Assert:
-
-```ts
-expect(assignments.size).toBe(8)
-expect([...assignments.values()].every((stops) => stops.length >= 1)).toBe(true)
-expect(allAssignedStoreIds.sort()).toEqual(inputStoreIds.sort())
-expect(new Set(allAssignedStoreIds).size).toBe(inputStoreIds.length)
+```js
+assignDeliveriesToFleet({ deliveries, trucks, assignmentSeed })
+orderStopsNearestNeighbour({ depotPosition, deliveries })
+buildLogicalScenario({ runId, depot, trucks, assignments })
 ```
 
-Also assert each route volume is `<= truck.capacity.capacityCm3` and that an impossible volume allocation throws.
+- [ ] **Step 1: Write RED assignment tests**
 
-- [ ] **Step 2: Write RED tests for spatial coherence and deterministic ordering**
+With eight parcel trucks and at least 45 deliveries assert: eight non-empty buckets, every destination exactly once, all package cargo preserved, and each assigned volume `<= capacityCm3`. An impossible capacity set must throw.
 
-Truck preference zones map by sorted truck ID index `0..7`. Assignment eligibility first enforces parcel volume capacity. Among eligible trucks choose lexicographically by:
+- [ ] **Step 2: Write RED deterministic-scoring tests**
+
+Sort trucks by ID. Map truck index `i` to preferred zone:
+
+```js
+const zoneOffset = hashSeed(assignmentSeed) % 8
+const preferredZone = (i + zoneOffset) % 8
+```
+
+Sort deliveries by `packageCount` descending then `store.id` ascending. For each delivery, filter trucks that remain within parcel volume capacity; choose the minimum lexicographic tuple:
 
 ```text
-1. circular zone distance from delivery.zoneId to truck preferred zone
-2. current stop count
-3. current package count
-4. current assigned volume
-5. truckId ascending
+circular zone distance
+current stop count
+current package count
+current assigned volume
+truckId
 ```
 
-For each assigned bucket, nearest-neighbour order uses haversine distance from depot/current stop, then `storeId` ascending as exact tie-breaker.
+This consumes the dedicated assignment seed without adding randomness.
 
-- [ ] **Step 3: Run RED**
+- [ ] **Step 3: Write RED nearest-neighbour tests**
+
+Start at depot, repeatedly choose minimum haversine distance among unvisited assigned stores; exact distance ties use `store.id` ascending. Same inputs must produce identical order.
+
+- [ ] **Step 4: Run RED**
 
 ```bash
 npm test -- tests/dailyRoutePlan.test.ts
 ```
 
-Expected: FAIL because the module does not exist.
+- [ ] **Step 5: Implement logical scenario creation**
 
-- [ ] **Step 4: Implement capacity-aware assignment and ordering**
+Reuse depot and the eight trucks from `src/scenario/generated/cordoba-calibrated-v1.json`; capacities/fuel coefficients do not vary by date. Geometry IDs are created with:
 
-Use the immutable eight-truck fleet from the checked-in calibrated scenario as the fleet template; do not sample a new fleet per date. Preserve truck IDs, labels, parcel capacities, and fuel coefficients.
-
-`buildLogicalScenario` creates one route per truck with stable geometry IDs:
-
-```text
-route-<runId>-01
-...
-route-<runId>-08
+```js
+const routeNumber = String(index + 1).padStart(2, '0')
+const geometryId = `route-${runId}-${routeNumber}`
 ```
 
-At this stage route timing fields may be initialized to zero because the logical scenario is an offline routing input, not yet a publishable `OperationalRun`. Only Task 5 returns publishable timing.
+Set pre-routing schedule fields to `0`; this object is only an offline route-preparation input and must not be published until Task 5 finalizes timing.
 
-- [ ] **Step 5: Run GREEN**
+- [ ] **Step 6: Run GREEN and commit**
 
 ```bash
 npm test -- tests/dailyRoutePlan.test.ts
-```
-
-Expected: PASS.
-
-- [ ] **Step 6: Commit**
-
-```bash
 git add scripts/lib/daily-route-plan.mjs tests/dailyRoutePlan.test.ts
 git commit -m "feat: assign daily demand to fixed fleet"
 ```
@@ -484,55 +465,46 @@ git commit -m "feat: assign daily demand to fixed fleet"
 - Create: `scripts/lib/v0-6-route-timing.mjs`
 - Test: `tests/v06RouteTiming.test.ts`
 
-**Interfaces:**
-- `scheduleScenarioFromRoutes({ scenario, routeCollection, profile, targetDate, travelTimeMultiplier }): FleetScenario`
+**Interface:**
 
-This function is the canonical PR2 timing interface that the approved Scenario / What-If V0 design will reuse later. It may not ingest traffic/weather; PR3 will layer contextual factors explicitly.
+```js
+scheduleScenarioFromRoutes({ scenario, routeCollection, profile, targetDate, travelTimeMultiplier })
+```
 
-- [ ] **Step 1: Write RED tests for deterministic departure offsets**
+This is the timing contract the approved What-If design must reuse after PR2.
 
-For eight sorted truck IDs, use seed:
+- [ ] **Step 1: Write RED departure tests**
+
+Seed departures with:
 
 ```text
 fleetflow:v0.6:cordoba:<date>:operations:departure
 ```
 
-Sample eight `departureMinuteOfDayUtc` values from the existing profile, sort them, and normalize to integer offsets `0..18` exactly as the V0.5 generator does. Assert same date/profile gives the same offsets.
+Sample eight existing `departureMinuteOfDayUtc` values, sort them, then normalize to integer offsets from 0 to 18 exactly like V0.5. Assert determinism.
 
-- [ ] **Step 2: Write RED tests for route-based timing**
+- [ ] **Step 2: Write RED leg-timing tests**
 
-For each leg, use a stable leg seed:
+Each road leg uses seed:
 
 ```text
 fleetflow:v0.6:cordoba:<date>:operations:travel:<truckId>:<fromId>:<toId>
 ```
 
-where depot uses literal ID `depot-cordoba-calibrated`.
-
-Travel minutes are:
+Use `depot-cordoba-calibrated` as depot ID. Travel minutes are:
 
 ```js
 Math.max(
-  scaledTravelMinutes(sampledTravelSeconds, travelTimeMultiplier),
+  scaledTravelMinutes(sampleDistribution(profile.distributions.travelSecondsBetweenStops, random), travelTimeMultiplier),
   minimumTravelMinutes(legDistanceKm),
 )
 ```
 
-Service time is the already-frozen `Store.serviceMinutes`; do not resample it while scheduling.
+`plannedDepartureMinute = plannedArrivalMinute + store.serviceMinutes`. The return leg uses the same formula. Assert `returnMinute` occurs after the last service interval.
 
-Assert:
+- [ ] **Step 3: Write RED structural-purity test**
 
-```text
-plannedArrival > previousDeparture
-plannedDeparture = plannedArrival + store.serviceMinutes
-returnMinute > last plannedDeparture
-same inputs => deep-equal schedule
-higher weekly travelTimeMultiplier cannot produce a shorter sampled component
-```
-
-- [ ] **Step 3: Write RED test that the scheduler is structurally pure**
-
-Store IDs, positions, cargo, truck assignment, stop order, truck capacities, and route geometry IDs must remain unchanged; only schedule fields are finalized.
+The scheduler may modify only route schedule fields. It must preserve stores, positions, cargo, assignment, order, trucks, capacities, and geometry IDs.
 
 - [ ] **Step 4: Run RED**
 
@@ -540,43 +512,49 @@ Store IDs, positions, cargo, truck assignment, stop order, truck capacities, and
 npm test -- tests/v06RouteTiming.test.ts
 ```
 
-Expected: FAIL because the timing module does not exist.
+- [ ] **Step 5: Implement schedule finalization**
 
-- [ ] **Step 5: Implement the scheduler**
+Validate route feature truck ID and `waypointDistancesKm.length === stops.length + 2`. Deep-clone the logical scenario, fill departure/arrival/departure/return times, and return the publishable scenario.
 
-Use the route collection’s `waypointDistancesKm` to compute every leg distance. Validate feature/truck/waypoint cardinality before timing. Return a deep-cloned publishable scenario; never mutate the logical input in place.
-
-- [ ] **Step 6: Run GREEN**
+- [ ] **Step 6: Run GREEN and commit**
 
 ```bash
 npm test -- tests/v06RouteTiming.test.ts tests/routeAssets.test.ts
-```
-
-Expected: PASS.
-
-- [ ] **Step 7: Commit**
-
-```bash
 git add scripts/lib/v0-6-route-timing.mjs tests/v06RouteTiming.test.ts
 git commit -m "feat: add reusable v0.6 route timing contract"
 ```
 
 ---
 
-### Task 6: Generate immutable V0.6 OperationalBundles and schema-V2 manifest
+### Task 6: Build the testable V0.6 run generator and provenance contract
 
 **Files:**
+- Create: `scripts/lib/v0-6-operational-run-generator.mjs`
 - Create: `scripts/generate-v0-6-operational-runs.mjs`
 - Create: `tests/v06OperationalRunGenerator.test.ts`
 - Modify: `src/scenario/operationalRuns/types.ts`
 - Modify: `src/scenario/operationalRuns/validation.ts`
 - Modify: `package.json`
-- Create during publication: `public/data/operational-runs/manifest-v0-6.json`
-- Create during publication: `public/data/operational-runs/generated/cordoba-2026-08-27-v3.json` through `cordoba-2026-09-03-v3.json`
-- Create during publication: matching `*.routes.geojson`
 
 **Interfaces:**
-- New provenance block:
+
+```js
+generateV06OperationalRuns({
+  profile,
+  candidatePool,
+  fleetTemplate,
+  from,
+  to,
+  issuedAt,
+  dataAsOf,
+  runSuffix,
+  routePreparer,
+})
+```
+
+The core returns `{ manifest, artifacts }`; the CLI is responsible only for file IO and uses `prepareRouteCollection` as `routePreparer`.
+
+Add:
 
 ```ts
 interface OperationalSpatialDemandProvenance {
@@ -590,32 +568,19 @@ interface OperationalSpatialDemandProvenance {
 }
 ```
 
-`OperationalRunProvenance` gains optional `spatialDemand?: OperationalSpatialDemandProvenance`.
+and optional `spatialDemand` on `OperationalRunProvenance`.
 
-- [ ] **Step 1: Write RED validator tests for spatial-demand provenance**
+- [ ] **Step 1: Write RED validation tests**
 
-Extend operational-run validation tests to accept a complete V0.6 block and reject missing/invalid candidate pool version, delivery count outside 45–65, blank GTFS reference, or blank seed fields.
+Accept a complete block. Reject delivery count outside 45–65 and blank pool/source/seed strings. Existing V0.5 runs without the block remain valid.
 
-- [ ] **Step 2: Write RED generator integration tests with injected route preparation**
+- [ ] **Step 2: Write RED core-generator tests with fake routing**
 
-The script/library boundary must allow the generator core to receive a fake route-preparer in tests so CI unit tests do not call public OSRM. Test one and two-day generation for:
-
-```text
-schemaVersion == 2
-entry.modelVersion == fleetflow-v0.6
-entry.routeArtifact ends .routes.geojson
-run provenance generator == daily-spatial-demand-v1
-45 <= stores.length <= 65
-trucks.length == 8
-sum(stop packageCount) == dailyPackageTarget
-route artifact metadata matches run identity
-all destinations assigned exactly once
-all trucks have >= 1 stop
-```
+Inject a deterministic `routePreparer` that returns valid geometries for the logical scenario. Assert schema V2, `fleetflow-v0.6`, required `routeArtifact`, run/route binding metadata, 8 trucks, 45–65 destinations, exact package conservation, one assignment per destination, and non-empty routes.
 
 - [ ] **Step 3: Write RED determinism/variation tests**
 
-Generate the same dates twice with identical injected routing responses and assert byte-identical run/manifest/route outputs. For adjacent dates assert active candidate ID sets are not equal and at least one per-truck stop count differs.
+Two invocations with identical inputs/fake routing must deep-equal. Adjacent dates must normally have different candidate-ID sets; over 2026-08-27 through 2026-09-03 require at least four distinct destination sets.
 
 - [ ] **Step 4: Run RED**
 
@@ -623,15 +588,40 @@ Generate the same dates twice with identical injected routing responses and asse
 npm test -- tests/v06OperationalRunGenerator.test.ts
 ```
 
-Expected: FAIL because the generator and provenance contract do not exist.
+- [ ] **Step 5: Implement generator core**
 
-- [ ] **Step 5: Implement V0.6 provenance types and validation**
+For each date:
 
-Add the exact interface above and enforce it only when present. Existing V0.5 runs without `spatialDemand` remain valid.
+```text
+weekly profile
+→ dailyPackageTarget
+→ deliveryCountForDemandMultiplier
+→ selectDailyCandidates
+→ materializeDailyDeliveries
+→ assignDeliveriesToFleet using fleetflow:v0.6:cordoba:<date>:assignment
+→ nearest-neighbour ordering
+→ buildLogicalScenario
+→ routePreparer with V2 metadata
+→ scheduleScenarioFromRoutes
+→ OperationalRun validation
+```
 
-- [ ] **Step 6: Implement the V0.6 generator orchestration**
+Run ID is `cordoba-<date>-<runSuffix>`; publication uses `runSuffix = v3`.
 
-CLI:
+Provenance seeds are exact:
+
+```text
+demandSeed     fleetflow:v0.6:cordoba:<date>:demand
+spatialSeed    fleetflow:v0.6:cordoba:<date>:spatial
+operationsSeed fleetflow:v0.6:cordoba:<date>:operations
+assignmentSeed fleetflow:v0.6:cordoba:<date>:assignment
+```
+
+Manifest entries include `artifact` and `routeArtifact`; `contextArtifact` is omitted.
+
+- [ ] **Step 6: Implement CLI/file immutability**
+
+Exact publication command:
 
 ```bash
 node scripts/generate-v0-6-operational-runs.mjs \
@@ -647,126 +637,81 @@ node scripts/generate-v0-6-operational-runs.mjs \
   --run-suffix v3
 ```
 
-For each date:
-
-1. Resolve weekly profile.
-2. Calculate V0.6 package target.
-3. Calculate 45–65 delivery count.
-4. Select daily candidates.
-5. Materialize package/volume/service data.
-6. Assign/order stops across the fixed eight-truck fleet.
-7. Build the logical scenario.
-8. Prepare road geometry with metadata `{ runId, targetDate, modelVersion: 'fleetflow-v0.6' }`.
-9. Finalize timings through `scheduleScenarioFromRoutes`.
-10. Build `OperationalRun` with `modelVersion: 'fleetflow-v0.6'`, `generator: 'daily-spatial-demand-v1'`, existing weekly-profile provenance, and the new spatial-demand provenance.
-11. Validate before writing.
-12. Write `<runId>.json`, `<runId>.routes.geojson`, then schema-V2 manifest entry.
-
-Use `assignmentSeed = fleetflow:v0.6:cordoba:<date>:assignment` in provenance even though the first assignment heuristic is deterministic without RNG; future randomness may not be introduced without consuming that dedicated stream.
-
-Refuse to overwrite the manifest or any planned run/route artifact.
+Refuse to overwrite manifest, run JSON, or route GeoJSON.
 
 - [ ] **Step 7: Add package command**
-
-Add:
 
 ```json
 "generate:operational-runs:v0.6": "node scripts/generate-v0-6-operational-runs.mjs"
 ```
 
-Keep `generate:operational-runs` as the historical V0.5 command.
+Keep the V0.5 command unchanged.
 
-- [ ] **Step 8: Run GREEN**
+- [ ] **Step 8: Run GREEN and commit code**
 
 ```bash
 npm test -- tests/v06OperationalRunGenerator.test.ts tests/operationalRunValidation.test.ts tests/operationalRunGenerator.test.ts
 npm run build
-```
-
-Expected: PASS; V0.5 generator tests remain unchanged.
-
-- [ ] **Step 9: Generate the checked-in eight-day V0.6 artifact set with real OSRM**
-
-Run the exact CLI above with network access. Validate generated files with runtime validators before staging them. Do not regenerate or overwrite any V0.5 file.
-
-- [ ] **Step 10: Commit**
-
-```bash
-git add scripts/generate-v0-6-operational-runs.mjs tests/v06OperationalRunGenerator.test.ts src/scenario/operationalRuns/types.ts src/scenario/operationalRuns/validation.ts package.json public/data/operational-runs/manifest-v0-6.json public/data/operational-runs/generated/*-v3.json public/data/operational-runs/generated/*-v3.routes.geojson
-git commit -m "feat: publish v0.6 daily spatial runs"
+git add scripts/lib/v0-6-operational-run-generator.mjs scripts/generate-v0-6-operational-runs.mjs tests/v06OperationalRunGenerator.test.ts src/scenario/operationalRuns/types.ts src/scenario/operationalRuns/validation.ts package.json
+git commit -m "feat: add v0.6 operational run generator"
 ```
 
 ---
 
-### Task 7: Switch the active Córdoba timeline to V0.6 and expose daily per-truck load
+### Task 7: Publish V0.6 bundles and activate the timeline
 
 **Files:**
+- Create: `public/data/operational-runs/manifest-v0-6.json`
+- Create: eight `public/data/operational-runs/generated/cordoba-2026-08-27-v3.json` through `cordoba-2026-09-03-v3.json`
+- Create: eight matching `.routes.geojson` files
 - Modify: `src/scenario/scenarioRegistry.ts`
 - Modify: `src/components/FleetPanel.tsx`
 - Test: `tests/operationalRunCatalog.test.ts`
 - Test: `tests/operationalRunSwitching.test.tsx`
 - Test: `tests/cargoSemantics.test.tsx`
-- Test: `tests/dashboardComponents.test.tsx`
 
-**Interfaces:**
-- Runtime continues to use existing `OperationalBundle`; no new browser generator is added.
+- [ ] **Step 1: Generate real route artifacts with network access**
 
-- [ ] **Step 1: Write RED regression proving the active registry uses the V0.6 manifest**
+Run the exact Task 6 publication command with OSRM access. The generator must validate every run before writing it.
 
-Assert:
+- [ ] **Step 2: Write RED published-catalog test**
 
-```ts
-expect(getScenarioDefinition('cordoba-calibrated').operationalRuns?.manifestUrl)
-  .toBe('./data/operational-runs/manifest-v0-6.json')
-```
+Assert `manifest-v0-6.json` is schema V2, has eight entries, every entry has a `.routes.geojson`, and historical `manifest.json` remains schema V1.
 
-Also retain the existing regression that `public/data/operational-runs/manifest.json` is schema V1 and has no V2-only fields.
+- [ ] **Step 3: Write RED switching test**
 
-- [ ] **Step 2: Write RED runtime switching test using two real V0.6 entries**
+Use two V0.6 dates. Assert the active bundle changes destination IDs/coordinates and at least one per-truck stop or package total while truck count stays 8. Retain atomic loading and stale-request tests from PR1.
 
-Mock/fetch V0.6 bundles and assert switching dates changes:
+- [ ] **Step 4: Write RED per-truck load UI test**
+
+For parcel routes require both:
 
 ```text
-store ID set or store coordinates
-per-truck stop counts
-per-truck package totals
-route GeoJSON binding/run ID
+Plan · N paquetes
+Restan · M paquetes
 ```
 
-while truck count remains 8. Retain PR1’s atomic-switch and stale-request protections.
+plus the existing capacity-utilization line.
 
-- [ ] **Step 3: Write RED FleetPanel test for planned + remaining packages**
-
-For parcel routes, compute planned package count from the route’s stops and render both values, e.g.:
-
-```text
-Plan · 18 paquetes
-Restan · 11 paquetes
-```
-
-Keep current utilization line. MASS cargo behavior remains unchanged.
-
-- [ ] **Step 4: Run RED**
+- [ ] **Step 5: Run RED**
 
 ```bash
-npm test -- tests/operationalRunSwitching.test.tsx tests/cargoSemantics.test.tsx tests/dashboardComponents.test.tsx
+npm test -- tests/operationalRunCatalog.test.ts tests/operationalRunSwitching.test.tsx tests/cargoSemantics.test.tsx
 ```
 
-Expected: at least the new registry/UI assertions fail.
+- [ ] **Step 6: Activate V0.6 manifest**
 
-- [ ] **Step 5: Point the scenario registry to V0.6**
-
-Change only:
+In `src/scenario/scenarioRegistry.ts` set:
 
 ```ts
 manifestUrl: './data/operational-runs/manifest-v0-6.json'
 ```
 
-Do not delete or rewrite the V0.5 manifest.
+Do not change the old manifest.
 
-- [ ] **Step 6: Add planned package visibility in `FleetPanel`**
+- [ ] **Step 7: Update `FleetPanel`**
 
-For each parcel route:
+For each parcel route calculate planned packages:
 
 ```ts
 const plannedPackages = route.stops.reduce(
@@ -775,96 +720,84 @@ const plannedPackages = route.stops.reduce(
 )
 ```
 
-Render planned and remaining package counts separately so a user can see load per truck at a glance while simulation progresses.
+Render the plan count and the snapshot’s remaining package count separately.
 
-- [ ] **Step 7: Run GREEN**
+- [ ] **Step 8: Run GREEN and commit**
 
 ```bash
 npm test -- tests/operationalRunCatalog.test.ts tests/operationalRunSwitching.test.tsx tests/cargoSemantics.test.tsx tests/dashboardComponents.test.tsx
 npm run build
-```
-
-Expected: PASS.
-
-- [ ] **Step 8: Commit**
-
-```bash
-git add src/scenario/scenarioRegistry.ts src/components/FleetPanel.tsx tests/operationalRunCatalog.test.ts tests/operationalRunSwitching.test.tsx tests/cargoSemantics.test.tsx tests/dashboardComponents.test.tsx
+git add public/data/operational-runs/manifest-v0-6.json public/data/operational-runs/generated/*-v3.json public/data/operational-runs/generated/*-v3.routes.geojson src/scenario/scenarioRegistry.ts src/components/FleetPanel.tsx tests/operationalRunCatalog.test.ts tests/operationalRunSwitching.test.tsx tests/cargoSemantics.test.tsx tests/dashboardComponents.test.tsx
 git commit -m "feat: activate v0.6 spatial timeline"
 ```
 
 ---
 
-### Task 8: End-to-end acceptance, documentation, and What-If handoff contract
+### Task 8: Acceptance tests, docs, and What-If handoff
 
 **Files:**
-- Modify: `README.md`
-- Modify: `DATA_LICENSES.md` if generated artifact provenance needs final wording
 - Create: `tests/v06PublishedArtifacts.test.ts`
-- Verify: `docs/superpowers/specs/2026-08-30-fleetflow-what-if-comparison-v0-design.md`
+- Modify: `README.md`
+- Modify if needed: `DATA_LICENSES.md`
 
-**Interfaces:**
-- Establishes the published PR2 contract consumed by the already-approved What-If design: V0.6 Base run + bound routes + `scheduleScenarioFromRoutes`.
+- [ ] **Step 1: Write published-artifact acceptance tests**
 
-- [ ] **Step 1: Write acceptance tests over checked-in artifacts**
-
-For every `manifest-v0-6.json` entry:
+For every V0.6 entry assert:
 
 ```text
-schema V2 validates
+manifest validates as V2
 run validates
-bundle route metadata matches entry/run
-45 <= destination count <= 65
-truck count == 8
-every truck has >= 1 stop
+route metadata matches run
+destination count is 45–65
+truck count is 8
+every truck has at least one stop
 every destination appears exactly once
-package total equals independently recomputed run total
-all parcel route volumes fit their truck capacities
+all cargo is PARCELS
+all route volumes fit truck capacities
 ```
 
-Across the eight dates assert:
+Across the eight dates require:
 
 ```text
-at least 4 distinct active destination-ID sets
-at least 3 distinct total delivery counts
-at least 3 distinct per-truck stop-count vectors
-at least 3 distinct per-truck package-total vectors
+>= 4 distinct destination-ID sets
+>= 3 distinct delivery counts
+>= 3 distinct per-truck stop-count vectors
+>= 3 distinct per-truck package-total vectors
 ```
 
-These thresholds prove visible daily variation without requiring every adjacent day to differ in every dimension.
+Do not assert that every adjacent day differs in every dimension.
 
-- [ ] **Step 2: Assert historical compatibility**
+- [ ] **Step 2: Test historical compatibility**
 
-Read the old `manifest.json` and one V0.5 artifact. Confirm they still validate under V1 semantics and that their bytes were not changed by PR2.
+Read historical `manifest.json`; assert schema V1, `fleetflow-v0.5`, and absence of `routeArtifact`. Byte preservation is verified by the final git diff, not by a runtime test.
 
-- [ ] **Step 3: Document V0.6 generation and semantics**
+- [ ] **Step 3: Document semantics and generation**
 
-README must state plainly:
+README must explicitly state:
 
 ```text
-GTFS structure informs synthetic candidate spatial weighting; it is not parcel-demand truth.
-V0.6 runs are deterministic model outputs, not observed Córdoba delivery operations.
-The active V0.6 timeline uses per-run route artifacts.
+GTFS structure informs synthetic spatial weighting; it is not parcel-demand truth.
+V0.6 runs are deterministic model outputs, not observed Córdoba operations.
+V0.6 uses per-run route artifacts and manifest-v0-6.json.
 ```
 
-Document both historical and current generation commands, and identify `manifest-v0-6.json` as the active V0.6 catalog.
+Document the exact candidate-pool and V0.6 run commands from this plan.
 
-- [ ] **Step 4: Record the What-If handoff contract**
+- [ ] **Step 4: Document the stable What-If handoff**
 
-In README or the V0.6 generation section, document these stable implementation interfaces for the next approved slice:
+Record:
 
 ```text
-Base artifact: OperationalRun modelVersion fleetflow-v0.6
+Base modelVersion: fleetflow-v0.6
+Base artifact: OperationalRun
 Route artifact: V2-bound GeoJSON
-Timing function: scripts/lib/v0-6-route-timing.mjs#scheduleScenarioFromRoutes
-Candidate identity/cargo: immutable within a published Base run
+Timing interface: scripts/lib/v0-6-route-timing.mjs#scheduleScenarioFromRoutes
+Candidate IDs/cargo: frozen inside each published Base run
 ```
 
 Do not implement What-If in PR2.
 
-- [ ] **Step 5: Run final verification**
-
-Run from a clean checkout:
+- [ ] **Step 5: Run full verification from clean dependency state**
 
 ```bash
 npm install --no-audit --no-fund
@@ -872,23 +805,25 @@ npm test
 npm run build
 ```
 
-Expected: every test file passes and Vite production build succeeds. Treat the existing >500 kB chunk warning as non-blocking unless this PR materially increases it.
+Expected: all test files pass and production build succeeds. Existing Vite chunk-size warning is non-blocking unless PR2 materially worsens it.
 
-- [ ] **Step 6: Review scope diff**
+- [ ] **Step 6: Scope review**
 
-Confirm no changes under:
+Confirm the diff does not touch:
 
 ```text
 src/simulation/engine.ts
 src/simulation/clock.ts
+public/data/operational-runs/manifest.json
+existing V0.5 generated artifacts
 ```
 
-and no V0.5 run/route artifacts were rewritten. Confirm no traffic/weather/context UI is introduced in PR2.
+Confirm no PR3 context modelling or What-If implementation slipped into PR2.
 
 - [ ] **Step 7: Commit**
 
 ```bash
-git add README.md DATA_LICENSES.md tests/v06PublishedArtifacts.test.ts
+git add tests/v06PublishedArtifacts.test.ts README.md DATA_LICENSES.md
 git commit -m "docs: document v0.6 daily spatial demand"
 ```
 
@@ -896,28 +831,28 @@ git commit -m "docs: document v0.6 daily spatial demand"
 
 ## PR2 Acceptance Criteria
 
-1. The active Córdoba timeline uses a schema-V2 manifest without rewriting the historical V0.5 schema-V1 manifest.
-2. Exactly eight trucks exist in every V0.6 run.
-3. Every run has 45–65 unique active synthetic destinations.
-4. Daily delivery count follows the explicit weekly-demand formula in Task 3.
-5. Package totals are conserved exactly and every stop has at least one package.
-6. Candidate selection is deterministic, GTFS-proxy-labelled, and spatially balanced across eight zones.
-7. Every destination is assigned to exactly one truck and every truck has at least one stop.
-8. Parcel volume capacity remains valid for every route.
-9. Stop order is deterministic nearest-neighbour with stable tie-breaking.
-10. Every V0.6 run has its own road-following route artifact with correct V2 binding metadata.
-11. V0.6 route timing is deterministic and implemented only through `scheduleScenarioFromRoutes`.
-12. Adjacent/published dates materially vary in destination sets, per-truck stops, packages, routes, distance, or timing.
-13. FleetPanel exposes planned and remaining package counts per truck.
-14. Existing V0.5 artifacts/generator remain valid and unchanged.
-15. Existing OperationalBundle atomic switching and stale-request protection remain green.
-16. No PR3 context modelling, browser-side routing, optimizer, backend, ML, or digital-twin abstraction is introduced.
-17. Full `npm test` and `npm run build` pass.
+1. Historical V0.5 manifest/artifacts remain unchanged and valid.
+2. Active Córdoba timeline uses `manifest-v0-6.json` schema V2.
+3. Every V0.6 run has exactly 8 trucks and 45–65 unique synthetic destinations.
+4. Delivery-count formula is the exact Task 3 formula and follows weekly demand intensity.
+5. Package totals are exactly conserved; every active destination has at least one package.
+6. Candidate pool is exactly 240 derived synthetic points, 30 per octant, with GTFS-proxy provenance.
+7. Daily candidate selection is deterministic and spatially balanced.
+8. Assignment is deterministic, consumes `assignmentSeed`, assigns every destination exactly once, and respects parcel volume capacity.
+9. Stop ordering is deterministic nearest-neighbour with `store.id` tie-break.
+10. Every V0.6 run has a bound per-run road GeoJSON artifact.
+11. All V0.6 timing flows through `scheduleScenarioFromRoutes`; weekly travel multiplier is applied exactly once.
+12. Published dates materially vary in destinations, stops, package distribution, routes, distance, or timing.
+13. FleetPanel exposes planned and remaining packages per truck.
+14. PR1 OperationalBundle atomic switching/stale-response behavior remains green.
+15. `src/simulation/*` semantics are unchanged.
+16. No browser routing, backend, optimizer, ML, context scoring, or What-If implementation is added.
+17. Full tests and production build pass.
 
 ## Post-PR2 Gate
 
-After PR2 is merged, re-read the actual exported interfaces and the checked-in `manifest-v0-6.json`, then write the implementation plan for the already-approved What-If spec:
+After PR2 merges, inspect its actual exported interfaces and generated V0.6 Base artifacts. Then create the implementation plan for the already-approved design:
 
 `docs/superpowers/specs/2026-08-30-fleetflow-what-if-comparison-v0-design.md`
 
-Do not pre-implement What-If in this PR.
+That later plan must use `scheduleScenarioFromRoutes` rather than inventing a second timing model.
