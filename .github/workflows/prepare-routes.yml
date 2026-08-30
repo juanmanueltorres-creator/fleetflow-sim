@@ -7,6 +7,9 @@ on:
       - scripts/prepare-routes.mjs
       - .github/workflows/prepare-routes.yml
 
+permissions:
+  contents: write
+
 jobs:
   prepare:
     runs-on: ubuntu-latest
@@ -15,15 +18,28 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      - run: npm install --no-audit --no-fund
       - run: npm run prepare:routes
       - run: npm run prepare:routes:calibrated
+      - run: npm run generate:calibrated
+      - name: Commit generated assets
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/data/coca-coqui-routes.geojson
+          git add public/data/cordoba-calibrated-routes.geojson
+          git add src/scenario/generated/cordoba-calibrated-v1.json
+          if git diff --cached --quiet; then
+            echo "Generated assets already match the branch."
+          else
+            git commit -m "data: align route assets and calibrated timings"
+            git push
+          fi
       - uses: actions/upload-artifact@v4
         with:
-          name: coca-coqui-routes
-          path: public/data/coca-coqui-routes.geojson
-          if-no-files-found: error
-      - uses: actions/upload-artifact@v4
-        with:
-          name: cordoba-calibrated-routes
-          path: public/data/cordoba-calibrated-routes.geojson
+          name: prepared-route-assets
+          path: |
+            public/data/coca-coqui-routes.geojson
+            public/data/cordoba-calibrated-routes.geojson
+            src/scenario/generated/cordoba-calibrated-v1.json
           if-no-files-found: error
