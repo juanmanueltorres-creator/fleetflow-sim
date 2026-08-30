@@ -180,13 +180,20 @@ button:disabled {
 }
 
 .simulation-hud {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   min-width: 0;
   gap: 0.76rem;
   align-items: center;
-  justify-content: flex-end;
   padding: 0.62rem 0.82rem;
   border-left: 1px solid var(--color-border);
+}
+
+.simulation-hud-controls {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 0.76rem;
 }
 
 .simulation-clock {
@@ -512,7 +519,6 @@ button:disabled {
   }
 
   .simulation-hud {
-    justify-content: space-between;
     padding: 0.42rem 0.72rem 0.5rem;
     border-top: 1px solid var(--color-border);
     border-left: 0;
@@ -551,7 +557,8 @@ button:disabled {
     right: 0;
   }
 
-  .simulation-hud {
+  .simulation-hud,
+  .simulation-hud-controls {
     gap: 0.4rem;
   }
 

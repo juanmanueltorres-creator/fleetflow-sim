@@ -1,14 +1,24 @@
 import './ScenarioProvenance.css'
+import type { OperationalRunMode } from '../scenario/operationalRuns/types'
 import type { ScenarioProvenance as ScenarioProvenanceValue } from '../scenario/scenarioRegistry'
 
 interface ScenarioProvenanceProps {
   provenance: ScenarioProvenanceValue
+  runMode?: OperationalRunMode
 }
 
-export function ScenarioProvenance({ provenance }: ScenarioProvenanceProps) {
+export function ScenarioProvenance({ provenance, runMode }: ScenarioProvenanceProps) {
+  const heading = runMode ? `${runMode} · ${provenance.shortLabel}` : provenance.shortLabel
+  const runSummary = runMode === 'FORECAST'
+    ? 'Operación sintética reproducible derivada de distribuciones públicas de última milla. No representa demanda ni telemetría real de Córdoba.'
+    : runMode === 'SIMULATED'
+      ? 'Jornada sintética reproducible. No representa una operación real observada.'
+      : null
+
   return (
     <section className="scenario-provenance" aria-label="Procedencia del escenario">
-      <strong>{provenance.shortLabel}</strong>
+      <strong>{heading}</strong>
+      {runSummary ? <span className="scenario-provenance-run-summary">{runSummary}</span> : null}
       <span>{provenance.summary}</span>
 
       <details>

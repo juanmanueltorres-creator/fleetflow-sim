@@ -2,12 +2,14 @@ import { execFileSync } from 'node:child_process'
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import { pathToFileURL } from 'node:url'
 import { afterEach, describe, expect, it } from 'vitest'
 import { validateScenario } from '../src/domain/scenarioValidation'
 import type { FleetScenario } from '../src/domain/types'
 import { routeCollectionToIndex, type RouteGeometryCollection } from '../src/map/routeAssets'
 
 const generatorPath = 'scripts/generate-calibrated-scenario.mjs'
+const sharedGeneratorPath = 'scripts/lib/calibrated-scenario-generator.mjs'
 const profilePath = 'src/scenario/calibration/amazon-last-mile-v1.json'
 const checkedInPath = 'src/scenario/generated/cordoba-calibrated-v1.json'
 const routeAssetPath = 'public/data/cordoba-calibrated-routes.geojson'
@@ -131,7 +133,39 @@ describe('calibrated Cordoba scenario generator', () => {
     )
   })
 
-  it('reproduces the checked-in scenario exactly from the official profile, Cordoba routes and canonical seed', () => {
+  it('supports independent operational and geography seeds in the shared generation core', async () => {
+    expect(existsSync(sharedGeneratorPath)).toBe(true)
+    if (!existsSync(sharedGeneratorPath)) return
+
+    const moduleUrl = pathToFileURL(join(process.cwd(), sharedGeneratorPath)).href
+    const { generateCalibratedScenario, loadRouteGeometryIndex } = await import(moduleUrl)
+    const profile = JSON.parse(readFileSync(profilePath, 'utf8'))
+    const routeGeometryIndex = loadRouteGeometryIndex(routeAssetPath)
+
+    const runA = generateCalibratedScenario({
+      profile,
+      routeGeometryIndex,
+      operationsSeed: 'fleetflow-ops-a',
+      geographySeed: canonicalSeed,
+      packageTarget: 100,
+    }) as FleetScenario
+    const runB = generateCalibratedScenario({
+      profile,
+      routeGeometryIndex,
+      operationsSeed: 'fleetflow-ops-b',
+      geographySeed: canonicalSeed,
+      packageTarget: 100,
+    }) as FleetScenario
+
+    expect(runB.stores.map((store) => store.position)).toEqual(
+      runA.stores.map((store) => store.position),
+    )
+    expect(runB.routes.map((route) => route.returnMinute)).not.toEqual(
+      runA.routes.map((route) => route.returnMinute),
+    )
+  })
+
+  it('reproduces the checked-in scenario byte-for-byte from the official profile, Cordoba routes and canonical seed', () => {
     expect(existsSync(generatorPath)).toBe(true)
     expect(existsSync(checkedInPath)).toBe(true)
     expect(existsSync(routeAssetPath)).toBe(true)
@@ -143,8 +177,6 @@ describe('calibrated Cordoba scenario generator', () => {
 
     runGenerator(profilePath, generatedPath)
 
-    const generated = JSON.parse(readFileSync(generatedPath, 'utf8'))
-    const checkedIn = JSON.parse(readFileSync(checkedInPath, 'utf8'))
-    expect(generated).toEqual(checkedIn)
+    expect(readFileSync(generatedPath, 'utf8')).toBe(readFileSync(checkedInPath, 'utf8'))
   })
 })
