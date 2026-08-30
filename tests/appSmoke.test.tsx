@@ -55,5 +55,23 @@ describe('FleetFlow app shell', () => {
     expect(screen.getByRole('button', { name: /30 DE AGO DE 2026, SIMULATED/i })).toHaveAttribute('aria-current', 'date')
     expect(await screen.findByText('SIMULATED · ESCENARIO CALIBRADO')).toBeInTheDocument()
     expect(await screen.findByTestId('fleet-map')).toBeInTheDocument()
+
+    const hud = document.querySelector('.simulation-hud')
+    expect(hud).not.toBeNull()
+    expect(Array.from(hud?.children ?? []).map((child) => child.className)).toEqual([
+      'operational-date-rail',
+      'simulation-clock',
+      'simulation-controls',
+    ])
+
+    const kpis = screen.getByRole('region', { name: 'Resumen de la flota' })
+    const explainer = screen.getByRole('region', { name: 'Qué estás viendo' })
+    const fleet = screen.getByRole('region', { name: 'Estado de la flota' })
+
+    expect(explainer).toHaveTextContent(
+      'Acá la base del mapa no cambia: cambian las condiciones de la jornada. Por eso podés ver cómo se reparte el trabajo entre vehículos, cuánto tarda cada circuito y cómo se mueve la flota según la carga de ese día.',
+    )
+    expect(kpis.compareDocumentPosition(explainer) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(explainer.compareDocumentPosition(fleet) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
   })
 })
