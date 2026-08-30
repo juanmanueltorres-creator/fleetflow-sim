@@ -20,25 +20,62 @@ jobs:
         with:
           node-version: 22
 
-      - name: Fetch municipal GTFS resources
+      - name: Download municipal GTFS
         run: |
           set -euo pipefail
-          url='https://gobiernoabierto.cordoba.gob.ar/api/datos-abiertos/dato/3319/version-dato/6122/recurso?format=json'
-          curl --fail --location --silent --show-error "$url" --output /tmp/gtfs-resources.json
-          test -s /tmp/gtfs-resources.json
-          python - <<'PY'
+          mkdir -p /tmp/fleetflow-cordoba-gtfs
+          resource_api='https://gobiernoabierto.cordoba.gob.ar/api/datos-abiertos/dato/3319/version-dato/6122/recurso?format=json'
+          curl --fail --location --silent --show-error "$resource_api" --output /tmp/gtfs-resources.json
+          gtfs_url="$(python - <<'PY'
           import json
           from pathlib import Path
           data = json.loads(Path('/tmp/gtfs-resources.json').read_text())
-          print(json.dumps(data, indent=2, ensure_ascii=False)[:30000])
-          def walk(value, path='root'):
-              if isinstance(value, dict):
-                  for key, item in value.items():
-                      walk(item, f'{path}.{key}')
-              elif isinstance(value, list):
-                  for index, item in enumerate(value):
-                      walk(item, f'{path}[{index}]')
-              elif isinstance(value, str) and ('http://' in value or 'https://' in value or value.lower().endswith(('.zip', '.txt'))):
-                  print('RESOURCE', path, '=', value)
-          walk(data)
+          results = data.get('results', [])
+          if len(results) != 1:
+              raise SystemExit(f'expected exactly one GTFS resource, got {len(results)}')
+          resource = results[0]
+          if resource.get('id') != '18772':
+              raise SystemExit(f"unexpected GTFS resource id: {resource.get('id')}")
+          if resource.get('licencia', {}).get('licencia') != 'CC-BY-SA-AR (CBA)':
+              raise SystemExit('unexpected GTFS license')
+          url = resource.get('url')
+          if not isinstance(url, str) or not url.startswith('https://'):
+              raise SystemExit('GTFS resource URL is missing or unsafe')
+          print(url)
           PY
+          )"
+          curl --fail --location --retry 3 "$gtfs_url" --output /tmp/fleetflow-cordoba-gtfs.zip
+          unzip -p /tmp/fleetflow-cordoba-gtfs.zip stops.txt > /tmp/fleetflow-cordoba-gtfs/stops.txt
+          test -s /tmp/fleetflow-cordoba-gtfs/stops.txt
+          sha256sum /tmp/fleetflow-cordoba-gtfs.zip
+          wc -l /tmp/fleetflow-cordoba-gtfs/stops.txt
+
+      - name: Generate and validate candidate pool
+        run: |
+          set -euo pipefail
+          node scripts/generate-candidate-pool.mjs \
+            --stops /tmp/fleetflow-cordoba-gtfs/stops.txt \
+            --output /tmp/candidate-pool-v1.json
+          node - <<'NODE'
+          const pool = require('/tmp/candidate-pool-v1.json')
+          if (pool.candidates.length !== 240) {
+            throw new Error(`expected 240 candidates, got ${pool.candidates.length}`)
+          }
+          const counts = new Map()
+          for (const candidate of pool.candidates) {
+            counts.set(candidate.zoneId, (counts.get(candidate.zoneId) ?? 0) + 1)
+          }
+          for (let zone = 0; zone < 8; zone += 1) {
+            const id = `zone-${zone}`
+            if (counts.get(id) !== 30) {
+              throw new Error(`${id} expected 30 candidates, got ${counts.get(id) ?? 0}`)
+            }
+          }
+          console.log('Candidate pool verified:', pool.candidates.length, Object.fromEntries(counts))
+          NODE
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fleetflow-v06-candidate-pool
+          path: /tmp/candidate-pool-v1.json
+          if-no-files-found: error
