@@ -12,10 +12,10 @@ const manifest = JSON.parse(
   readFileSync(resolve(process.cwd(), 'public/data/operational-runs/manifest.json'), 'utf8'),
 )
 const run30 = JSON.parse(
-  readFileSync(resolve(process.cwd(), 'public/data/operational-runs/generated/cordoba-2026-08-30-v1.json'), 'utf8'),
+  readFileSync(resolve(process.cwd(), 'public/data/operational-runs/generated/cordoba-2026-08-30-v2.json'), 'utf8'),
 )
 const run31 = JSON.parse(
-  readFileSync(resolve(process.cwd(), 'public/data/operational-runs/generated/cordoba-2026-08-31-v1.json'), 'utf8'),
+  readFileSync(resolve(process.cwd(), 'public/data/operational-runs/generated/cordoba-2026-08-31-v2.json'), 'utf8'),
 )
 const calibratedRoutes = JSON.parse(
   readFileSync(resolve(process.cwd(), 'public/data/cordoba-calibrated-routes.geojson'), 'utf8'),
@@ -31,8 +31,8 @@ describe('operational day comparison', () => {
     vi.stubGlobal('fetch', vi.fn((input: RequestInfo | URL) => {
       const url = String(input)
       if (url === './data/operational-runs/manifest.json') return response(manifest)
-      if (url === './data/operational-runs/generated/cordoba-2026-08-30-v1.json') return response(run30)
-      if (url === './data/operational-runs/generated/cordoba-2026-08-31-v1.json') return response(run31)
+      if (url === './data/operational-runs/generated/cordoba-2026-08-30-v2.json') return response(run30)
+      if (url === './data/operational-runs/generated/cordoba-2026-08-31-v2.json') return response(run31)
       if (url === './data/cordoba-calibrated-routes.geojson') return response(calibratedRoutes)
       return Promise.resolve({ ok: false, status: 404, json: async () => ({}) } as Response)
     }))
