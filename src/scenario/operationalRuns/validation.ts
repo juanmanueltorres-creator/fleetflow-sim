@@ -14,6 +14,10 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 
+function isFiniteNumber(value: unknown): value is number {
+  return typeof value === 'number' && Number.isFinite(value)
+}
+
 function isRealIsoDate(value: unknown): value is string {
   if (typeof value !== 'string' || !ISO_DATE.test(value)) return false
 
@@ -49,12 +53,103 @@ function isIsoTimestamp(value: unknown): value is string {
   return Number.isFinite(Date.parse(value))
 }
 
+function isPosition(value: unknown): value is [number, number] {
+  return Array.isArray(value)
+    && value.length === 2
+    && isFiniteNumber(value[0])
+    && isFiniteNumber(value[1])
+}
+
+function isTimeWindowShape(value: unknown): boolean {
+  return isRecord(value)
+    && isFiniteNumber(value.startMinute)
+    && isFiniteNumber(value.endMinute)
+}
+
+function isDepotShape(value: unknown): boolean {
+  return isRecord(value)
+    && typeof value.id === 'string'
+    && typeof value.name === 'string'
+    && isPosition(value.position)
+}
+
+function isStoreShape(value: unknown): boolean {
+  return isRecord(value)
+    && typeof value.id === 'string'
+    && typeof value.name === 'string'
+    && isPosition(value.position)
+    && isFiniteNumber(value.serviceMinutes)
+    && (value.timeWindow === undefined || isTimeWindowShape(value.timeWindow))
+}
+
+function isVehicleCapacityShape(value: unknown): boolean {
+  if (!isRecord(value)) return false
+
+  if (value.kind === 'MASS') {
+    return isFiniteNumber(value.capacityKg)
+  }
+
+  if (value.kind === 'PARCELS') {
+    return isFiniteNumber(value.capacityCm3)
+  }
+
+  return false
+}
+
+function isTruckShape(value: unknown): boolean {
+  return isRecord(value)
+    && typeof value.id === 'string'
+    && typeof value.label === 'string'
+    && isVehicleCapacityShape(value.capacity)
+    && isFiniteNumber(value.fuelConsumptionLPer100Km)
+}
+
+function isStopCargoShape(value: unknown): boolean {
+  if (!isRecord(value)) return false
+
+  if (value.kind === 'MASS') {
+    return isFiniteNumber(value.quantityKg)
+  }
+
+  if (value.kind === 'PARCELS') {
+    return isFiniteNumber(value.packageCount)
+      && isFiniteNumber(value.volumeCm3)
+  }
+
+  return false
+}
+
+function isPlannedStopShape(value: unknown): boolean {
+  return isRecord(value)
+    && typeof value.storeId === 'string'
+    && isFiniteNumber(value.plannedArrivalMinute)
+    && isFiniteNumber(value.plannedDepartureMinute)
+    && isStopCargoShape(value.cargo)
+}
+
+function isRouteShape(value: unknown): boolean {
+  return isRecord(value)
+    && typeof value.id === 'string'
+    && typeof value.truckId === 'string'
+    && isFiniteNumber(value.departureMinute)
+    && isFiniteNumber(value.returnMinute)
+    && Array.isArray(value.stops)
+    && value.stops.every(isPlannedStopShape)
+    && typeof value.geometryId === 'string'
+}
+
 function isScenarioShape(value: unknown): value is FleetScenario {
   return isRecord(value)
-    && isRecord(value.depot)
+    && typeof value.id === 'string'
+    && typeof value.label === 'string'
+    && typeof value.simulationStartLabel === 'string'
+    && isDepotShape(value.depot)
     && Array.isArray(value.trucks)
+    && value.trucks.every(isTruckShape)
     && Array.isArray(value.stores)
+    && value.stores.every(isStoreShape)
     && Array.isArray(value.routes)
+    && value.routes.every(isRouteShape)
 }
 
 export function validateOperationalRun(value: unknown): string[] {
