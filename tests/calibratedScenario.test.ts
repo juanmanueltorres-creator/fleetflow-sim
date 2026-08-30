@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process'
-import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs'
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
@@ -80,6 +80,24 @@ describe('calibrated Cordoba scenario generator', () => {
         `${route.id} return: ${returnDistanceKm.toFixed(2)} km in ${returnDurationMinutes} min`,
       ).toBeLessThanOrEqual(MAX_TRAVEL_SPEED_KMH)
     }
+  })
+
+  it('fails closed when prepared route distances are not finite numbers', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'fleetflow-malformed-routes-'))
+    tempDirs.push(dir)
+    const malformedRoutesPath = join(dir, 'routes.geojson')
+    const generatedPath = join(dir, 'scenario.json')
+    const malformed = JSON.parse(readFileSync(routeAssetPath, 'utf8'))
+    malformed.features[0].properties.waypointDistancesKm[1] = '1.2'
+    writeFileSync(malformedRoutesPath, JSON.stringify(malformed), 'utf8')
+
+    expect(() => execFileSync(process.execPath, [
+      generatorPath,
+      '--profile', profilePath,
+      '--routes', malformedRoutesPath,
+      '--output', generatedPath,
+      '--seed', canonicalSeed,
+    ], { stdio: 'pipe' })).toThrow(/finite numbers/i)
   })
 
   it('reproduces the checked-in scenario exactly from the official profile, Cordoba routes and canonical seed', () => {
