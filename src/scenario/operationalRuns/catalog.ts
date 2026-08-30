@@ -8,7 +8,9 @@ import {
 } from './types'
 
 const RUN_ID = /^[a-z0-9]+(?:-[a-z0-9]+)*$/i
-const ARTIFACT_PATH = /^\.\/generated\/[a-z0-9]+(?:-[a-z0-9]+)*\.json$/i
+const RUN_ARTIFACT_PATH = /^\.\/generated\/[a-z0-9]+(?:-[a-z0-9]+)*\.json$/i
+const ROUTE_ARTIFACT_PATH = /^\.\/generated\/[a-z0-9]+(?:-[a-z0-9]+)*\.routes\.geojson$/i
+const CONTEXT_ARTIFACT_PATH = /^\.\/generated\/[a-z0-9]+(?:-[a-z0-9]+)*\.context\.json$/i
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/
 const ISO_TIMESTAMP_WITH_ZONE = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.\d+)?(Z|[+-]\d{2}:\d{2})$/
 
@@ -52,11 +54,15 @@ function isIsoTimestamp(value: unknown): value is string {
   return Number.isFinite(Date.parse(value))
 }
 
-function isSafeArtifactPath(value: unknown): value is string {
-  return typeof value === 'string' && ARTIFACT_PATH.test(value)
+function matchesArtifactPath(value: unknown, pattern: RegExp): value is string {
+  return typeof value === 'string' && pattern.test(value)
 }
 
-function validateManifestEntry(value: unknown, index: number): string[] {
+function validateManifestEntry(
+  value: unknown,
+  index: number,
+  schemaVersion: 1 | 2,
+): string[] {
   if (!isRecord(value)) return [`Operational run manifest entry ${index} must be an object`]
 
   const errors: string[] = []
@@ -98,8 +104,27 @@ function validateManifestEntry(value: unknown, index: number): string[] {
     errors.push(`${prefix} modelVersion is required`)
   }
 
-  if (!isSafeArtifactPath(value.artifact)) {
+  if (!matchesArtifactPath(value.artifact, RUN_ARTIFACT_PATH)) {
     errors.push(`${prefix} artifact path is invalid`)
+  }
+
+  if (schemaVersion === 1) {
+    if ('routeArtifact' in value) {
+      errors.push(`${prefix} routeArtifact is not allowed for schemaVersion 1`)
+    }
+    if ('contextArtifact' in value) {
+      errors.push(`${prefix} contextArtifact is not allowed for schemaVersion 1`)
+    }
+  } else {
+    if (!matchesArtifactPath(value.routeArtifact, ROUTE_ARTIFACT_PATH)) {
+      errors.push(`${prefix} routeArtifact path is invalid`)
+    }
+    if (
+      value.contextArtifact !== undefined
+      && !matchesArtifactPath(value.contextArtifact, CONTEXT_ARTIFACT_PATH)
+    ) {
+      errors.push(`${prefix} contextArtifact path is invalid`)
+    }
   }
 
   return errors
@@ -110,9 +135,11 @@ export function validateOperationalRunManifest(value: unknown): string[] {
 
   const errors: string[] = []
 
-  if (value.schemaVersion !== 1) {
-    errors.push('Operational run manifest schemaVersion must be 1')
+  if (value.schemaVersion !== 1 && value.schemaVersion !== 2) {
+    errors.push('Operational run manifest schemaVersion must be 1 or 2')
+    return errors
   }
+  const schemaVersion = value.schemaVersion
 
   if (!Array.isArray(value.runs)) {
     errors.push('Operational run manifest runs must be an array')
@@ -121,9 +148,11 @@ export function validateOperationalRunManifest(value: unknown): string[] {
 
   const seenIds = new Set<string>()
   const seenArtifacts = new Set<string>()
+  const seenRouteArtifacts = new Set<string>()
+  const seenContextArtifacts = new Set<string>()
 
   value.runs.forEach((entry, index) => {
-    errors.push(...validateManifestEntry(entry, index))
+    errors.push(...validateManifestEntry(entry, index, schemaVersion))
 
     if (!isRecord(entry)) return
 
@@ -140,6 +169,22 @@ export function validateOperationalRunManifest(value: unknown): string[] {
         errors.push(`Duplicate artifact path: ${entry.artifact}`)
       } else {
         seenArtifacts.add(entry.artifact)
+      }
+    }
+
+    if (schemaVersion === 2 && typeof entry.routeArtifact === 'string') {
+      if (seenRouteArtifacts.has(entry.routeArtifact)) {
+        errors.push(`Duplicate routeArtifact path: ${entry.routeArtifact}`)
+      } else {
+        seenRouteArtifacts.add(entry.routeArtifact)
+      }
+    }
+
+    if (schemaVersion === 2 && typeof entry.contextArtifact === 'string') {
+      if (seenContextArtifacts.has(entry.contextArtifact)) {
+        errors.push(`Duplicate contextArtifact path: ${entry.contextArtifact}`)
+      } else {
+        seenContextArtifacts.add(entry.contextArtifact)
       }
     }
   })
@@ -160,28 +205,42 @@ export function selectDefaultRunEntry(
   scenarioId: ScenarioId,
   operationalDate: string,
 ): OperationalRunManifestEntry | null {
-  const entries = manifest.runs
+  const entries: OperationalRunManifestEntry[] = [...manifest.runs]
+  const scenarioEntries = entries
     .filter((run) => run.scenarioId === scenarioId)
-    .slice()
     .sort((a, b) => a.targetDate.localeCompare(b.targetDate) || a.id.localeCompare(b.id))
 
-  const exact = entries.find((entry) => entry.targetDate === operationalDate)
+  const exact = scenarioEntries.find((entry) => entry.targetDate === operationalDate)
   if (exact) return exact
 
-  const past = entries.filter((entry) => entry.targetDate < operationalDate)
+  const past = scenarioEntries.filter((entry) => entry.targetDate < operationalDate)
   if (past.length > 0) return past.at(-1) ?? null
 
-  return entries[0] ?? null
+  return scenarioEntries[0] ?? null
 }
 
-export function resolveOperationalRunArtifactUrl(manifestUrl: string, artifact: string): string {
-  if (!isSafeArtifactPath(artifact)) {
-    throw new Error(`Unsafe operational run artifact path: ${artifact}`)
+export function resolveOperationalArtifactUrl(
+  manifestUrl: string,
+  artifact: string,
+  kind: 'run' | 'route' | 'context',
+): string {
+  const pattern = kind === 'run'
+    ? RUN_ARTIFACT_PATH
+    : kind === 'route'
+      ? ROUTE_ARTIFACT_PATH
+      : CONTEXT_ARTIFACT_PATH
+
+  if (!matchesArtifactPath(artifact, pattern)) {
+    throw new Error(`Unsafe operational ${kind} artifact path: ${artifact}`)
   }
 
   const slash = manifestUrl.lastIndexOf('/')
   const base = slash >= 0 ? manifestUrl.slice(0, slash + 1) : './'
   return `${base}${artifact.replace(/^\.\//, '')}`
+}
+
+export function resolveOperationalRunArtifactUrl(manifestUrl: string, artifact: string): string {
+  return resolveOperationalArtifactUrl(manifestUrl, artifact, 'run')
 }
 
 export async function loadOperationalRunManifest(
