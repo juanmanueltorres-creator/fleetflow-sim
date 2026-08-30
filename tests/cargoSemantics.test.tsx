@@ -156,6 +156,14 @@ describe('parcel operational copy', () => {
     expect(screen.getByText('37% de capacidad ocupada')).toBeInTheDocument()
   })
 
+  it('calls parcel service Entregando instead of Descargando', () => {
+    const serviceSnapshot = getFleetSnapshot(parcelScenario, parcelGeometries, 5) as FleetSnapshot
+    render(<FleetPanel scenario={parcelScenario} snapshot={serviceSnapshot} />)
+
+    expect(screen.getByText('Entregando')).toBeInTheDocument()
+    expect(screen.queryByText('Descargando')).not.toBeInTheDocument()
+  })
+
   it('does not hardcode five vehicles in KPIs', () => {
     const metrics = {
       completedDeliveries: 0,
