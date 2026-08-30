@@ -15,18 +15,18 @@ vi.mock('../src/map/FleetMap', () => ({
 }))
 
 const MANIFEST_URL = './data/operational-runs/manifest.json'
-const RUN_30_URL = './data/operational-runs/generated/cordoba-2026-08-30-v1.json'
-const RUN_31_URL = './data/operational-runs/generated/cordoba-2026-08-31-v1.json'
+const RUN_30_URL = './data/operational-runs/generated/cordoba-2026-08-30-v2.json'
+const RUN_31_URL = './data/operational-runs/generated/cordoba-2026-08-31-v2.json'
 const ROUTES_URL = './data/cordoba-calibrated-routes.geojson'
 
 const manifest = JSON.parse(
   readFileSync(resolve(process.cwd(), 'public/data/operational-runs/manifest.json'), 'utf8'),
 ) as OperationalRunManifest
 const run30 = JSON.parse(
-  readFileSync(resolve(process.cwd(), 'public/data/operational-runs/generated/cordoba-2026-08-30-v1.json'), 'utf8'),
+  readFileSync(resolve(process.cwd(), 'public/data/operational-runs/generated/cordoba-2026-08-30-v2.json'), 'utf8'),
 ) as OperationalRun
 const run31 = JSON.parse(
-  readFileSync(resolve(process.cwd(), 'public/data/operational-runs/generated/cordoba-2026-08-31-v1.json'), 'utf8'),
+  readFileSync(resolve(process.cwd(), 'public/data/operational-runs/generated/cordoba-2026-08-31-v2.json'), 'utf8'),
 ) as OperationalRun
 const calibratedRoutes = JSON.parse(
   readFileSync(resolve(process.cwd(), 'public/data/cordoba-calibrated-routes.geojson'), 'utf8'),
