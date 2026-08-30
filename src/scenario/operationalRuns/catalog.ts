@@ -8,6 +8,7 @@ import {
 } from './types'
 
 const RUN_ID = /^[a-z0-9]+(?:-[a-z0-9]+)*$/i
+const ARTIFACT_PATH = /^\.\/generated\/[a-z0-9]+(?:-[a-z0-9]+)*\.json$/i
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/
 const ISO_TIMESTAMP_WITH_ZONE = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.\d+)?(Z|[+-]\d{2}:\d{2})$/
 
@@ -52,12 +53,7 @@ function isIsoTimestamp(value: unknown): value is string {
 }
 
 function isSafeArtifactPath(value: unknown): value is string {
-  return typeof value === 'string'
-    && value.startsWith('./generated/')
-    && value.length > './generated/'.length
-    && !value.includes('..')
-    && !value.includes('\\')
-    && !value.includes('://')
+  return typeof value === 'string' && ARTIFACT_PATH.test(value)
 }
 
 function validateManifestEntry(value: unknown, index: number): string[] {
