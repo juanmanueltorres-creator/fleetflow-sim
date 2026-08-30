@@ -158,6 +158,22 @@ describe('operational run validation', () => {
     expect(() => requireValidOperationalRun(run)).toThrow(/scenario shape/i)
   })
 
+  it('rejects negative fuel consumption', () => {
+    const run = validRun()
+    run.scenario.trucks[0].fuelConsumptionLPer100Km = -1
+
+    expect(validateOperationalRun(run)).toContainEqual(expect.stringMatching(/scenario shape/i))
+    expect(() => requireValidOperationalRun(run)).toThrow(/scenario shape/i)
+  })
+
+  it('rejects duplicate store ids', () => {
+    const run = validRun()
+    run.scenario.stores.push(structuredClone(run.scenario.stores[0]))
+
+    expect(validateOperationalRun(run)).toContainEqual(expect.stringMatching(/duplicate store id/i))
+    expect(() => requireValidOperationalRun(run)).toThrow(/duplicate store id/i)
+  })
+
   it('derives TODAY in Córdoba instead of viewer timezone', () => {
     expect(getCordobaOperationalDate(new Date('2026-08-31T02:00:00Z'))).toBe('2026-08-30')
   })
