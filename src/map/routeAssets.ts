@@ -25,6 +25,10 @@ export function routeCollectionToIndex(
 ): RouteGeometryIndex {
   const expected = new Map(scenario.routes.map((route) => [route.geometryId, route]))
 
+  if (expected.size !== scenario.routes.length) {
+    throw new Error('Active scenario contains duplicate route geometry ids')
+  }
+
   if (collection.type !== 'FeatureCollection' || collection.features.length !== expected.size) {
     throw new Error('Route geometry ids must match the active scenario')
   }
@@ -52,9 +56,10 @@ export function routeCollectionToIndex(
     if (distances[0] !== 0) {
       throw new Error(`Route ${route.id} must start at distance 0`)
     }
-    if (distances.some((value, index) => index > 0 && value <= distances[index - 1])) {
-      throw new Error(`Route ${route.id} waypoint distances must be strictly increasing`)
+    if (distances.some((value, index) => index > 0 && value < distances[index - 1])) {
+      throw new Error(`Route ${route.id} waypoint distances must be non-decreasing`)
     }
+    routeDistanceKm(feature)
 
     return [feature.id, feature] as const
   })
