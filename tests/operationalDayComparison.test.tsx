@@ -21,6 +21,16 @@ const calibratedRoutes = JSON.parse(
   readFileSync(resolve(process.cwd(), 'public/data/cordoba-calibrated-routes.geojson'), 'utf8'),
 )
 
+const run30WithFrozenProfile = structuredClone(run30)
+run30WithFrozenProfile.provenance.operationalProfile = {
+  day: 0,
+  dayLabel: 'Domingo',
+  intensityLabel: 'vintage congelado',
+  demandMultiplier: 0.72,
+  travelTimeMultiplier: 0.9,
+  summary: 'Resumen congelado en el artefacto seleccionado.',
+}
+
 function response(payload: unknown): Promise<Response> {
   return Promise.resolve({ ok: true, status: 200, json: async () => payload } as Response)
 }
@@ -31,7 +41,7 @@ describe('operational day comparison', () => {
     vi.stubGlobal('fetch', vi.fn((input: RequestInfo | URL) => {
       const url = String(input)
       if (url === './data/operational-runs/manifest.json') return response(manifest)
-      if (url === './data/operational-runs/generated/cordoba-2026-08-30-v2.json') return response(run30)
+      if (url === './data/operational-runs/generated/cordoba-2026-08-30-v2.json') return response(run30WithFrozenProfile)
       if (url === './data/operational-runs/generated/cordoba-2026-08-31-v2.json') return response(run31)
       if (url === './data/cordoba-calibrated-routes.geojson') return response(calibratedRoutes)
       return Promise.resolve({ ok: false, status: 404, json: async () => ({}) } as Response)
@@ -44,7 +54,7 @@ describe('operational day comparison', () => {
     vi.useRealTimers()
   })
 
-  it('shows package load and a plain-language explanation that change with the selected day', async () => {
+  it('shows package load and explainer copy from the selected immutable run vintage', async () => {
     render(<App />)
 
     const sundayKpis = await screen.findByRole('region', { name: 'Resumen de la flota' })
@@ -52,10 +62,8 @@ describe('operational day comparison', () => {
 
     expect(within(sundayKpis).getByText('Paquetes del día')).toBeInTheDocument()
     expect(within(sundayKpis).getByText('74')).toBeInTheDocument()
-    expect(sundayExplainer).toHaveTextContent('Domingo · jornada muy liviana')
-    expect(sundayExplainer).toHaveTextContent(
-      'Hoy hay menos carga para repartir y los recorridos usan un ritmo más fluido que una jornada base.',
-    )
+    expect(sundayExplainer).toHaveTextContent('Domingo · vintage congelado')
+    expect(sundayExplainer).toHaveTextContent('Resumen congelado en el artefacto seleccionado.')
 
     fireEvent.click(screen.getByRole('button', { name: /31 DE AGO DE 2026, FORECAST/i }))
 
