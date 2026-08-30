@@ -32,7 +32,7 @@ export function mulberry32(seed) {
   }
 }
 
-function sampleDistribution(distribution, random) {
+export function sampleDistribution(distribution, random) {
   const knots = [
     [0.00, distribution.min], [0.10, distribution.p10], [0.25, distribution.p25],
     [0.50, distribution.p50], [0.75, distribution.p75], [0.90, distribution.p90],
@@ -54,7 +54,7 @@ function jitter(anchor, random) {
   ]
 }
 
-function normalizePackageCounts(counts, target) {
+export function normalizePackageCounts(counts, target) {
   const normalized = counts.map((value) => Math.max(1, Math.round(value)))
   let total = normalized.reduce((sum, value) => sum + value, 0)
   let cursor = 0
@@ -128,13 +128,13 @@ function routeWaypointDistances(routeGeometryIndex, geometryId, truckId, stopCou
   return distances
 }
 
-function minimumTravelMinutes(distanceKm) {
+export function minimumTravelMinutes(distanceKm) {
   if (distanceKm < 0) throw new Error('Travel distance cannot be negative')
   if (distanceKm === 0) return 0
   return Math.max(1, Math.ceil((distanceKm / MAX_TRAVEL_SPEED_KMH) * 60))
 }
 
-function scaledTravelMinutes(sampledTravelSeconds, travelTimeMultiplier) {
+export function scaledTravelMinutes(sampledTravelSeconds, travelTimeMultiplier) {
   return Math.max(1, Math.round((sampledTravelSeconds / 60) * travelTimeMultiplier))
 }
 
