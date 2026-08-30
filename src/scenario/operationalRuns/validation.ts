@@ -102,6 +102,7 @@ function isTruckShape(value: unknown): boolean {
     && typeof value.label === 'string'
     && isVehicleCapacityShape(value.capacity)
     && isFiniteNumber(value.fuelConsumptionLPer100Km)
+    && value.fuelConsumptionLPer100Km >= 0
 }
 
 function isStopCargoShape(value: unknown): boolean {
@@ -150,6 +151,17 @@ function isScenarioShape(value: unknown): value is FleetScenario {
     && value.stores.every(isStoreShape)
     && Array.isArray(value.routes)
     && value.routes.every(isRouteShape)
+}
+
+function duplicateStoreId(scenario: FleetScenario): string | null {
+  const seen = new Set<string>()
+
+  for (const store of scenario.stores) {
+    if (seen.has(store.id)) return store.id
+    seen.add(store.id)
+  }
+
+  return null
 }
 
 export function validateOperationalRun(value: unknown): string[] {
@@ -221,6 +233,11 @@ export function validateOperationalRun(value: unknown): string[] {
   if (!isScenarioShape(value.scenario)) {
     errors.push('Operational run scenario shape is invalid')
   } else {
+    const duplicateId = duplicateStoreId(value.scenario)
+    if (duplicateId) {
+      errors.push(`Duplicate store id: ${duplicateId}`)
+    }
+
     try {
       errors.push(...validateScenario(value.scenario))
     } catch {
