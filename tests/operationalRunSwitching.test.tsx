@@ -171,7 +171,9 @@ describe('operational run switching', () => {
     const truckCard = screen.getByText(truck?.label ?? '').closest('article')
     expect(truckCard).not.toBeNull()
     const packageCount = routePackageTotal(run31.scenario, differingRouteIndex)
-    expect(within(truckCard as HTMLElement).getByText(`${packageCount} ${packageCount === 1 ? 'paquete' : 'paquetes'}`)).toBeInTheDocument()
+    const packageLabel = `${packageCount} ${packageCount === 1 ? 'paquete' : 'paquetes'}`
+    expect(within(truckCard as HTMLElement).getByText(`Plan · ${packageLabel}`)).toBeInTheDocument()
+    expect(within(truckCard as HTMLElement).getByText(`Restan · ${packageLabel}`)).toBeInTheDocument()
   })
 
   it('fails closed when a selected V0.6 bundle is unavailable', async () => {
