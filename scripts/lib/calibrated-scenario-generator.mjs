@@ -134,13 +134,22 @@ function minimumTravelMinutes(distanceKm) {
   return Math.max(1, Math.ceil((distanceKm / MAX_TRAVEL_SPEED_KMH) * 60))
 }
 
+function scaledTravelMinutes(sampledTravelSeconds, travelTimeMultiplier) {
+  return Math.max(1, Math.round((sampledTravelSeconds / 60) * travelTimeMultiplier))
+}
+
 export function generateCalibratedScenario({
   profile,
   routeGeometryIndex = null,
   operationsSeed,
   geographySeed,
   packageTarget = 100,
+  travelTimeMultiplier = 1,
 }) {
+  if (!Number.isFinite(travelTimeMultiplier) || travelTimeMultiplier <= 0) {
+    throw new Error('travelTimeMultiplier must be a positive finite number')
+  }
+
   const operationsRandom = mulberry32(hashSeed(`${operationsSeed}:operations`))
   const geographyRandom = mulberry32(hashSeed(`${geographySeed}:geography`))
   const totalStops = STOP_COUNTS.reduce((sum, count) => sum + count, 0)
@@ -182,7 +191,7 @@ export function generateCalibratedScenario({
       routeVolumeCm3 += volumeCm3
 
       const sampledTravelSeconds = sampleDistribution(profile.distributions.travelSecondsBetweenStops, operationsRandom)
-      const sampledTravelMinutes = Math.max(1, Math.round(sampledTravelSeconds / 60))
+      const sampledTravelMinutes = scaledTravelMinutes(sampledTravelSeconds, travelTimeMultiplier)
       const travelMinutes = waypointDistancesKm
         ? Math.max(
             sampledTravelMinutes,
@@ -221,7 +230,7 @@ export function generateCalibratedScenario({
     }
 
     const sampledReturnSeconds = sampleDistribution(profile.distributions.travelSecondsBetweenStops, operationsRandom)
-    const sampledReturnMinutes = Math.max(1, Math.round(sampledReturnSeconds / 60))
+    const sampledReturnMinutes = scaledTravelMinutes(sampledReturnSeconds, travelTimeMultiplier)
     const returnTravelMinutes = waypointDistancesKm
       ? Math.max(
           sampledReturnMinutes,
