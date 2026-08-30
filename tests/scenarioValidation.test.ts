@@ -31,4 +31,24 @@ describe('Coca Coqui V0 scenario', () => {
       expect.stringMatching(/scenario cargo mode/i),
     )
   })
+
+  it('rejects duplicate truck ids before route counting', () => {
+    const sourceTruck = structuredClone(cocaCoquiScenario.trucks[0])
+    const sourceStore = structuredClone(cocaCoquiScenario.stores[0])
+    const sourceRoute = structuredClone(cocaCoquiScenario.routes[0])
+
+    const duplicateTruckScenario: FleetScenario = {
+      ...structuredClone(cocaCoquiScenario),
+      stores: [sourceStore],
+      trucks: [sourceTruck, structuredClone(sourceTruck)],
+      routes: [{
+        ...sourceRoute,
+        stops: [sourceRoute.stops[0]],
+      }],
+    }
+
+    expect(validateScenario(duplicateTruckScenario)).toContainEqual(
+      expect.stringMatching(/duplicate truck id/i),
+    )
+  })
 })
