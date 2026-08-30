@@ -1,5 +1,7 @@
 import { existsSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
+import length from '@turf/length'
+import { lineString } from '@turf/helpers'
 import { describe, expect, it } from 'vitest'
 import type { FeatureCollection, LineString } from 'geojson'
 import type { FleetScenario } from '../src/domain/types'
@@ -120,8 +122,14 @@ describe('static calibrated Cordoba route asset', () => {
 
     expect(Object.keys(index)).toHaveLength(8)
     for (const route of scenario.routes) {
-      expect(index[route.geometryId].properties.truckId).toBe(route.truckId)
-      expect(index[route.geometryId].properties.waypointDistancesKm).toHaveLength(route.stops.length + 2)
+      const feature = index[route.geometryId]
+      expect(feature.properties.truckId).toBe(route.truckId)
+      expect(feature.properties.waypointDistancesKm).toHaveLength(route.stops.length + 2)
+
+      const renderedDistanceKm = length(lineString(feature.geometry.coordinates), {
+        units: 'kilometers',
+      })
+      expect(feature.properties.waypointDistancesKm.at(-1)).toBeCloseTo(renderedDistanceKm, 9)
     }
   })
 })
