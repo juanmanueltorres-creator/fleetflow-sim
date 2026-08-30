@@ -113,7 +113,7 @@ describe('operational run switching', () => {
     const truckCard = screen.getByText(truck?.label ?? '').closest('article')
     expect(truckCard).not.toBeNull()
     const packageCount = routePackageTotal(run31.scenario, differingRouteIndex)
-    expect(within(truckCard as HTMLElement).getByText(`${packageCount} ${packageCount === 1 ? 'paquete' : 'paquetes'}`)).toBeInTheDocument()
+    expect(within(truckCard as HTMLElement).getByText(`${packageCount} paq.`)).toBeInTheDocument()
   })
 
   it('fails closed when a selected run is unavailable', async () => {
