@@ -2,84 +2,84 @@
   "schemaVersion": 1,
   "runs": [
     {
-      "id": "cordoba-2026-08-27-v1",
+      "id": "cordoba-2026-08-27-v2",
       "targetDate": "2026-08-27",
       "issuedAt": "2026-08-30T21:00:00-03:00",
       "dataAsOf": "2026-08-30T21:00:00-03:00",
       "mode": "SIMULATED",
       "scenarioId": "cordoba-calibrated",
       "modelVersion": "fleetflow-v0.5",
-      "artifact": "./generated/cordoba-2026-08-27-v1.json"
+      "artifact": "./generated/cordoba-2026-08-27-v2.json"
     },
     {
-      "id": "cordoba-2026-08-28-v1",
+      "id": "cordoba-2026-08-28-v2",
       "targetDate": "2026-08-28",
       "issuedAt": "2026-08-30T21:00:00-03:00",
       "dataAsOf": "2026-08-30T21:00:00-03:00",
       "mode": "SIMULATED",
       "scenarioId": "cordoba-calibrated",
       "modelVersion": "fleetflow-v0.5",
-      "artifact": "./generated/cordoba-2026-08-28-v1.json"
+      "artifact": "./generated/cordoba-2026-08-28-v2.json"
     },
     {
-      "id": "cordoba-2026-08-29-v1",
+      "id": "cordoba-2026-08-29-v2",
       "targetDate": "2026-08-29",
       "issuedAt": "2026-08-30T21:00:00-03:00",
       "dataAsOf": "2026-08-30T21:00:00-03:00",
       "mode": "SIMULATED",
       "scenarioId": "cordoba-calibrated",
       "modelVersion": "fleetflow-v0.5",
-      "artifact": "./generated/cordoba-2026-08-29-v1.json"
+      "artifact": "./generated/cordoba-2026-08-29-v2.json"
     },
     {
-      "id": "cordoba-2026-08-30-v1",
+      "id": "cordoba-2026-08-30-v2",
       "targetDate": "2026-08-30",
       "issuedAt": "2026-08-30T21:00:00-03:00",
       "dataAsOf": "2026-08-30T21:00:00-03:00",
       "mode": "SIMULATED",
       "scenarioId": "cordoba-calibrated",
       "modelVersion": "fleetflow-v0.5",
-      "artifact": "./generated/cordoba-2026-08-30-v1.json"
+      "artifact": "./generated/cordoba-2026-08-30-v2.json"
     },
     {
-      "id": "cordoba-2026-08-31-v1",
+      "id": "cordoba-2026-08-31-v2",
       "targetDate": "2026-08-31",
       "issuedAt": "2026-08-30T21:00:00-03:00",
       "dataAsOf": "2026-08-30T21:00:00-03:00",
       "mode": "FORECAST",
       "scenarioId": "cordoba-calibrated",
       "modelVersion": "fleetflow-v0.5",
-      "artifact": "./generated/cordoba-2026-08-31-v1.json"
+      "artifact": "./generated/cordoba-2026-08-31-v2.json"
     },
     {
-      "id": "cordoba-2026-09-01-v1",
+      "id": "cordoba-2026-09-01-v2",
       "targetDate": "2026-09-01",
       "issuedAt": "2026-08-30T21:00:00-03:00",
       "dataAsOf": "2026-08-30T21:00:00-03:00",
       "mode": "FORECAST",
       "scenarioId": "cordoba-calibrated",
       "modelVersion": "fleetflow-v0.5",
-      "artifact": "./generated/cordoba-2026-09-01-v1.json"
+      "artifact": "./generated/cordoba-2026-09-01-v2.json"
     },
     {
-      "id": "cordoba-2026-09-02-v1",
+      "id": "cordoba-2026-09-02-v2",
       "targetDate": "2026-09-02",
       "issuedAt": "2026-08-30T21:00:00-03:00",
       "dataAsOf": "2026-08-30T21:00:00-03:00",
       "mode": "FORECAST",
       "scenarioId": "cordoba-calibrated",
       "modelVersion": "fleetflow-v0.5",
-      "artifact": "./generated/cordoba-2026-09-02-v1.json"
+      "artifact": "./generated/cordoba-2026-09-02-v2.json"
     },
     {
-      "id": "cordoba-2026-09-03-v1",
+      "id": "cordoba-2026-09-03-v2",
       "targetDate": "2026-09-03",
       "issuedAt": "2026-08-30T21:00:00-03:00",
       "dataAsOf": "2026-08-30T21:00:00-03:00",
       "mode": "FORECAST",
       "scenarioId": "cordoba-calibrated",
       "modelVersion": "fleetflow-v0.5",
-      "artifact": "./generated/cordoba-2026-09-03-v1.json"
+      "artifact": "./generated/cordoba-2026-09-03-v2.json"
     }
   ]
 }

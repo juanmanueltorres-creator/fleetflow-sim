@@ -10,8 +10,7 @@
     "generator": "daily-calibrated-v1",
     "seed": "fleetflow:v0.5:cordoba:2026-08-31",
     "notes": [
-      "Synthetic/calibrated operational forecast; not observed Córdoba delivery data.",
-      "Lunes: jornada exigente; weekly demand and travel cadence profile."
+      "Synthetic/calibrated operational forecast; not observed Córdoba delivery data."
     ]
   },
   "scenario": {
@@ -65,7 +64,7 @@
           -64.216338,
           -31.390977
         ],
-        "serviceMinutes": 4
+        "serviceMinutes": 6
       },
       {
         "id": "delivery-005",
@@ -74,7 +73,7 @@
           -64.227498,
           -31.394095
         ],
-        "serviceMinutes": 1
+        "serviceMinutes": 2
       },
       {
         "id": "delivery-006",
@@ -83,7 +82,7 @@
           -64.222076,
           -31.392206
         ],
-        "serviceMinutes": 1
+        "serviceMinutes": 2
       },
       {
         "id": "delivery-007",
@@ -92,7 +91,7 @@
           -64.181477,
           -31.395218
         ],
-        "serviceMinutes": 2
+        "serviceMinutes": 1
       },
       {
         "id": "delivery-008",
@@ -110,7 +109,7 @@
           -64.184865,
           -31.390018
         ],
-        "serviceMinutes": 1
+        "serviceMinutes": 22
       },
       {
         "id": "delivery-010",
@@ -119,11 +118,7 @@
           -64.188531,
           -31.387901
         ],
-        "serviceMinutes": 2,
-        "timeWindow": {
-          "startMinute": 0,
-          "endMinute": 1112
-        }
+        "serviceMinutes": 1
       },
       {
         "id": "delivery-011",
@@ -141,7 +136,7 @@
           -64.185211,
           -31.393656
         ],
-        "serviceMinutes": 1
+        "serviceMinutes": 61
       },
       {
         "id": "delivery-013",
@@ -150,7 +145,11 @@
           -64.186921,
           -31.387828
         ],
-        "serviceMinutes": 1
+        "serviceMinutes": 1,
+        "timeWindow": {
+          "startMinute": 0,
+          "endMinute": 420
+        }
       },
       {
         "id": "delivery-014",
@@ -177,7 +176,7 @@
           -64.148592,
           -31.399335
         ],
-        "serviceMinutes": 2
+        "serviceMinutes": 1
       },
       {
         "id": "delivery-017",
@@ -195,7 +194,7 @@
           -64.151994,
           -31.404354
         ],
-        "serviceMinutes": 77
+        "serviceMinutes": 2
       },
       {
         "id": "delivery-019",
@@ -204,7 +203,7 @@
           -64.146973,
           -31.407569
         ],
-        "serviceMinutes": 2
+        "serviceMinutes": 1
       },
       {
         "id": "delivery-020",
@@ -222,7 +221,11 @@
           -64.146886,
           -31.398692
         ],
-        "serviceMinutes": 1
+        "serviceMinutes": 2,
+        "timeWindow": {
+          "startMinute": 0,
+          "endMinute": 474
+        }
       },
       {
         "id": "delivery-022",
@@ -249,7 +252,7 @@
           -64.139539,
           -31.418536
         ],
-        "serviceMinutes": 1
+        "serviceMinutes": 2
       },
       {
         "id": "delivery-025",
@@ -267,7 +270,7 @@
           -64.152067,
           -31.425467
         ],
-        "serviceMinutes": 29
+        "serviceMinutes": 50
       },
       {
         "id": "delivery-027",
@@ -276,7 +279,7 @@
           -64.140488,
           -31.427566
         ],
-        "serviceMinutes": 1
+        "serviceMinutes": 2
       },
       {
         "id": "delivery-028",
@@ -285,7 +288,7 @@
           -64.138195,
           -31.426317
         ],
-        "serviceMinutes": 1
+        "serviceMinutes": 2
       },
       {
         "id": "delivery-029",
@@ -294,7 +297,7 @@
           -64.150962,
           -31.431521
         ],
-        "serviceMinutes": 3
+        "serviceMinutes": 4
       },
       {
         "id": "delivery-030",
@@ -321,7 +324,7 @@
           -64.161926,
           -31.458879
         ],
-        "serviceMinutes": 1
+        "serviceMinutes": 2
       },
       {
         "id": "delivery-033",
@@ -330,7 +333,7 @@
           -64.164204,
           -31.44615
         ],
-        "serviceMinutes": 2
+        "serviceMinutes": 1
       },
       {
         "id": "delivery-034",
@@ -339,7 +342,7 @@
           -64.157408,
           -31.452126
         ],
-        "serviceMinutes": 4
+        "serviceMinutes": 1
       },
       {
         "id": "delivery-035",
@@ -348,7 +351,7 @@
           -64.157374,
           -31.445358
         ],
-        "serviceMinutes": 1
+        "serviceMinutes": 2
       },
       {
         "id": "delivery-036",
@@ -357,7 +360,7 @@
           -64.165175,
           -31.454084
         ],
-        "serviceMinutes": 3
+        "serviceMinutes": 4
       },
       {
         "id": "delivery-037",
@@ -366,7 +369,7 @@
           -64.195139,
           -31.451818
         ],
-        "serviceMinutes": 2
+        "serviceMinutes": 1
       },
       {
         "id": "delivery-038",
@@ -375,7 +378,7 @@
           -64.193189,
           -31.46407
         ],
-        "serviceMinutes": 93
+        "serviceMinutes": 2
       },
       {
         "id": "delivery-039",
@@ -402,7 +405,7 @@
           -64.186736,
           -31.459835
         ],
-        "serviceMinutes": 2
+        "serviceMinutes": 3
       },
       {
         "id": "delivery-042",
@@ -411,7 +414,7 @@
           -64.196651,
           -31.460385
         ],
-        "serviceMinutes": 2
+        "serviceMinutes": 1
       },
       {
         "id": "delivery-043",
@@ -420,11 +423,7 @@
           -64.185558,
           -31.463605
         ],
-        "serviceMinutes": 3,
-        "timeWindow": {
-          "startMinute": 0,
-          "endMinute": 951
-        }
+        "serviceMinutes": 2
       },
       {
         "id": "delivery-044",
@@ -442,7 +441,7 @@
           -64.196473,
           -31.45554
         ],
-        "serviceMinutes": 1
+        "serviceMinutes": 2
       },
       {
         "id": "delivery-046",
@@ -478,7 +477,11 @@
           -64.224822,
           -31.453857
         ],
-        "serviceMinutes": 2
+        "serviceMinutes": 1,
+        "timeWindow": {
+          "startMinute": 0,
+          "endMinute": 446
+        }
       },
       {
         "id": "delivery-050",
@@ -487,7 +490,7 @@
           -64.220026,
           -31.440436
         ],
-        "serviceMinutes": 2
+        "serviceMinutes": 1
       },
       {
         "id": "delivery-051",
@@ -496,7 +499,7 @@
           -64.224394,
           -31.44006
         ],
-        "serviceMinutes": 47
+        "serviceMinutes": 2
       },
       {
         "id": "delivery-052",
@@ -514,11 +517,7 @@
           -64.222455,
           -31.450987
         ],
-        "serviceMinutes": 1,
-        "timeWindow": {
-          "startMinute": 43,
-          "endMinute": 128
-        }
+        "serviceMinutes": 2
       },
       {
         "id": "delivery-054",
@@ -545,7 +544,11 @@
           -64.228974,
           -31.417379
         ],
-        "serviceMinutes": 2
+        "serviceMinutes": 1,
+        "timeWindow": {
+          "startMinute": 0,
+          "endMinute": 85
+        }
       },
       {
         "id": "delivery-057",
@@ -563,7 +566,7 @@
           -64.230714,
           -31.412664
         ],
-        "serviceMinutes": 77
+        "serviceMinutes": 3
       },
       {
         "id": "delivery-059",
@@ -572,11 +575,7 @@
           -64.240197,
           -31.416809
         ],
-        "serviceMinutes": 1,
-        "timeWindow": {
-          "startMinute": 0,
-          "endMinute": 480
-        }
+        "serviceMinutes": 43
       },
       {
         "id": "delivery-060",
@@ -585,7 +584,7 @@
           -64.233673,
           -31.423938
         ],
-        "serviceMinutes": 2
+        "serviceMinutes": 1
       }
     ],
     "trucks": [
@@ -594,7 +593,7 @@
         "label": "Vehículo 01",
         "capacity": {
           "kind": "PARCELS",
-          "capacityCm3": 3920650
+          "capacityCm3": 4247527
         },
         "fuelConsumptionLPer100Km": 18
       },
@@ -603,7 +602,7 @@
         "label": "Vehículo 02",
         "capacity": {
           "kind": "PARCELS",
-          "capacityCm3": 3313071
+          "capacityCm3": 3260210
         },
         "fuelConsumptionLPer100Km": 18
       },
@@ -612,7 +611,7 @@
         "label": "Vehículo 03",
         "capacity": {
           "kind": "PARCELS",
-          "capacityCm3": 3851358
+          "capacityCm3": 4247527
         },
         "fuelConsumptionLPer100Km": 18
       },
@@ -621,7 +620,7 @@
         "label": "Vehículo 04",
         "capacity": {
           "kind": "PARCELS",
-          "capacityCm3": 4094286
+          "capacityCm3": 3313071
         },
         "fuelConsumptionLPer100Km": 18
       },
@@ -630,7 +629,7 @@
         "label": "Vehículo 05",
         "capacity": {
           "kind": "PARCELS",
-          "capacityCm3": 3176855
+          "capacityCm3": 3313071
         },
         "fuelConsumptionLPer100Km": 18
       },
@@ -639,7 +638,7 @@
         "label": "Vehículo 06",
         "capacity": {
           "kind": "PARCELS",
-          "capacityCm3": 3419265
+          "capacityCm3": 4247527
         },
         "fuelConsumptionLPer100Km": 18
       },
@@ -648,7 +647,7 @@
         "label": "Vehículo 07",
         "capacity": {
           "kind": "PARCELS",
-          "capacityCm3": 4247527
+          "capacityCm3": 3847988
         },
         "fuelConsumptionLPer100Km": 18
       },
@@ -657,7 +656,7 @@
         "label": "Vehículo 08",
         "capacity": {
           "kind": "PARCELS",
-          "capacityCm3": 4247527
+          "capacityCm3": 3518562
         },
         "fuelConsumptionLPer100Km": 18
       }
@@ -667,12 +666,12 @@
         "id": "route-calibrated-01",
         "truckId": "vehicle-01",
         "departureMinute": 0,
-        "returnMinute": 180,
+        "returnMinute": 120,
         "stops": [
           {
             "storeId": "delivery-001",
-            "plannedArrivalMinute": 80,
-            "plannedDepartureMinute": 81,
+            "plannedArrivalMinute": 70,
+            "plannedDepartureMinute": 71,
             "cargo": {
               "kind": "PARCELS",
               "packageCount": 1,
@@ -681,8 +680,8 @@
           },
           {
             "storeId": "delivery-002",
-            "plannedArrivalMinute": 104,
-            "plannedDepartureMinute": 105,
+            "plannedArrivalMinute": 91,
+            "plannedDepartureMinute": 92,
             "cargo": {
               "kind": "PARCELS",
               "packageCount": 1,
@@ -691,8 +690,8 @@
           },
           {
             "storeId": "delivery-003",
-            "plannedArrivalMinute": 107,
-            "plannedDepartureMinute": 108,
+            "plannedArrivalMinute": 94,
+            "plannedDepartureMinute": 95,
             "cargo": {
               "kind": "PARCELS",
               "packageCount": 1,
@@ -701,32 +700,32 @@
           },
           {
             "storeId": "delivery-004",
-            "plannedArrivalMinute": 111,
-            "plannedDepartureMinute": 115,
+            "plannedArrivalMinute": 98,
+            "plannedDepartureMinute": 104,
             "cargo": {
               "kind": "PARCELS",
-              "packageCount": 29,
-              "volumeCm3": 888927
+              "packageCount": 23,
+              "volumeCm3": 801672
             }
           },
           {
             "storeId": "delivery-005",
-            "plannedArrivalMinute": 168,
-            "plannedDepartureMinute": 169,
+            "plannedArrivalMinute": 106,
+            "plannedDepartureMinute": 108,
             "cargo": {
               "kind": "PARCELS",
               "packageCount": 1,
-              "volumeCm3": 11787
+              "volumeCm3": 2174
             }
           },
           {
             "storeId": "delivery-006",
-            "plannedArrivalMinute": 171,
-            "plannedDepartureMinute": 172,
+            "plannedArrivalMinute": 110,
+            "plannedDepartureMinute": 112,
             "cargo": {
               "kind": "PARCELS",
               "packageCount": 1,
-              "volumeCm3": 227
+              "volumeCm3": 22489
             }
           }
         ],
@@ -736,96 +735,96 @@
         "id": "route-calibrated-02",
         "truckId": "vehicle-02",
         "departureMinute": 3,
-        "returnMinute": 98,
+        "returnMinute": 116,
         "stops": [
           {
             "storeId": "delivery-007",
             "plannedArrivalMinute": 8,
-            "plannedDepartureMinute": 10,
+            "plannedDepartureMinute": 9,
             "cargo": {
               "kind": "PARCELS",
               "packageCount": 1,
-              "volumeCm3": 3260
+              "volumeCm3": 227
             }
           },
           {
             "storeId": "delivery-008",
-            "plannedArrivalMinute": 12,
-            "plannedDepartureMinute": 13,
+            "plannedArrivalMinute": 11,
+            "plannedDepartureMinute": 12,
             "cargo": {
               "kind": "PARCELS",
               "packageCount": 1,
-              "volumeCm3": 80792
+              "volumeCm3": 628
             }
           },
           {
             "storeId": "delivery-009",
-            "plannedArrivalMinute": 14,
-            "plannedDepartureMinute": 15,
+            "plannedArrivalMinute": 13,
+            "plannedDepartureMinute": 35,
             "cargo": {
               "kind": "PARCELS",
               "packageCount": 1,
-              "volumeCm3": 1641
+              "volumeCm3": 13731
             }
           },
           {
             "storeId": "delivery-010",
-            "plannedArrivalMinute": 16,
-            "plannedDepartureMinute": 18,
+            "plannedArrivalMinute": 36,
+            "plannedDepartureMinute": 37,
             "cargo": {
               "kind": "PARCELS",
               "packageCount": 1,
-              "volumeCm3": 1853
+              "volumeCm3": 4356
             }
           },
           {
             "storeId": "delivery-011",
-            "plannedArrivalMinute": 19,
-            "plannedDepartureMinute": 20,
+            "plannedArrivalMinute": 38,
+            "plannedDepartureMinute": 39,
             "cargo": {
               "kind": "PARCELS",
               "packageCount": 1,
-              "volumeCm3": 3486
+              "volumeCm3": 433
             }
           },
           {
             "storeId": "delivery-012",
-            "plannedArrivalMinute": 22,
-            "plannedDepartureMinute": 23,
+            "plannedArrivalMinute": 41,
+            "plannedDepartureMinute": 102,
             "cargo": {
               "kind": "PARCELS",
               "packageCount": 1,
-              "volumeCm3": 283
+              "volumeCm3": 9766
             }
           },
           {
             "storeId": "delivery-013",
-            "plannedArrivalMinute": 25,
-            "plannedDepartureMinute": 26,
+            "plannedArrivalMinute": 104,
+            "plannedDepartureMinute": 105,
             "cargo": {
               "kind": "PARCELS",
               "packageCount": 1,
-              "volumeCm3": 8477
+              "volumeCm3": 4935
             }
           },
           {
             "storeId": "delivery-014",
-            "plannedArrivalMinute": 29,
-            "plannedDepartureMinute": 31,
+            "plannedArrivalMinute": 108,
+            "plannedDepartureMinute": 110,
             "cargo": {
               "kind": "PARCELS",
               "packageCount": 1,
-              "volumeCm3": 1037
+              "volumeCm3": 5689
             }
           },
           {
             "storeId": "delivery-015",
-            "plannedArrivalMinute": 32,
-            "plannedDepartureMinute": 33,
+            "plannedArrivalMinute": 111,
+            "plannedDepartureMinute": 112,
             "cargo": {
               "kind": "PARCELS",
               "packageCount": 1,
-              "volumeCm3": 4244
+              "volumeCm3": 1746
             }
           }
         ],
@@ -835,76 +834,76 @@
         "id": "route-calibrated-03",
         "truckId": "vehicle-03",
         "departureMinute": 3,
-        "returnMinute": 113,
+        "returnMinute": 36,
         "stops": [
           {
             "storeId": "delivery-016",
             "plannedArrivalMinute": 9,
-            "plannedDepartureMinute": 11,
+            "plannedDepartureMinute": 10,
             "cargo": {
               "kind": "PARCELS",
               "packageCount": 1,
-              "volumeCm3": 13771
+              "volumeCm3": 4244
             }
           },
           {
             "storeId": "delivery-017",
-            "plannedArrivalMinute": 13,
-            "plannedDepartureMinute": 15,
+            "plannedArrivalMinute": 12,
+            "plannedDepartureMinute": 14,
             "cargo": {
               "kind": "PARCELS",
               "packageCount": 1,
-              "volumeCm3": 10218
+              "volumeCm3": 186678
             }
           },
           {
             "storeId": "delivery-018",
-            "plannedArrivalMinute": 17,
-            "plannedDepartureMinute": 94,
+            "plannedArrivalMinute": 15,
+            "plannedDepartureMinute": 17,
             "cargo": {
               "kind": "PARCELS",
               "packageCount": 1,
-              "volumeCm3": 382
+              "volumeCm3": 11878
             }
           },
           {
             "storeId": "delivery-019",
-            "plannedArrivalMinute": 96,
-            "plannedDepartureMinute": 98,
+            "plannedArrivalMinute": 19,
+            "plannedDepartureMinute": 20,
             "cargo": {
               "kind": "PARCELS",
               "packageCount": 1,
-              "volumeCm3": 1278
+              "volumeCm3": 11120
             }
           },
           {
             "storeId": "delivery-020",
-            "plannedArrivalMinute": 101,
-            "plannedDepartureMinute": 102,
+            "plannedArrivalMinute": 23,
+            "plannedDepartureMinute": 24,
             "cargo": {
               "kind": "PARCELS",
               "packageCount": 1,
-              "volumeCm3": 12478
+              "volumeCm3": 249723
             }
           },
           {
             "storeId": "delivery-021",
-            "plannedArrivalMinute": 103,
-            "plannedDepartureMinute": 104,
+            "plannedArrivalMinute": 25,
+            "plannedDepartureMinute": 27,
             "cargo": {
               "kind": "PARCELS",
               "packageCount": 1,
-              "volumeCm3": 1103
+              "volumeCm3": 10797
             }
           },
           {
             "storeId": "delivery-022",
-            "plannedArrivalMinute": 106,
-            "plannedDepartureMinute": 107,
+            "plannedArrivalMinute": 29,
+            "plannedDepartureMinute": 30,
             "cargo": {
               "kind": "PARCELS",
               "packageCount": 1,
-              "volumeCm3": 179498
+              "volumeCm3": 10985
             }
           }
         ],
@@ -914,7 +913,7 @@
         "id": "route-calibrated-04",
         "truckId": "vehicle-04",
         "departureMinute": 7,
-        "returnMinute": 127,
+        "returnMinute": 261,
         "stops": [
           {
             "storeId": "delivery-023",
@@ -923,77 +922,77 @@
             "cargo": {
               "kind": "PARCELS",
               "packageCount": 1,
-              "volumeCm3": 2796
+              "volumeCm3": 11491
             }
           },
           {
             "storeId": "delivery-024",
             "plannedArrivalMinute": 16,
-            "plannedDepartureMinute": 17,
+            "plannedDepartureMinute": 18,
             "cargo": {
               "kind": "PARCELS",
               "packageCount": 1,
-              "volumeCm3": 247595
+              "volumeCm3": 10094
             }
           },
           {
             "storeId": "delivery-025",
-            "plannedArrivalMinute": 75,
-            "plannedDepartureMinute": 76,
+            "plannedArrivalMinute": 96,
+            "plannedDepartureMinute": 97,
             "cargo": {
               "kind": "PARCELS",
               "packageCount": 1,
-              "volumeCm3": 5657
+              "volumeCm3": 6029
             }
           },
           {
             "storeId": "delivery-026",
-            "plannedArrivalMinute": 78,
-            "plannedDepartureMinute": 107,
+            "plannedArrivalMinute": 99,
+            "plannedDepartureMinute": 149,
             "cargo": {
               "kind": "PARCELS",
               "packageCount": 1,
-              "volumeCm3": 290681
+              "volumeCm3": 10399
             }
           },
           {
             "storeId": "delivery-027",
-            "plannedArrivalMinute": 109,
-            "plannedDepartureMinute": 110,
+            "plannedArrivalMinute": 241,
+            "plannedDepartureMinute": 243,
             "cargo": {
               "kind": "PARCELS",
               "packageCount": 1,
-              "volumeCm3": 2942
+              "volumeCm3": 2790
             }
           },
           {
             "storeId": "delivery-028",
-            "plannedArrivalMinute": 112,
-            "plannedDepartureMinute": 113,
+            "plannedArrivalMinute": 244,
+            "plannedDepartureMinute": 246,
             "cargo": {
               "kind": "PARCELS",
               "packageCount": 1,
-              "volumeCm3": 3762
+              "volumeCm3": 9710
             }
           },
           {
             "storeId": "delivery-029",
-            "plannedArrivalMinute": 116,
-            "plannedDepartureMinute": 119,
+            "plannedArrivalMinute": 249,
+            "plannedDepartureMinute": 253,
             "cargo": {
               "kind": "PARCELS",
-              "packageCount": 5,
-              "volumeCm3": 26836
+              "packageCount": 1,
+              "volumeCm3": 180346
             }
           },
           {
             "storeId": "delivery-030",
-            "plannedArrivalMinute": 121,
-            "plannedDepartureMinute": 122,
+            "plannedArrivalMinute": 255,
+            "plannedDepartureMinute": 256,
             "cargo": {
               "kind": "PARCELS",
               "packageCount": 1,
-              "volumeCm3": 3209
+              "volumeCm3": 225713
             }
           }
         ],
@@ -1003,7 +1002,7 @@
         "id": "route-calibrated-05",
         "truckId": "vehicle-05",
         "departureMinute": 7,
-        "returnMinute": 41,
+        "returnMinute": 39,
         "stops": [
           {
             "storeId": "delivery-031",
@@ -1012,57 +1011,57 @@
             "cargo": {
               "kind": "PARCELS",
               "packageCount": 1,
-              "volumeCm3": 10671
+              "volumeCm3": 34
             }
           },
           {
             "storeId": "delivery-032",
             "plannedArrivalMinute": 16,
-            "plannedDepartureMinute": 17,
+            "plannedDepartureMinute": 18,
             "cargo": {
               "kind": "PARCELS",
               "packageCount": 1,
-              "volumeCm3": 2026
+              "volumeCm3": 2901
             }
           },
           {
             "storeId": "delivery-033",
-            "plannedArrivalMinute": 19,
+            "plannedArrivalMinute": 20,
             "plannedDepartureMinute": 21,
             "cargo": {
               "kind": "PARCELS",
               "packageCount": 1,
-              "volumeCm3": 6414
+              "volumeCm3": 12058
             }
           },
           {
             "storeId": "delivery-034",
-            "plannedArrivalMinute": 24,
-            "plannedDepartureMinute": 28,
+            "plannedArrivalMinute": 23,
+            "plannedDepartureMinute": 24,
             "cargo": {
               "kind": "PARCELS",
               "packageCount": 1,
-              "volumeCm3": 1005
+              "volumeCm3": 5524
             }
           },
           {
             "storeId": "delivery-035",
-            "plannedArrivalMinute": 29,
-            "plannedDepartureMinute": 30,
+            "plannedArrivalMinute": 25,
+            "plannedDepartureMinute": 27,
             "cargo": {
               "kind": "PARCELS",
               "packageCount": 1,
-              "volumeCm3": 3852
+              "volumeCm3": 9216
             }
           },
           {
             "storeId": "delivery-036",
-            "plannedArrivalMinute": 32,
-            "plannedDepartureMinute": 35,
+            "plannedArrivalMinute": 29,
+            "plannedDepartureMinute": 33,
             "cargo": {
               "kind": "PARCELS",
               "packageCount": 1,
-              "volumeCm3": 9233
+              "volumeCm3": 10839
             }
           }
         ],
@@ -1072,106 +1071,106 @@
         "id": "route-calibrated-06",
         "truckId": "vehicle-06",
         "departureMinute": 8,
-        "returnMinute": 211,
+        "returnMinute": 95,
         "stops": [
           {
             "storeId": "delivery-037",
             "plannedArrivalMinute": 12,
-            "plannedDepartureMinute": 14,
+            "plannedDepartureMinute": 13,
             "cargo": {
               "kind": "PARCELS",
               "packageCount": 1,
-              "volumeCm3": 20676
+              "volumeCm3": 2954
             }
           },
           {
             "storeId": "delivery-038",
-            "plannedArrivalMinute": 16,
-            "plannedDepartureMinute": 109,
+            "plannedArrivalMinute": 15,
+            "plannedDepartureMinute": 17,
             "cargo": {
               "kind": "PARCELS",
               "packageCount": 1,
-              "volumeCm3": 24905
+              "volumeCm3": 2966
             }
           },
           {
             "storeId": "delivery-039",
-            "plannedArrivalMinute": 111,
-            "plannedDepartureMinute": 112,
+            "plannedArrivalMinute": 19,
+            "plannedDepartureMinute": 20,
             "cargo": {
               "kind": "PARCELS",
               "packageCount": 1,
-              "volumeCm3": 14335
+              "volumeCm3": 385
             }
           },
           {
             "storeId": "delivery-040",
-            "plannedArrivalMinute": 114,
-            "plannedDepartureMinute": 116,
+            "plannedArrivalMinute": 22,
+            "plannedDepartureMinute": 24,
             "cargo": {
               "kind": "PARCELS",
               "packageCount": 1,
-              "volumeCm3": 1188
+              "volumeCm3": 1396
             }
           },
           {
             "storeId": "delivery-041",
-            "plannedArrivalMinute": 117,
-            "plannedDepartureMinute": 119,
+            "plannedArrivalMinute": 25,
+            "plannedDepartureMinute": 28,
             "cargo": {
               "kind": "PARCELS",
               "packageCount": 1,
-              "volumeCm3": 12995
+              "volumeCm3": 15993
             }
           },
           {
             "storeId": "delivery-042",
-            "plannedArrivalMinute": 121,
-            "plannedDepartureMinute": 123,
+            "plannedArrivalMinute": 30,
+            "plannedDepartureMinute": 31,
             "cargo": {
               "kind": "PARCELS",
               "packageCount": 1,
-              "volumeCm3": 10345
+              "volumeCm3": 4854
             }
           },
           {
             "storeId": "delivery-043",
-            "plannedArrivalMinute": 125,
-            "plannedDepartureMinute": 128,
+            "plannedArrivalMinute": 33,
+            "plannedDepartureMinute": 35,
             "cargo": {
               "kind": "PARCELS",
               "packageCount": 1,
-              "volumeCm3": 25178
+              "volumeCm3": 23757
             }
           },
           {
             "storeId": "delivery-044",
-            "plannedArrivalMinute": 131,
-            "plannedDepartureMinute": 132,
+            "plannedArrivalMinute": 38,
+            "plannedDepartureMinute": 39,
             "cargo": {
               "kind": "PARCELS",
               "packageCount": 1,
-              "volumeCm3": 2107
+              "volumeCm3": 3929
             }
           },
           {
             "storeId": "delivery-045",
-            "plannedArrivalMinute": 134,
-            "plannedDepartureMinute": 135,
+            "plannedArrivalMinute": 41,
+            "plannedDepartureMinute": 43,
             "cargo": {
               "kind": "PARCELS",
               "packageCount": 1,
-              "volumeCm3": 2451
+              "volumeCm3": 7017
             }
           },
           {
             "storeId": "delivery-046",
-            "plannedArrivalMinute": 204,
-            "plannedDepartureMinute": 205,
+            "plannedArrivalMinute": 88,
+            "plannedDepartureMinute": 89,
             "cargo": {
               "kind": "PARCELS",
               "packageCount": 1,
-              "volumeCm3": 16259
+              "volumeCm3": 272
             }
           }
         ],
@@ -1181,7 +1180,7 @@
         "id": "route-calibrated-07",
         "truckId": "vehicle-07",
         "departureMinute": 10,
-        "returnMinute": 93,
+        "returnMinute": 115,
         "stops": [
           {
             "storeId": "delivery-047",
@@ -1190,67 +1189,67 @@
             "cargo": {
               "kind": "PARCELS",
               "packageCount": 1,
-              "volumeCm3": 4112
+              "volumeCm3": 2451
             }
           },
           {
             "storeId": "delivery-048",
-            "plannedArrivalMinute": 18,
-            "plannedDepartureMinute": 19,
+            "plannedArrivalMinute": 77,
+            "plannedDepartureMinute": 78,
             "cargo": {
               "kind": "PARCELS",
               "packageCount": 1,
-              "volumeCm3": 58042
+              "volumeCm3": 16259
             }
           },
           {
             "storeId": "delivery-049",
-            "plannedArrivalMinute": 21,
-            "plannedDepartureMinute": 23,
+            "plannedArrivalMinute": 80,
+            "plannedDepartureMinute": 81,
             "cargo": {
               "kind": "PARCELS",
               "packageCount": 1,
-              "volumeCm3": 2476
+              "volumeCm3": 16732
             }
           },
           {
             "storeId": "delivery-050",
-            "plannedArrivalMinute": 27,
-            "plannedDepartureMinute": 29,
+            "plannedArrivalMinute": 94,
+            "plannedDepartureMinute": 95,
             "cargo": {
               "kind": "PARCELS",
               "packageCount": 1,
-              "volumeCm3": 3459
+              "volumeCm3": 937
             }
           },
           {
             "storeId": "delivery-051",
-            "plannedArrivalMinute": 30,
-            "plannedDepartureMinute": 77,
+            "plannedArrivalMinute": 96,
+            "plannedDepartureMinute": 98,
             "cargo": {
               "kind": "PARCELS",
               "packageCount": 1,
-              "volumeCm3": 2447
+              "volumeCm3": 17453
             }
           },
           {
             "storeId": "delivery-052",
-            "plannedArrivalMinute": 82,
-            "plannedDepartureMinute": 83,
+            "plannedArrivalMinute": 103,
+            "plannedDepartureMinute": 104,
             "cargo": {
               "kind": "PARCELS",
-              "packageCount": 21,
-              "volumeCm3": 427250
+              "packageCount": 16,
+              "volumeCm3": 546730
             }
           },
           {
             "storeId": "delivery-053",
-            "plannedArrivalMinute": 85,
-            "plannedDepartureMinute": 86,
+            "plannedArrivalMinute": 106,
+            "plannedDepartureMinute": 108,
             "cargo": {
               "kind": "PARCELS",
               "packageCount": 1,
-              "volumeCm3": 4345
+              "volumeCm3": 7319
             }
           }
         ],
@@ -1260,7 +1259,7 @@
         "id": "route-calibrated-08",
         "truckId": "vehicle-08",
         "departureMinute": 18,
-        "returnMinute": 268,
+        "returnMinute": 134,
         "stops": [
           {
             "storeId": "delivery-054",
@@ -1269,7 +1268,7 @@
             "cargo": {
               "kind": "PARCELS",
               "packageCount": 1,
-              "volumeCm3": 2157
+              "volumeCm3": 3265
             }
           },
           {
@@ -1279,57 +1278,57 @@
             "cargo": {
               "kind": "PARCELS",
               "packageCount": 1,
-              "volumeCm3": 17024
+              "volumeCm3": 24246
             }
           },
           {
             "storeId": "delivery-056",
-            "plannedArrivalMinute": 127,
-            "plannedDepartureMinute": 129,
+            "plannedArrivalMinute": 31,
+            "plannedDepartureMinute": 32,
             "cargo": {
               "kind": "PARCELS",
-              "packageCount": 5,
-              "volumeCm3": 158704
+              "packageCount": 1,
+              "volumeCm3": 4345
             }
           },
           {
             "storeId": "delivery-057",
-            "plannedArrivalMinute": 131,
-            "plannedDepartureMinute": 132,
+            "plannedArrivalMinute": 72,
+            "plannedDepartureMinute": 73,
             "cargo": {
               "kind": "PARCELS",
               "packageCount": 1,
-              "volumeCm3": 313
+              "volumeCm3": 2775
             }
           },
           {
             "storeId": "delivery-058",
-            "plannedArrivalMinute": 134,
-            "plannedDepartureMinute": 211,
+            "plannedArrivalMinute": 75,
+            "plannedDepartureMinute": 78,
             "cargo": {
               "kind": "PARCELS",
               "packageCount": 1,
-              "volumeCm3": 4656
+              "volumeCm3": 6291
             }
           },
           {
             "storeId": "delivery-059",
-            "plannedArrivalMinute": 214,
-            "plannedDepartureMinute": 215,
+            "plannedArrivalMinute": 81,
+            "plannedDepartureMinute": 124,
             "cargo": {
               "kind": "PARCELS",
               "packageCount": 1,
-              "volumeCm3": 4701
+              "volumeCm3": 2064
             }
           },
           {
             "storeId": "delivery-060",
-            "plannedArrivalMinute": 218,
-            "plannedDepartureMinute": 220,
+            "plannedArrivalMinute": 127,
+            "plannedDepartureMinute": 128,
             "cargo": {
               "kind": "PARCELS",
               "packageCount": 1,
-              "volumeCm3": 7910
+              "volumeCm3": 3103
             }
           }
         ],
