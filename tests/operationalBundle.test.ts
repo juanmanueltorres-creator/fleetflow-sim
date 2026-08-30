@@ -123,6 +123,21 @@ describe('operational bundle loading', () => {
     expect(bundle.context).toEqual({ status: 'omitted' })
   })
 
+  it('does not require V2 binding metadata for a V1 shared route asset', async () => {
+    const run = runFixture('fleetflow-v0.5', 'cordoba-2026-08-31-v2')
+    const routes = routesFor(run.scenario)
+
+    await expect(loadOperationalBundle({
+      entry: v1Entry(run),
+      manifestUrl: './data/operational-runs/manifest.json',
+      legacyRouteAsset: './data/cordoba-calibrated-routes.geojson',
+      fetcher: fetchMap({
+        './data/operational-runs/generated/cordoba-2026-08-31-v2.json': run,
+        './data/cordoba-calibrated-routes.geojson': routes,
+      }),
+    })).resolves.toMatchObject({ run, routes })
+  })
+
   it('loads V2 with matching per-run routes', async () => {
     const run = runFixture('fleetflow-v0.6', 'cordoba-2026-08-31-v3')
     const routes = routesFor(run.scenario, {
