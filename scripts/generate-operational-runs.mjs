@@ -211,6 +211,14 @@ function main() {
             : 'Synthetic/calibrated replay; not observed Córdoba delivery data.',
           `${weeklyProfile.dayLabel}: ${weeklyProfile.intensityLabel}; weekly demand and travel cadence profile.`,
         ],
+        operationalProfile: {
+          day: weeklyProfile.day,
+          dayLabel: weeklyProfile.dayLabel,
+          intensityLabel: weeklyProfile.intensityLabel,
+          demandMultiplier: weeklyProfile.demandMultiplier,
+          travelTimeMultiplier: weeklyProfile.travelTimeMultiplier,
+          summary: weeklyProfile.summary,
+        },
       },
       scenario,
     }
