@@ -8,7 +8,7 @@ on:
       - .github/workflows/prepare-routes.yml
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   prepare:
@@ -19,36 +19,14 @@ jobs:
         with:
           node-version: 22
       - run: npm install --no-audit --no-fund
-      - name: Generate provisional scenario with independent geography seed
-        run: |
-          node scripts/generate-calibrated-scenario.mjs \
-            --profile src/scenario/calibration/amazon-last-mile-v1.json \
-            --routes public/data/cordoba-calibrated-routes.geojson \
-            --output /tmp/cordoba-provisional.json \
-            --seed fleetflow-cordoba-v0.4
-      - name: Prepare calibrated routes for new coordinates
-        run: |
-          node scripts/prepare-routes.mjs \
-            --scenario /tmp/cordoba-provisional.json \
-            --output public/data/cordoba-calibrated-routes.geojson
-      - name: Generate final calibrated scenario against reconciled routes
-        run: npm run generate:calibrated
-      - name: Commit reconciled calibrated data
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add public/data/cordoba-calibrated-routes.geojson
-          git add src/scenario/generated/cordoba-calibrated-v1.json
-          if git diff --cached --quiet; then
-            echo "Calibrated data already matches the independent geography seed."
-          else
-            git commit -m "data: decouple calibrated geography seed"
-            git push
-          fi
+      - run: npm run prepare:routes
+      - run: npm run prepare:routes:calibrated
+      - run: npm run generate:calibrated
       - uses: actions/upload-artifact@v4
         with:
           name: prepared-route-assets
           path: |
+            public/data/coca-coqui-routes.geojson
             public/data/cordoba-calibrated-routes.geojson
             src/scenario/generated/cordoba-calibrated-v1.json
           if-no-files-found: error
