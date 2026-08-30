@@ -19,6 +19,10 @@
   color: #d7c9b2;
 }
 
+.scenario-provenance > .scenario-provenance-run-summary {
+  color: var(--color-bone-bright);
+}
+
 .scenario-provenance details {
   margin-top: 0.12rem;
   color: var(--color-muted);

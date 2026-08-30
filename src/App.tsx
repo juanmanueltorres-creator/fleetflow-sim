@@ -310,7 +310,7 @@ export default function App() {
       <div className="interface-frame">
         <div className="top-rail">
           <header className="brand-card">
-            <p className="eyebrow">Visual fleet simulation · V0.4</p>
+            <p className="eyebrow">Operational timeline simulation · V0.5</p>
             <h1>FleetFlow Sim</h1>
             <p>{activeScenario?.label ?? activeDefinition.label}</p>
             <ScenarioSwitcher value={scenarioId} onChange={changeScenario} />
@@ -343,7 +343,10 @@ export default function App() {
           <aside className="operations-panel">
             <KpiPanel metrics={metrics} />
             <FleetPanel scenario={activeScenario} snapshot={snapshot} />
-            <ScenarioProvenance provenance={activeDefinition.provenance} />
+            <ScenarioProvenance
+              provenance={activeDefinition.provenance}
+              runMode={activeRun?.mode}
+            />
           </aside>
         ) : null}
       </div>
