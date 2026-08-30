@@ -107,8 +107,10 @@ describe('operational run switching', () => {
       (_, index) => routePackageTotal(run31.scenario, index) !== routePackageTotal(run30.scenario, index),
     )
     expect(differingRouteIndex).toBeGreaterThanOrEqual(0)
-    const truckLabel = run31.scenario.trucks[differingRouteIndex].label
-    const truckCard = screen.getByText(truckLabel).closest('article')
+    const differingRoute = run31.scenario.routes[differingRouteIndex]
+    const truck = run31.scenario.trucks.find((candidate) => candidate.id === differingRoute.truckId)
+    expect(truck).toBeDefined()
+    const truckCard = screen.getByText(truck?.label ?? '').closest('article')
     expect(truckCard).not.toBeNull()
     const packageCount = routePackageTotal(run31.scenario, differingRouteIndex)
     expect(within(truckCard as HTMLElement).getByText(`${packageCount} ${packageCount === 1 ? 'paquete' : 'paquetes'}`)).toBeInTheDocument()
