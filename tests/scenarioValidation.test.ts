@@ -51,4 +51,30 @@ describe('Coca Coqui V0 scenario', () => {
       expect.stringMatching(/duplicate truck id/i),
     )
   })
+
+  it('rejects nonnumeric parcel cargo values from runtime scenario data', () => {
+    const invalidScenario = structuredClone(cocaCoquiScenario) as FleetScenario
+    const parcelTruck = invalidScenario.trucks[0]
+    const parcelStop = invalidScenario.routes[0].stops[0]
+
+    parcelTruck.capacity = { kind: 'PARCELS', capacityCm3: 1_000_000 }
+    parcelStop.cargo = {
+      kind: 'PARCELS',
+      packageCount: '3',
+      volumeCm3: '200',
+    } as unknown as typeof parcelStop.cargo
+
+    expect(validateScenario(invalidScenario)).toContainEqual(
+      expect.stringMatching(/parcel cargo/i),
+    )
+  })
+
+  it('rejects time windows that begin before the simulation', () => {
+    const invalidScenario = structuredClone(cocaCoquiScenario) as FleetScenario
+    invalidScenario.stores[0].timeWindow = { startMinute: -10, endMinute: 5 }
+
+    expect(validateScenario(invalidScenario)).toContainEqual(
+      expect.stringMatching(/invalid time window/i),
+    )
+  })
 })
