@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { FleetPanel } from './components/FleetPanel'
 import { KpiPanel } from './components/KpiPanel'
 import { OperationalDateRail } from './components/OperationalDateRail'
+import { OperationalExplainer } from './components/OperationalExplainer'
 import { ScenarioProvenance } from './components/ScenarioProvenance'
 import { ScenarioSwitcher } from './components/ScenarioSwitcher'
 import { SimulationClock } from './components/SimulationClock'
@@ -340,13 +341,8 @@ export default function App() {
         {activeScenario && snapshot && metrics ? (
           <aside className="operations-panel">
             <KpiPanel metrics={metrics} />
-            {timeline ? (
-              <section className="operational-explainer" aria-labelledby="operational-explainer-title">
-                <h2 id="operational-explainer-title">Qué estás viendo</h2>
-                <p>
-                  Acá la base del mapa no cambia: cambian las condiciones de la jornada. Por eso podés ver cómo se reparte el trabajo entre vehículos, cuánto tarda cada circuito y cómo se mueve la flota según la carga de ese día.
-                </p>
-              </section>
+            {timeline && activeRun ? (
+              <OperationalExplainer targetDate={activeRun.targetDate} />
             ) : null}
             <FleetPanel scenario={activeScenario} snapshot={snapshot} />
             <ScenarioProvenance
