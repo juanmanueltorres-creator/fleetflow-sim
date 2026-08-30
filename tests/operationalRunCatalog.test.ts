@@ -3,6 +3,8 @@ import type {
   OperationalRun,
   OperationalRunManifest,
   OperationalRunManifestEntry,
+  OperationalRunManifestEntryV2,
+  OperationalRunManifestV2,
 } from '../src/scenario/operationalRuns/types'
 import {
   loadOperationalRun,
@@ -32,6 +34,30 @@ function entry(overrides: Partial<OperationalRunManifestEntry> = {}): Operationa
 
 function manifest(runs: OperationalRunManifestEntry[] = [entry()]): OperationalRunManifest {
   return { schemaVersion: 1, runs }
+}
+
+function entryV2(
+  overrides: Partial<OperationalRunManifestEntryV2> = {},
+): OperationalRunManifestEntryV2 {
+  return {
+    id: 'cordoba-2026-08-31-v3',
+    targetDate: '2026-08-31',
+    issuedAt: '2026-08-30T21:00:00-03:00',
+    dataAsOf: '2026-08-30T21:00:00-03:00',
+    mode: 'FORECAST',
+    scenarioId: 'cordoba-calibrated',
+    modelVersion: 'fleetflow-v0.6',
+    artifact: './generated/cordoba-2026-08-31-v3.json',
+    routeArtifact: './generated/cordoba-2026-08-31-v3.routes.geojson',
+    contextArtifact: './generated/cordoba-2026-08-31-v3.context.json',
+    ...overrides,
+  }
+}
+
+function manifestV2(
+  runs: OperationalRunManifestEntryV2[] = [entryV2()],
+): OperationalRunManifestV2 {
+  return { schemaVersion: 2, runs }
 }
 
 function run(overrides: Partial<OperationalRun> = {}): OperationalRun {
@@ -65,6 +91,11 @@ describe('operational run manifest validation', () => {
   it('accepts a valid manifest', () => {
     expect(validateOperationalRunManifest(manifest())).toEqual([])
     expect(requireValidOperationalRunManifest(manifest()).runs).toHaveLength(1)
+  })
+
+  it('accepts manifest V2 entries with a required route artifact', () => {
+    expect(validateOperationalRunManifest(manifestV2())).toEqual([])
+    expect(requireValidOperationalRunManifest(manifestV2()).schemaVersion).toBe(2)
   })
 
   it('rejects unsupported schema versions and non-array runs', () => {
