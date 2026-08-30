@@ -88,10 +88,10 @@ export async function loadOperationalBundle(
 ): Promise<OperationalBundle> {
   const fetcher = options.fetcher ?? fetch
   const run = await loadOperationalRun(options.entry, options.manifestUrl, fetcher)
+  const v2Entry = isV2Entry(options.entry) ? options.entry : null
 
-  const v2 = isV2Entry(options.entry)
-  const routeUrl = v2
-    ? resolveOperationalArtifactUrl(options.manifestUrl, options.entry.routeArtifact, 'route')
+  const routeUrl = v2Entry
+    ? resolveOperationalArtifactUrl(options.manifestUrl, v2Entry.routeArtifact, 'route')
     : options.legacyRouteAsset
 
   if (!routeUrl) {
@@ -100,16 +100,16 @@ export async function loadOperationalBundle(
 
   const routes = await loadRouteCollection(routeUrl, fetcher)
   routeCollectionToIndex(routes, run.scenario)
-  if (v2) {
+  if (v2Entry) {
     assertRouteCollectionMatchesRun(routes, run)
   }
 
   let context: OperationalContextLoadState = { status: 'omitted' }
-  if (v2 && options.entry.contextArtifact) {
+  if (v2Entry?.contextArtifact) {
     try {
       const url = resolveOperationalArtifactUrl(
         options.manifestUrl,
-        options.entry.contextArtifact,
+        v2Entry.contextArtifact,
         'context',
       )
       const response = await fetcher(url)
