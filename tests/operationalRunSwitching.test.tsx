@@ -87,10 +87,10 @@ describe('operational run switching', () => {
     expect(await screen.findByTestId('fleet-map')).toHaveTextContent(`return-total:${returnTotal(run30.scenario)}`)
     expect(fetchMock.mock.calls[0]?.[0]).toBe(MANIFEST_URL)
     expect(fetchMock.mock.calls[1]?.[0]).toBe(RUN_30_URL)
-    expect(screen.getByRole('button', { name: /30 AGO 2026, SIMULATED/i })).toHaveAttribute('aria-current', 'date')
+    expect(screen.getByRole('button', { name: /30 DE AGO DE 2026, SIMULATED/i })).toHaveAttribute('aria-current', 'date')
 
     fireEvent.click(screen.getByRole('button', { name: 'Play simulation' }))
-    fireEvent.click(screen.getByRole('button', { name: /31 AGO 2026, FORECAST/i }))
+    fireEvent.click(screen.getByRole('button', { name: /31 DE AGO DE 2026, FORECAST/i }))
 
     expect(screen.getByText('06:00')).toBeInTheDocument()
     expect(screen.getByText('Paused')).toBeInTheDocument()
@@ -100,7 +100,7 @@ describe('operational run switching', () => {
     run31Response.resolve(jsonResponse(run31))
 
     expect(await screen.findByTestId('fleet-map')).toHaveTextContent(`return-total:${returnTotal(run31.scenario)}`)
-    expect(screen.getByRole('button', { name: /31 AGO 2026, FORECAST/i })).toHaveAttribute('aria-current', 'date')
+    expect(screen.getByRole('button', { name: /31 DE AGO DE 2026, FORECAST/i })).toHaveAttribute('aria-current', 'date')
     expect(screen.getByRole('region', { name: 'Resumen de la flota' })).toBeInTheDocument()
 
     const differingRouteIndex = run31.scenario.routes.findIndex(
@@ -130,7 +130,7 @@ describe('operational run switching', () => {
     render(<App />)
     expect(await screen.findByTestId('fleet-map')).toBeInTheDocument()
 
-    fireEvent.click(screen.getByRole('button', { name: /31 AGO 2026, FORECAST/i }))
+    fireEvent.click(screen.getByRole('button', { name: /31 DE AGO DE 2026, FORECAST/i }))
 
     expect(await screen.findByRole('alert')).toHaveTextContent('Operational run unavailable.')
     expect(screen.queryByTestId('fleet-map')).not.toBeInTheDocument()

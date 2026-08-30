@@ -51,7 +51,7 @@ describe('FleetFlow app shell', () => {
 
     expect(await screen.findByText('Córdoba Last-Mile Calibrado')).toBeInTheDocument()
     expect(screen.getByRole('navigation', { name: 'Operational dates' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /30 AGO 2026, SIMULATED/i })).toHaveAttribute('aria-current', 'date')
+    expect(screen.getByRole('button', { name: /30 DE AGO DE 2026, SIMULATED/i })).toHaveAttribute('aria-current', 'date')
     expect(await screen.findByTestId('fleet-map')).toBeInTheDocument()
   })
 })
