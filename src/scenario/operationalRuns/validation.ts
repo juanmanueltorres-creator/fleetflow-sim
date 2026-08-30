@@ -3,6 +3,7 @@ import type { FleetScenario } from '../../domain/types'
 import { SCENARIO_IDS } from '../scenarioRegistry'
 import {
   OPERATIONAL_RUN_MODES,
+  type OperationalProfileProvenance,
   type OperationalRun,
 } from './types'
 
@@ -157,7 +158,7 @@ function isNonEmptyString(value: unknown): value is string {
   return typeof value === 'string' && value.trim() !== ''
 }
 
-function isOperationalProfileShape(value: unknown): boolean {
+function isOperationalProfileShape(value: unknown): value is OperationalProfileProvenance {
   return isRecord(value)
     && Number.isInteger(value.day)
     && isFiniteNumber(value.day)
@@ -248,11 +249,16 @@ export function validateOperationalRun(value: unknown): string[] {
       errors.push('Operational run provenance notes are invalid')
     }
 
-    if (
-      value.provenance.operationalProfile !== undefined
-      && !isOperationalProfileShape(value.provenance.operationalProfile)
-    ) {
-      errors.push('Operational run provenance operational profile is invalid')
+    const operationalProfile = value.provenance.operationalProfile
+    if (operationalProfile !== undefined) {
+      if (!isOperationalProfileShape(operationalProfile)) {
+        errors.push('Operational run provenance operational profile is invalid')
+      } else if (
+        isRealIsoDate(value.targetDate)
+        && operationalProfile.day !== new Date(`${value.targetDate}T00:00:00Z`).getUTCDay()
+      ) {
+        errors.push('Operational run provenance operational profile day does not match targetDate')
+      }
     }
   }
 
