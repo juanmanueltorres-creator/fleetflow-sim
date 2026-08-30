@@ -1,7 +1,9 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { dirname, resolve } from 'node:path'
-import length from '@turf/length'
-import { lineString } from '@turf/helpers'
+import {
+  prepareRouteCollection,
+  prepareRouteDefinitions,
+} from './lib/route-preparation.mjs'
 
 const legacyDepot = [-64.1888, -31.4201]
 const legacyRoutes = [
@@ -32,11 +34,15 @@ const legacyRoutes = [
   },
 ]
 
-const baseUrl = (process.env.OSRM_BASE_URL ?? 'https://router.project-osrm.org').replace(/\/$/, '')
+const baseUrl = process.env.OSRM_BASE_URL ?? 'https://router.project-osrm.org'
 
 function parseArgs(argv) {
   if (argv.length === 0) {
-    return { scenarioPath: null, outputPath: 'public/data/coca-coqui-routes.geojson' }
+    return {
+      scenarioPath: null,
+      outputPath: 'public/data/coca-coqui-routes.geojson',
+      metadata: undefined,
+    }
   }
 
   const args = new Map()
@@ -50,142 +56,46 @@ function parseArgs(argv) {
   const scenarioPath = args.get('--scenario')
   const outputPath = args.get('--output')
   if (!scenarioPath || !outputPath) {
-    throw new Error('Usage: node scripts/prepare-routes.mjs --scenario <file> --output <file>')
+    throw new Error(
+      'Usage: node scripts/prepare-routes.mjs --scenario <file> --output <file> [--run-id <id> --target-date <date> --model-version <version>]',
+    )
   }
 
-  return { scenarioPath: resolve(scenarioPath), outputPath }
-}
+  const runId = args.get('--run-id')
+  const targetDate = args.get('--target-date')
+  const modelVersion = args.get('--model-version')
+  const bindingCount = [runId, targetDate, modelVersion].filter(Boolean).length
 
-function appendCoordinates(target, coordinates) {
-  for (const coordinate of coordinates) {
-    const previous = target[target.length - 1]
-    if (!previous || previous[0] !== coordinate[0] || previous[1] !== coordinate[1]) {
-      target.push(coordinate)
-    }
-  }
-}
-
-function geometryLengthKm(coordinates) {
-  if (coordinates.length < 2) return 0
-  return length(lineString(coordinates), { units: 'kilometers' })
-}
-
-function buildGeometryFromLegs(truckId, legs) {
-  const routeCoordinates = []
-  const waypointDistancesKm = [0]
-
-  for (const leg of legs) {
-    if (!Array.isArray(leg.steps) || leg.steps.length === 0) {
-      throw new Error(`${truckId}: every route leg requires OSRM step geometry`)
-    }
-
-    for (const step of leg.steps) {
-      if (step.geometry?.type !== 'LineString' || !Array.isArray(step.geometry.coordinates)) {
-        throw new Error(`${truckId}: every route step requires GeoJSON LineString geometry`)
-      }
-      appendCoordinates(routeCoordinates, step.geometry.coordinates)
-    }
-
-    waypointDistancesKm.push(geometryLengthKm(routeCoordinates))
+  if (bindingCount !== 0 && bindingCount !== 3) {
+    throw new Error('--run-id, --target-date and --model-version must be provided together')
   }
 
   return {
-    geometry: {
-      type: 'LineString',
-      coordinates: routeCoordinates,
-    },
-    waypointDistancesKm,
-  }
-}
-
-function routeDefinitionsFromScenario(scenario) {
-  const storeById = new Map(scenario.stores.map((store) => [store.id, store]))
-
-  return scenario.routes.map((routePlan) => ({
-    truckId: routePlan.truckId,
-    geometryId: routePlan.geometryId,
-    coordinates: [
-      scenario.depot.position,
-      ...routePlan.stops.map((stop) => {
-        const store = storeById.get(stop.storeId)
-        if (!store) throw new Error(`Missing store ${stop.storeId}`)
-        return store.position
-      }),
-      scenario.depot.position,
-    ],
-  }))
-}
-
-async function prepareRoute({ truckId, geometryId, coordinates }) {
-  const coordinatePath = coordinates.map(([longitude, latitude]) => `${longitude},${latitude}`).join(';')
-  const url = `${baseUrl}/route/v1/driving/${coordinatePath}?overview=false&geometries=geojson&steps=true`
-  const response = await fetch(url, {
-    headers: { 'user-agent': 'fleetflow-sim route preparation' },
-  })
-
-  if (!response.ok) {
-    throw new Error(`${truckId}: routing request failed with HTTP ${response.status}`)
-  }
-
-  const payload = await response.json()
-  const route = payload?.routes?.[0]
-
-  if (payload?.code !== 'Ok' || !route) {
-    throw new Error(`${truckId}: routing response did not contain a route`)
-  }
-
-  const expectedLegs = coordinates.length - 1
-  if (!Array.isArray(route.legs) || route.legs.length !== expectedLegs) {
-    throw new Error(`${truckId}: expected ${expectedLegs} route legs`)
-  }
-
-  const { geometry, waypointDistancesKm } = buildGeometryFromLegs(truckId, route.legs)
-  if (waypointDistancesKm.length !== coordinates.length) {
-    throw new Error(`${truckId}: route waypoint count must match input coordinates`)
-  }
-  if (waypointDistancesKm.some((value) => typeof value !== 'number' || !Number.isFinite(value))) {
-    throw new Error(`${truckId}: route waypoint distances must be finite numbers`)
-  }
-  if (waypointDistancesKm.some((value, index) => index > 0 && value < waypointDistancesKm[index - 1])) {
-    throw new Error(`${truckId}: route waypoint distances must be non-decreasing`)
-  }
-  if ((waypointDistancesKm.at(-1) ?? 0) <= 0) {
-    throw new Error(`${truckId}: route must have positive distance`)
-  }
-
-  return {
-    type: 'Feature',
-    id: geometryId,
-    properties: {
-      truckId,
-      waypointDistancesKm,
-    },
-    geometry,
+    scenarioPath: resolve(scenarioPath),
+    outputPath,
+    metadata: bindingCount === 3
+      ? { runId, targetDate, modelVersion }
+      : undefined,
   }
 }
 
 async function main() {
-  const { scenarioPath, outputPath } = parseArgs(process.argv.slice(2))
-  let routes = legacyRoutes
+  const { scenarioPath, outputPath, metadata } = parseArgs(process.argv.slice(2))
 
-  if (scenarioPath) {
-    const scenario = JSON.parse(await readFile(scenarioPath, 'utf8'))
-    routes = routeDefinitionsFromScenario(scenario)
-  }
-
-  const features = []
-  for (const route of routes) {
-    features.push(await prepareRoute(route))
-  }
-
-  const collection = {
-    type: 'FeatureCollection',
-    features,
-  }
+  const collection = scenarioPath
+    ? await prepareRouteCollection({
+        scenario: JSON.parse(await readFile(scenarioPath, 'utf8')),
+        baseUrl,
+        metadata,
+      })
+    : await prepareRouteDefinitions({
+        definitions: legacyRoutes,
+        baseUrl,
+      })
 
   await mkdir(dirname(outputPath), { recursive: true })
   await writeFile(outputPath, `${JSON.stringify(collection)}\n`, 'utf8')
-  console.log(`Prepared ${features.length} static road routes at ${outputPath}`)
+  console.log(`Prepared ${collection.features.length} static road routes at ${outputPath}`)
 }
 
 await main()
