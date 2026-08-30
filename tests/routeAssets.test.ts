@@ -186,6 +186,14 @@ describe('scenario-driven route geometry', () => {
     )).toThrow(/non-decreasing/i)
   })
 
+  it('fails closed when waypoint distances are not finite numbers', () => {
+    const collection = makeVariableCollection()
+    collection.features[0].properties.waypointDistancesKm = [0, '1.2', 2.4, 3.1] as unknown as number[]
+
+    expect(() => routeAssets.routeCollectionToIndex(collection, variableScenario))
+      .toThrow(/finite numbers/i)
+  })
+
   it('fails closed when final route distance is not positive', () => {
     expect(() => routeAssets.routeCollectionToIndex(
       makeVariableCollection([0, 0, 0, 0]),
