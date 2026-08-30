@@ -58,7 +58,10 @@ export function OperationalDateRail({
               onClick={() => onSelect(entry.id)}
             >
               <strong>{shortDateLabel(entry.targetDate)}</strong>
-              <span>{entry.targetDate === today ? 'TODAY' : entry.mode}</span>
+              <span>
+                {entry.mode}
+                {entry.targetDate === today ? <span> TODAY</span> : null}
+              </span>
             </button>
           ))}
         </div>
