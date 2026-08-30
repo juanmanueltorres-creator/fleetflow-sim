@@ -1,0 +1,46 @@
+name: Generate V0.6 candidate pool
+
+on:
+  push:
+    branches:
+      - feat/v0.6-daily-spatial-demand
+    paths:
+      - .github/workflows/generate-v06-candidate-pool.yml
+
+permissions:
+  contents: read
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Download archived Cordoba GTFS
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/fleetflow-cordoba-gtfs
+          curl --fail --location --retry 3 \
+            'https://transit.land/api/v2/rest/feeds/f-cordoba~ar/download_latest_feed_version' \
+            --output /tmp/fleetflow-cordoba-gtfs.zip
+          unzip -p /tmp/fleetflow-cordoba-gtfs.zip stops.txt > /tmp/fleetflow-cordoba-gtfs/stops.txt
+          test -s /tmp/fleetflow-cordoba-gtfs/stops.txt
+          sha256sum /tmp/fleetflow-cordoba-gtfs.zip
+          wc -l /tmp/fleetflow-cordoba-gtfs/stops.txt
+
+      - name: Generate candidate pool
+        run: |
+          node scripts/generate-candidate-pool.mjs \
+            --stops /tmp/fleetflow-cordoba-gtfs/stops.txt \
+            --output /tmp/candidate-pool-v1.json
+          node -e "const p=require('/tmp/candidate-pool-v1.json'); const z=Object.groupBy(p.candidates,c=>c.zoneId); console.log(p.candidates.length, Object.fromEntries(Object.entries(z).map(([k,v])=>[k,v.length])))"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fleetflow-v06-candidate-pool
+          path: /tmp/candidate-pool-v1.json
+          if-no-files-found: error
