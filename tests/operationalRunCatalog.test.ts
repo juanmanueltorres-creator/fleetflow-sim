@@ -191,6 +191,16 @@ describe('operational run catalog selection and loading', () => {
     await expect(loadOperationalRun(entry(), manifestUrl, unavailable)).rejects.toThrow(/artifact.*404/i)
   })
 
+  it('rejects an invalid operational run artifact after a successful fetch', async () => {
+    const payload = run()
+    payload.provenance.seed = ''
+    const fetcher = vi.fn(async () => jsonResponse(payload))
+
+    await expect(loadOperationalRun(entry(), manifestUrl, fetcher)).rejects.toThrow(
+      /operational run is invalid.*seed/i,
+    )
+  })
+
   it.each([
     ['id', 'other-run'],
     ['targetDate', '2026-09-01'],
