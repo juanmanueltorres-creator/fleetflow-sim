@@ -13,7 +13,8 @@ const SCENARIO_ID = 'cordoba-calibrated'
 const MODEL_VERSION = 'fleetflow-v0.5'
 const GENERATOR = 'daily-calibrated-v1'
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/
-const ISO_TIMESTAMP_WITH_ZONE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/
+const ISO_TIMESTAMP_WITH_ZONE = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.\d+)?(Z|[+-]\d{2}:\d{2})$/
+const RUN_SUFFIX = /^[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*$/
 
 function parseArgs(argv) {
   const args = {}
@@ -73,9 +74,35 @@ function operationalDates(from, to) {
 }
 
 function requireIsoTimestampWithZone(value, label) {
-  if (!ISO_TIMESTAMP_WITH_ZONE.test(value) || !Number.isFinite(Date.parse(value))) {
+  const match = ISO_TIMESTAMP_WITH_ZONE.exec(value)
+  if (!match) {
     throw new Error(`Invalid ${label}: expected ISO timestamp with explicit zone`)
   }
+
+  const [, yearText, monthText, dayText, hourText, minuteText, secondText, zone] = match
+  const hour = Number(hourText)
+  const minute = Number(minuteText)
+  const second = Number(secondText)
+
+  if (!isRealIsoDate(`${yearText}-${monthText}-${dayText}`)
+    || hour > 23
+    || minute > 59
+    || second > 59) {
+    throw new Error(`Invalid ${label}: expected ISO timestamp with explicit zone`)
+  }
+
+  if (zone !== 'Z') {
+    const offsetHour = Number(zone.slice(1, 3))
+    const offsetMinute = Number(zone.slice(4, 6))
+    if (offsetHour > 23 || offsetMinute > 59) {
+      throw new Error(`Invalid ${label}: expected ISO timestamp with explicit zone`)
+    }
+  }
+
+  if (!Number.isFinite(Date.parse(value))) {
+    throw new Error(`Invalid ${label}: expected ISO timestamp with explicit zone`)
+  }
+
   return value
 }
 
@@ -107,7 +134,7 @@ function main() {
   if (Date.parse(dataAsOf) > Date.parse(issuedAt)) {
     throw new Error('Invalid data-as-of: cannot be later than issued-at')
   }
-  if (!/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(runSuffix) || runSuffix.includes('..')) {
+  if (!RUN_SUFFIX.test(runSuffix)) {
     throw new Error('Invalid run-suffix')
   }
 
