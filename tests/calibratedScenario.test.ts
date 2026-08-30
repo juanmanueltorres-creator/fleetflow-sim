@@ -35,6 +35,16 @@ function legSpeedKmh(distanceKm: number, durationMinutes: number): number {
   return distanceKm / (durationMinutes / 60)
 }
 
+function runGenerator(profile: string, output: string): void {
+  execFileSync(process.execPath, [
+    generatorPath,
+    '--profile', profile,
+    '--routes', routeAssetPath,
+    '--output', output,
+    '--seed', canonicalSeed,
+  ])
+}
+
 describe('calibrated Cordoba scenario generator', () => {
   it('ships the canonical 8-vehicle, 60-stop, 100-package scenario', () => {
     expect(existsSync(generatorPath)).toBe(true)
@@ -100,6 +110,27 @@ describe('calibrated Cordoba scenario generator', () => {
     ], { stdio: 'pipe' })).toThrow(/finite numbers/i)
   })
 
+  it('keeps store coordinates stable when operational profile sampling changes', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'fleetflow-geography-rng-'))
+    tempDirs.push(dir)
+    const baselinePath = join(dir, 'baseline.json')
+    const modifiedPath = join(dir, 'modified.json')
+    const modifiedProfilePath = join(dir, 'profile.json')
+    const modifiedProfile = JSON.parse(readFileSync(profilePath, 'utf8'))
+    modifiedProfile.distributions.timeWindowProbability = 0
+    writeFileSync(modifiedProfilePath, JSON.stringify(modifiedProfile), 'utf8')
+
+    runGenerator(profilePath, baselinePath)
+    runGenerator(modifiedProfilePath, modifiedPath)
+
+    const baseline = JSON.parse(readFileSync(baselinePath, 'utf8')) as FleetScenario
+    const modified = JSON.parse(readFileSync(modifiedPath, 'utf8')) as FleetScenario
+
+    expect(modified.stores.map((store) => store.position)).toEqual(
+      baseline.stores.map((store) => store.position),
+    )
+  })
+
   it('reproduces the checked-in scenario exactly from the official profile, Cordoba routes and canonical seed', () => {
     expect(existsSync(generatorPath)).toBe(true)
     expect(existsSync(checkedInPath)).toBe(true)
@@ -110,13 +141,7 @@ describe('calibrated Cordoba scenario generator', () => {
     tempDirs.push(dir)
     const generatedPath = join(dir, 'cordoba-calibrated-v1.json')
 
-    execFileSync(process.execPath, [
-      generatorPath,
-      '--profile', profilePath,
-      '--routes', routeAssetPath,
-      '--output', generatedPath,
-      '--seed', canonicalSeed,
-    ])
+    runGenerator(profilePath, generatedPath)
 
     const generated = JSON.parse(readFileSync(generatedPath, 'utf8'))
     const checkedIn = JSON.parse(readFileSync(checkedInPath, 'utf8'))
