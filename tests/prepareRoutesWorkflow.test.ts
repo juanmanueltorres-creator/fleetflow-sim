@@ -22,6 +22,7 @@ describe('prepare-routes workflow', () => {
     const workflow = await readFile(workflowPath, 'utf8')
 
     expect(workflow).toContain('- scripts/generate-calibrated-scenario.mjs')
+    expect(workflow).toContain('- scripts/lib/calibrated-scenario-generator.mjs')
     expect(workflow).toContain('- src/scenario/calibration/amazon-last-mile-v1.json')
     expect(workflow).toContain('- public/data/cordoba-calibrated-routes.geojson')
     expect(workflow).toContain('- package.json')
