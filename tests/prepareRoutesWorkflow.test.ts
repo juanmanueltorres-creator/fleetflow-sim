@@ -8,7 +8,7 @@ describe('prepare-routes workflow', () => {
   it('reconciles generated coordinates with calibrated routes before final scenario generation', async () => {
     const workflow = await readFile(workflowPath, 'utf8')
 
-    const provisionalGeneration = workflow.indexOf('npm run generate:calibrated -- --output /tmp/cordoba-provisional.json')
+    const provisionalGeneration = workflow.indexOf('npm run generate:calibrated -- --mode provisional --output /tmp/cordoba-provisional.json')
     const calibratedRoutePreparation = workflow.indexOf('--scenario /tmp/cordoba-provisional.json')
     const finalGeneration = workflow.lastIndexOf('npm run generate:calibrated')
 
