@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { describe, expect, it, vi } from 'vitest'
 import type {
   OperationalRun,
@@ -91,6 +93,21 @@ describe('operational run manifest validation', () => {
   it('accepts a valid manifest', () => {
     expect(validateOperationalRunManifest(manifest())).toEqual([])
     expect(requireValidOperationalRunManifest(manifest()).runs).toHaveLength(1)
+  })
+
+  it('keeps the checked-in V0.5 manifest valid as schema V1', () => {
+    const checkedIn = JSON.parse(
+      readFileSync(
+        resolve(process.cwd(), 'public/data/operational-runs/manifest.json'),
+        'utf8',
+      ),
+    )
+
+    expect(checkedIn.schemaVersion).toBe(1)
+    expect(validateOperationalRunManifest(checkedIn)).toEqual([])
+    expect(
+      checkedIn.runs.every((manifestRun: Record<string, unknown>) => !('routeArtifact' in manifestRun)),
+    ).toBe(true)
   })
 
   it('accepts manifest V2 entries with a required route artifact', () => {
