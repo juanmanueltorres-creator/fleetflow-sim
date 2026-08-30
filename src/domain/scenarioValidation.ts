@@ -3,6 +3,15 @@ import type { FleetScenario } from './types'
 
 export function validateScenario(scenario: FleetScenario): string[] {
   const errors: string[] = []
+  const truckIds = new Set<string>()
+
+  for (const truck of scenario.trucks) {
+    if (truckIds.has(truck.id)) {
+      errors.push(`Duplicate truck id ${truck.id}`)
+    }
+    truckIds.add(truck.id)
+  }
+
   const stores = new Map(scenario.stores.map((store) => [store.id, store]))
   const trucks = new Map(scenario.trucks.map((truck) => [truck.id, truck]))
   const assignmentCounts = new Map(scenario.stores.map((store) => [store.id, 0]))
