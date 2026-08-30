@@ -12,6 +12,23 @@ const routeAsset = JSON.parse(
 ) as RouteGeometryCollection
 const routeIndex = routeCollectionToIndex(routeAsset, cocaCoquiScenario)
 
+function finalDistanceKm(geometryId: string): number {
+  const distances = routeIndex[geometryId].properties.waypointDistancesKm
+  return distances.at(-1) ?? 0
+}
+
+const expectedPlannedDistanceKm = cocaCoquiScenario.routes.reduce(
+  (total, route) => total + finalDistanceKm(route.geometryId),
+  0,
+)
+
+const trucksById = new Map(cocaCoquiScenario.trucks.map((truck) => [truck.id, truck]))
+const expectedFullFuelL = cocaCoquiScenario.routes.reduce((total, route) => {
+  const truck = trucksById.get(route.truckId)
+  if (!truck) throw new Error(`Missing test truck ${route.truckId}`)
+  return total + finalDistanceKm(route.geometryId) * truck.fuelConsumptionLPer100Km / 100
+}, 0)
+
 describe('fleet metrics', () => {
   it('reports completed deliveries, active trucks and geometry-backed planned distance', () => {
     const metrics = deriveFleetMetrics(
@@ -23,7 +40,7 @@ describe('fleet metrics', () => {
     expect(metrics.completedDeliveries).toBe(7)
     expect(metrics.totalDeliveries).toBe(15)
     expect(metrics.activeTrucks).toBe(5)
-    expect(metrics.plannedDistanceKm).toBeCloseTo(79.6945, 4)
+    expect(metrics.plannedDistanceKm).toBeCloseTo(expectedPlannedDistanceKm, 9)
   })
 
   it('reports the full geometry-backed estimated fuel use when the run is complete', () => {
@@ -35,6 +52,6 @@ describe('fleet metrics', () => {
 
     expect(metrics.completedDeliveries).toBe(15)
     expect(metrics.activeTrucks).toBe(0)
-    expect(metrics.estimatedFuelUsedL).toBeCloseTo(14.34501, 4)
+    expect(metrics.estimatedFuelUsedL).toBeCloseTo(expectedFullFuelL, 9)
   })
 })
