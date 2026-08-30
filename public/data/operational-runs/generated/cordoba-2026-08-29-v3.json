@@ -1,0 +1,1186 @@
+{
+  "id": "cordoba-2026-08-29-v3",
+  "targetDate": "2026-08-29",
+  "issuedAt": "2026-08-30T21:00:00-03:00",
+  "dataAsOf": "2026-08-30T21:00:00-03:00",
+  "mode": "SIMULATED",
+  "modelVersion": "fleetflow-v0.6",
+  "scenarioId": "cordoba-calibrated",
+  "provenance": {
+    "generator": "daily-spatial-demand-v1",
+    "seed": "fleetflow:v0.6:cordoba:2026-08-29:operations",
+    "notes": [
+      "Deterministic synthetic operational replay; not observed Córdoba delivery data.",
+      "GTFS structure informs synthetic spatial weighting; it is not parcel-demand truth.",
+      "Sábado: jornada liviana; weekly demand and travel cadence profile."
+    ],
+    "operationalProfile": {
+      "day": 6,
+      "dayLabel": "Sábado",
+      "intensityLabel": "jornada liviana",
+      "demandMultiplier": 0.88,
+      "travelTimeMultiplier": 0.94,
+      "summary": "Hay menos carga para repartir y los recorridos usan un ritmo algo más fluido que una jornada base."
+    },
+    "spatialDemand": {
+      "candidatePoolVersion": "cordoba-delivery-pool-v1",
+      "deliveryCount": 52,
+      "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319",
+      "demandSeed": "fleetflow:v0.6:cordoba:2026-08-29:demand",
+      "spatialSeed": "fleetflow:v0.6:cordoba:2026-08-29:spatial",
+      "operationsSeed": "fleetflow:v0.6:cordoba:2026-08-29:operations",
+      "assignmentSeed": "fleetflow:v0.6:cordoba:2026-08-29:assignment"
+    }
+  },
+  "scenario": {
+    "id": "cordoba-calibrated-v1",
+    "label": "Córdoba Last-Mile Calibrado",
+    "simulationStartLabel": "06:00",
+    "depot": {
+      "id": "depot-cordoba-calibrated",
+      "name": "Centro de distribución Córdoba",
+      "position": [
+        -64.1888,
+        -31.4201
+      ]
+    },
+    "stores": [
+      {
+        "id": "delivery-candidate-055",
+        "name": "Entrega 055",
+        "position": [
+          -64.183056,
+          -31.411604
+        ],
+        "serviceMinutes": 1
+      },
+      {
+        "id": "delivery-candidate-045",
+        "name": "Entrega 045",
+        "position": [
+          -64.178894,
+          -31.412131
+        ],
+        "serviceMinutes": 1
+      },
+      {
+        "id": "delivery-candidate-057",
+        "name": "Entrega 057",
+        "position": [
+          -64.175093,
+          -31.415416
+        ],
+        "serviceMinutes": 1
+      },
+      {
+        "id": "delivery-candidate-060",
+        "name": "Entrega 060",
+        "position": [
+          -64.161179,
+          -31.410278
+        ],
+        "serviceMinutes": 1
+      },
+      {
+        "id": "delivery-candidate-046",
+        "name": "Entrega 046",
+        "position": [
+          -64.15597,
+          -31.39062
+        ],
+        "serviceMinutes": 4
+      },
+      {
+        "id": "delivery-candidate-053",
+        "name": "Entrega 053",
+        "position": [
+          -64.144205,
+          -31.368835
+        ],
+        "serviceMinutes": 1
+      },
+      {
+        "id": "delivery-candidate-044",
+        "name": "Entrega 044",
+        "position": [
+          -64.147704,
+          -31.363866
+        ],
+        "serviceMinutes": 1
+      },
+      {
+        "id": "delivery-candidate-061",
+        "name": "Entrega 061",
+        "position": [
+          -64.179926,
+          -31.421651
+        ],
+        "serviceMinutes": 1
+      },
+      {
+        "id": "delivery-candidate-090",
+        "name": "Entrega 090",
+        "position": [
+          -64.175119,
+          -31.418242
+        ],
+        "serviceMinutes": 1
+      },
+      {
+        "id": "delivery-candidate-073",
+        "name": "Entrega 073",
+        "position": [
+          -64.166784,
+          -31.425076
+        ],
+        "serviceMinutes": 1
+      },
+      {
+        "id": "delivery-candidate-079",
+        "name": "Entrega 079",
+        "position": [
+          -64.155354,
+          -31.417303
+        ],
+        "serviceMinutes": 2
+      },
+      {
+        "id": "delivery-candidate-066",
+        "name": "Entrega 066",
+        "position": [
+          -64.156671,
+          -31.413903
+        ],
+        "serviceMinutes": 2
+      },
+      {
+        "id": "delivery-candidate-087",
+        "name": "Entrega 087",
+        "position": [
+          -64.151974,
+          -31.423081
+        ],
+        "serviceMinutes": 3
+      },
+      {
+        "id": "delivery-candidate-083",
+        "name": "Entrega 083",
+        "position": [
+          -64.131138,
+          -31.422877
+        ],
+        "serviceMinutes": 20
+      },
+      {
+        "id": "delivery-candidate-104",
+        "name": "Entrega 104",
+        "position": [
+          -64.184557,
+          -31.424807
+        ],
+        "serviceMinutes": 1
+      },
+      {
+        "id": "delivery-candidate-105",
+        "name": "Entrega 105",
+        "position": [
+          -64.168439,
+          -31.429433
+        ],
+        "serviceMinutes": 2
+      },
+      {
+        "id": "delivery-candidate-111",
+        "name": "Entrega 111",
+        "position": [
+          -64.166046,
+          -31.430134
+        ],
+        "serviceMinutes": 2
+      },
+      {
+        "id": "delivery-candidate-108",
+        "name": "Entrega 108",
+        "position": [
+          -64.170072,
+          -31.439116
+        ],
+        "serviceMinutes": 1
+      },
+      {
+        "id": "delivery-candidate-114",
+        "name": "Entrega 114",
+        "position": [
+          -64.162806,
+          -31.444288
+        ],
+        "serviceMinutes": 1
+      },
+      {
+        "id": "delivery-candidate-113",
+        "name": "Entrega 113",
+        "position": [
+          -64.137735,
+          -31.47694
+        ],
+        "serviceMinutes": 1
+      },
+      {
+        "id": "delivery-candidate-118",
+        "name": "Entrega 118",
+        "position": [
+          -64.136532,
+          -31.480619
+        ],
+        "serviceMinutes": 1
+      },
+      {
+        "id": "delivery-candidate-139",
+        "name": "Entrega 139",
+        "position": [
+          -64.192117,
+          -31.436113
+        ],
+        "serviceMinutes": 2
+      },
+      {
+        "id": "delivery-candidate-132",
+        "name": "Entrega 132",
+        "position": [
+          -64.197066,
+          -31.435592
+        ],
+        "serviceMinutes": 1
+      },
+      {
+        "id": "delivery-candidate-137",
+        "name": "Entrega 137",
+        "position": [
+          -64.194719,
+          -31.443731
+        ],
+        "serviceMinutes": 4
+      },
+      {
+        "id": "delivery-candidate-128",
+        "name": "Entrega 128",
+        "position": [
+          -64.193708,
+          -31.44475
+        ],
+        "serviceMinutes": 1
+      },
+      {
+        "id": "delivery-candidate-131",
+        "name": "Entrega 131",
+        "position": [
+          -64.191684,
+          -31.444268
+        ],
+        "serviceMinutes": 2
+      },
+      {
+        "id": "delivery-candidate-148",
+        "name": "Entrega 148",
+        "position": [
+          -64.188112,
+          -31.441177
+        ],
+        "serviceMinutes": 1
+      },
+      {
+        "id": "delivery-candidate-165",
+        "name": "Entrega 165",
+        "position": [
+          -64.18932,
+          -31.421266
+        ],
+        "serviceMinutes": 1
+      },
+      {
+        "id": "delivery-candidate-178",
+        "name": "Entrega 178",
+        "position": [
+          -64.192827,
+          -31.425324
+        ],
+        "serviceMinutes": 3
+      },
+      {
+        "id": "delivery-candidate-168",
+        "name": "Entrega 168",
+        "position": [
+          -64.192821,
+          -31.427774
+        ],
+        "serviceMinutes": 1
+      },
+      {
+        "id": "delivery-candidate-156",
+        "name": "Entrega 156",
+        "position": [
+          -64.200542,
+          -31.432343
+        ],
+        "serviceMinutes": 60
+      },
+      {
+        "id": "delivery-candidate-173",
+        "name": "Entrega 173",
+        "position": [
+          -64.209741,
+          -31.438746
+        ],
+        "serviceMinutes": 3
+      },
+      {
+        "id": "delivery-candidate-169",
+        "name": "Entrega 169",
+        "position": [
+          -64.245073,
+          -31.476638
+        ],
+        "serviceMinutes": 3
+      },
+      {
+        "id": "delivery-candidate-187",
+        "name": "Entrega 187",
+        "position": [
+          -64.205514,
+          -31.415534
+        ],
+        "serviceMinutes": 2
+      },
+      {
+        "id": "delivery-candidate-204",
+        "name": "Entrega 204",
+        "position": [
+          -64.206354,
+          -31.418537
+        ],
+        "serviceMinutes": 1
+      },
+      {
+        "id": "delivery-candidate-197",
+        "name": "Entrega 197",
+        "position": [
+          -64.224437,
+          -31.417537
+        ],
+        "serviceMinutes": 1
+      },
+      {
+        "id": "delivery-candidate-181",
+        "name": "Entrega 181",
+        "position": [
+          -64.249255,
+          -31.41459
+        ],
+        "serviceMinutes": 1
+      },
+      {
+        "id": "delivery-candidate-194",
+        "name": "Entrega 194",
+        "position": [
+          -64.265763,
+          -31.411086
+        ],
+        "serviceMinutes": 1
+      },
+      {
+        "id": "delivery-candidate-183",
+        "name": "Entrega 183",
+        "position": [
+          -64.264611,
+          -31.407855
+        ],
+        "serviceMinutes": 1
+      },
+      {
+        "id": "delivery-candidate-223",
+        "name": "Entrega 223",
+        "position": [
+          -64.21504,
+          -31.387096
+        ],
+        "serviceMinutes": 1
+      },
+      {
+        "id": "delivery-candidate-215",
+        "name": "Entrega 215",
+        "position": [
+          -64.217388,
+          -31.364192
+        ],
+        "serviceMinutes": 1
+      },
+      {
+        "id": "delivery-candidate-220",
+        "name": "Entrega 220",
+        "position": [
+          -64.231227,
+          -31.361302
+        ],
+        "serviceMinutes": 2
+      },
+      {
+        "id": "delivery-candidate-238",
+        "name": "Entrega 238",
+        "position": [
+          -64.241043,
+          -31.344746
+        ],
+        "serviceMinutes": 3
+      },
+      {
+        "id": "delivery-candidate-227",
+        "name": "Entrega 227",
+        "position": [
+          -64.256323,
+          -31.323417
+        ],
+        "serviceMinutes": 1
+      },
+      {
+        "id": "delivery-candidate-221",
+        "name": "Entrega 221",
+        "position": [
+          -64.2521,
+          -31.394834
+        ],
+        "serviceMinutes": 2
+      },
+      {
+        "id": "delivery-candidate-007",
+        "name": "Entrega 007",
+        "position": [
+          -64.187751,
+          -31.411678
+        ],
+        "serviceMinutes": 1
+      },
+      {
+        "id": "delivery-candidate-019",
+        "name": "Entrega 019",
+        "position": [
+          -64.183881,
+          -31.411938
+        ],
+        "serviceMinutes": 90
+      },
+      {
+        "id": "delivery-candidate-014",
+        "name": "Entrega 014",
+        "position": [
+          -64.192632,
+          -31.387516
+        ],
+        "serviceMinutes": 2
+      },
+      {
+        "id": "delivery-candidate-012",
+        "name": "Entrega 012",
+        "position": [
+          -64.174116,
+          -31.381896
+        ],
+        "serviceMinutes": 85
+      },
+      {
+        "id": "delivery-candidate-001",
+        "name": "Entrega 001",
+        "position": [
+          -64.17537,
+          -31.377634
+        ],
+        "serviceMinutes": 4
+      },
+      {
+        "id": "delivery-candidate-006",
+        "name": "Entrega 006",
+        "position": [
+          -64.184077,
+          -31.371868
+        ],
+        "serviceMinutes": 1
+      },
+      {
+        "id": "delivery-candidate-029",
+        "name": "Entrega 029",
+        "position": [
+          -64.207463,
+          -31.375053
+        ],
+        "serviceMinutes": 24
+      }
+    ],
+    "trucks": [
+      {
+        "id": "vehicle-01",
+        "label": "Vehículo 01",
+        "capacity": {
+          "kind": "PARCELS",
+          "capacityCm3": 4247527
+        },
+        "fuelConsumptionLPer100Km": 18
+      },
+      {
+        "id": "vehicle-02",
+        "label": "Vehículo 02",
+        "capacity": {
+          "kind": "PARCELS",
+          "capacityCm3": 3836037
+        },
+        "fuelConsumptionLPer100Km": 18
+      },
+      {
+        "id": "vehicle-03",
+        "label": "Vehículo 03",
+        "capacity": {
+          "kind": "PARCELS",
+          "capacityCm3": 4149537
+        },
+        "fuelConsumptionLPer100Km": 18
+      },
+      {
+        "id": "vehicle-04",
+        "label": "Vehículo 04",
+        "capacity": {
+          "kind": "PARCELS",
+          "capacityCm3": 3622970
+        },
+        "fuelConsumptionLPer100Km": 18
+      },
+      {
+        "id": "vehicle-05",
+        "label": "Vehículo 05",
+        "capacity": {
+          "kind": "PARCELS",
+          "capacityCm3": 4026069
+        },
+        "fuelConsumptionLPer100Km": 18
+      },
+      {
+        "id": "vehicle-06",
+        "label": "Vehículo 06",
+        "capacity": {
+          "kind": "PARCELS",
+          "capacityCm3": 3313071
+        },
+        "fuelConsumptionLPer100Km": 18
+      },
+      {
+        "id": "vehicle-07",
+        "label": "Vehículo 07",
+        "capacity": {
+          "kind": "PARCELS",
+          "capacityCm3": 3313071
+        },
+        "fuelConsumptionLPer100Km": 18
+      },
+      {
+        "id": "vehicle-08",
+        "label": "Vehículo 08",
+        "capacity": {
+          "kind": "PARCELS",
+          "capacityCm3": 3313071
+        },
+        "fuelConsumptionLPer100Km": 18
+      }
+    ],
+    "routes": [
+      {
+        "id": "route-cordoba-2026-08-29-v3-01",
+        "truckId": "vehicle-01",
+        "departureMinute": 0,
+        "returnMinute": 114,
+        "stops": [
+          {
+            "storeId": "delivery-candidate-055",
+            "plannedArrivalMinute": 3,
+            "plannedDepartureMinute": 4,
+            "cargo": {
+              "kind": "PARCELS",
+              "packageCount": 1,
+              "volumeCm3": 1449
+            }
+          },
+          {
+            "storeId": "delivery-candidate-045",
+            "plannedArrivalMinute": 83,
+            "plannedDepartureMinute": 84,
+            "cargo": {
+              "kind": "PARCELS",
+              "packageCount": 1,
+              "volumeCm3": 8040
+            }
+          },
+          {
+            "storeId": "delivery-candidate-057",
+            "plannedArrivalMinute": 85,
+            "plannedDepartureMinute": 86,
+            "cargo": {
+              "kind": "PARCELS",
+              "packageCount": 1,
+              "volumeCm3": 1268
+            }
+          },
+          {
+            "storeId": "delivery-candidate-060",
+            "plannedArrivalMinute": 88,
+            "plannedDepartureMinute": 89,
+            "cargo": {
+              "kind": "PARCELS",
+              "packageCount": 1,
+              "volumeCm3": 5162
+            }
+          },
+          {
+            "storeId": "delivery-candidate-046",
+            "plannedArrivalMinute": 93,
+            "plannedDepartureMinute": 97,
+            "cargo": {
+              "kind": "PARCELS",
+              "packageCount": 1,
+              "volumeCm3": 18875
+            }
+          },
+          {
+            "storeId": "delivery-candidate-053",
+            "plannedArrivalMinute": 101,
+            "plannedDepartureMinute": 102,
+            "cargo": {
+              "kind": "PARCELS",
+              "packageCount": 1,
+              "volumeCm3": 1430
+            }
+          },
+          {
+            "storeId": "delivery-candidate-044",
+            "plannedArrivalMinute": 104,
+            "plannedDepartureMinute": 105,
+            "cargo": {
+              "kind": "PARCELS",
+              "packageCount": 1,
+              "volumeCm3": 6087
+            }
+          }
+        ],
+        "geometryId": "route-cordoba-2026-08-29-v3-01"
+      },
+      {
+        "id": "route-cordoba-2026-08-29-v3-02",
+        "truckId": "vehicle-02",
+        "departureMinute": 8,
+        "returnMinute": 143,
+        "stops": [
+          {
+            "storeId": "delivery-candidate-061",
+            "plannedArrivalMinute": 10,
+            "plannedDepartureMinute": 11,
+            "cargo": {
+              "kind": "PARCELS",
+              "packageCount": 1,
+              "volumeCm3": 8042
+            }
+          },
+          {
+            "storeId": "delivery-candidate-090",
+            "plannedArrivalMinute": 94,
+            "plannedDepartureMinute": 95,
+            "cargo": {
+              "kind": "PARCELS",
+              "packageCount": 1,
+              "volumeCm3": 2136
+            }
+          },
+          {
+            "storeId": "delivery-candidate-073",
+            "plannedArrivalMinute": 98,
+            "plannedDepartureMinute": 99,
+            "cargo": {
+              "kind": "PARCELS",
+              "packageCount": 1,
+              "volumeCm3": 5229
+            }
+          },
+          {
+            "storeId": "delivery-candidate-079",
+            "plannedArrivalMinute": 102,
+            "plannedDepartureMinute": 104,
+            "cargo": {
+              "kind": "PARCELS",
+              "packageCount": 1,
+              "volumeCm3": 5172
+            }
+          },
+          {
+            "storeId": "delivery-candidate-066",
+            "plannedArrivalMinute": 106,
+            "plannedDepartureMinute": 108,
+            "cargo": {
+              "kind": "PARCELS",
+              "packageCount": 1,
+              "volumeCm3": 2893
+            }
+          },
+          {
+            "storeId": "delivery-candidate-087",
+            "plannedArrivalMinute": 110,
+            "plannedDepartureMinute": 113,
+            "cargo": {
+              "kind": "PARCELS",
+              "packageCount": 1,
+              "volumeCm3": 18209
+            }
+          },
+          {
+            "storeId": "delivery-candidate-083",
+            "plannedArrivalMinute": 116,
+            "plannedDepartureMinute": 136,
+            "cargo": {
+              "kind": "PARCELS",
+              "packageCount": 1,
+              "volumeCm3": 1106
+            }
+          }
+        ],
+        "geometryId": "route-cordoba-2026-08-29-v3-02"
+      },
+      {
+        "id": "route-cordoba-2026-08-29-v3-03",
+        "truckId": "vehicle-03",
+        "departureMinute": 12,
+        "returnMinute": 82,
+        "stops": [
+          {
+            "storeId": "delivery-candidate-104",
+            "plannedArrivalMinute": 13,
+            "plannedDepartureMinute": 14,
+            "cargo": {
+              "kind": "PARCELS",
+              "packageCount": 1,
+              "volumeCm3": 2962
+            }
+          },
+          {
+            "storeId": "delivery-candidate-105",
+            "plannedArrivalMinute": 18,
+            "plannedDepartureMinute": 20,
+            "cargo": {
+              "kind": "PARCELS",
+              "packageCount": 1,
+              "volumeCm3": 4699
+            }
+          },
+          {
+            "storeId": "delivery-candidate-111",
+            "plannedArrivalMinute": 21,
+            "plannedDepartureMinute": 23,
+            "cargo": {
+              "kind": "PARCELS",
+              "packageCount": 1,
+              "volumeCm3": 3350
+            }
+          },
+          {
+            "storeId": "delivery-candidate-108",
+            "plannedArrivalMinute": 57,
+            "plannedDepartureMinute": 58,
+            "cargo": {
+              "kind": "PARCELS",
+              "packageCount": 1,
+              "volumeCm3": 6461
+            }
+          },
+          {
+            "storeId": "delivery-candidate-114",
+            "plannedArrivalMinute": 60,
+            "plannedDepartureMinute": 61,
+            "cargo": {
+              "kind": "PARCELS",
+              "packageCount": 1,
+              "volumeCm3": 5764
+            }
+          },
+          {
+            "storeId": "delivery-candidate-113",
+            "plannedArrivalMinute": 68,
+            "plannedDepartureMinute": 69,
+            "cargo": {
+              "kind": "PARCELS",
+              "packageCount": 1,
+              "volumeCm3": 5056
+            }
+          },
+          {
+            "storeId": "delivery-candidate-118",
+            "plannedArrivalMinute": 70,
+            "plannedDepartureMinute": 71,
+            "cargo": {
+              "kind": "PARCELS",
+              "packageCount": 1,
+              "volumeCm3": 379
+            }
+          }
+        ],
+        "geometryId": "route-cordoba-2026-08-29-v3-03"
+      },
+      {
+        "id": "route-cordoba-2026-08-29-v3-04",
+        "truckId": "vehicle-04",
+        "departureMinute": 13,
+        "returnMinute": 39,
+        "stops": [
+          {
+            "storeId": "delivery-candidate-139",
+            "plannedArrivalMinute": 15,
+            "plannedDepartureMinute": 17,
+            "cargo": {
+              "kind": "PARCELS",
+              "packageCount": 1,
+              "volumeCm3": 1050
+            }
+          },
+          {
+            "storeId": "delivery-candidate-132",
+            "plannedArrivalMinute": 19,
+            "plannedDepartureMinute": 20,
+            "cargo": {
+              "kind": "PARCELS",
+              "packageCount": 1,
+              "volumeCm3": 1247
+            }
+          },
+          {
+            "storeId": "delivery-candidate-137",
+            "plannedArrivalMinute": 23,
+            "plannedDepartureMinute": 27,
+            "cargo": {
+              "kind": "PARCELS",
+              "packageCount": 1,
+              "volumeCm3": 8877
+            }
+          },
+          {
+            "storeId": "delivery-candidate-128",
+            "plannedArrivalMinute": 28,
+            "plannedDepartureMinute": 29,
+            "cargo": {
+              "kind": "PARCELS",
+              "packageCount": 1,
+              "volumeCm3": 7746
+            }
+          },
+          {
+            "storeId": "delivery-candidate-131",
+            "plannedArrivalMinute": 30,
+            "plannedDepartureMinute": 32,
+            "cargo": {
+              "kind": "PARCELS",
+              "packageCount": 21,
+              "volumeCm3": 256575
+            }
+          },
+          {
+            "storeId": "delivery-candidate-148",
+            "plannedArrivalMinute": 34,
+            "plannedDepartureMinute": 35,
+            "cargo": {
+              "kind": "PARCELS",
+              "packageCount": 1,
+              "volumeCm3": 19169
+            }
+          }
+        ],
+        "geometryId": "route-cordoba-2026-08-29-v3-04"
+      },
+      {
+        "id": "route-cordoba-2026-08-29-v3-05",
+        "truckId": "vehicle-05",
+        "departureMinute": 15,
+        "returnMinute": 153,
+        "stops": [
+          {
+            "storeId": "delivery-candidate-165",
+            "plannedArrivalMinute": 17,
+            "plannedDepartureMinute": 18,
+            "cargo": {
+              "kind": "PARCELS",
+              "packageCount": 1,
+              "volumeCm3": 1154
+            }
+          },
+          {
+            "storeId": "delivery-candidate-178",
+            "plannedArrivalMinute": 19,
+            "plannedDepartureMinute": 22,
+            "cargo": {
+              "kind": "PARCELS",
+              "packageCount": 11,
+              "volumeCm3": 371805
+            }
+          },
+          {
+            "storeId": "delivery-candidate-168",
+            "plannedArrivalMinute": 24,
+            "plannedDepartureMinute": 25,
+            "cargo": {
+              "kind": "PARCELS",
+              "packageCount": 1,
+              "volumeCm3": 1909
+            }
+          },
+          {
+            "storeId": "delivery-candidate-156",
+            "plannedArrivalMinute": 27,
+            "plannedDepartureMinute": 87,
+            "cargo": {
+              "kind": "PARCELS",
+              "packageCount": 1,
+              "volumeCm3": 6289
+            }
+          },
+          {
+            "storeId": "delivery-candidate-173",
+            "plannedArrivalMinute": 89,
+            "plannedDepartureMinute": 92,
+            "cargo": {
+              "kind": "PARCELS",
+              "packageCount": 1,
+              "volumeCm3": 18061
+            }
+          },
+          {
+            "storeId": "delivery-candidate-169",
+            "plannedArrivalMinute": 139,
+            "plannedDepartureMinute": 142,
+            "cargo": {
+              "kind": "PARCELS",
+              "packageCount": 1,
+              "volumeCm3": 258030
+            }
+          }
+        ],
+        "geometryId": "route-cordoba-2026-08-29-v3-05"
+      },
+      {
+        "id": "route-cordoba-2026-08-29-v3-06",
+        "truckId": "vehicle-06",
+        "departureMinute": 16,
+        "returnMinute": 48,
+        "stops": [
+          {
+            "storeId": "delivery-candidate-187",
+            "plannedArrivalMinute": 19,
+            "plannedDepartureMinute": 21,
+            "cargo": {
+              "kind": "PARCELS",
+              "packageCount": 1,
+              "volumeCm3": 2211
+            }
+          },
+          {
+            "storeId": "delivery-candidate-204",
+            "plannedArrivalMinute": 22,
+            "plannedDepartureMinute": 23,
+            "cargo": {
+              "kind": "PARCELS",
+              "packageCount": 1,
+              "volumeCm3": 6461
+            }
+          },
+          {
+            "storeId": "delivery-candidate-197",
+            "plannedArrivalMinute": 26,
+            "plannedDepartureMinute": 27,
+            "cargo": {
+              "kind": "PARCELS",
+              "packageCount": 1,
+              "volumeCm3": 2989
+            }
+          },
+          {
+            "storeId": "delivery-candidate-181",
+            "plannedArrivalMinute": 31,
+            "plannedDepartureMinute": 32,
+            "cargo": {
+              "kind": "PARCELS",
+              "packageCount": 1,
+              "volumeCm3": 4651
+            }
+          },
+          {
+            "storeId": "delivery-candidate-194",
+            "plannedArrivalMinute": 34,
+            "plannedDepartureMinute": 35,
+            "cargo": {
+              "kind": "PARCELS",
+              "packageCount": 1,
+              "volumeCm3": 18
+            }
+          },
+          {
+            "storeId": "delivery-candidate-183",
+            "plannedArrivalMinute": 36,
+            "plannedDepartureMinute": 37,
+            "cargo": {
+              "kind": "PARCELS",
+              "packageCount": 1,
+              "volumeCm3": 3407
+            }
+          }
+        ],
+        "geometryId": "route-cordoba-2026-08-29-v3-06"
+      },
+      {
+        "id": "route-cordoba-2026-08-29-v3-07",
+        "truckId": "vehicle-07",
+        "departureMinute": 16,
+        "returnMinute": 148,
+        "stops": [
+          {
+            "storeId": "delivery-candidate-223",
+            "plannedArrivalMinute": 23,
+            "plannedDepartureMinute": 24,
+            "cargo": {
+              "kind": "PARCELS",
+              "packageCount": 1,
+              "volumeCm3": 1043
+            }
+          },
+          {
+            "storeId": "delivery-candidate-215",
+            "plannedArrivalMinute": 108,
+            "plannedDepartureMinute": 109,
+            "cargo": {
+              "kind": "PARCELS",
+              "packageCount": 1,
+              "volumeCm3": 2835
+            }
+          },
+          {
+            "storeId": "delivery-candidate-220",
+            "plannedArrivalMinute": 111,
+            "plannedDepartureMinute": 113,
+            "cargo": {
+              "kind": "PARCELS",
+              "packageCount": 1,
+              "volumeCm3": 28438
+            }
+          },
+          {
+            "storeId": "delivery-candidate-238",
+            "plannedArrivalMinute": 117,
+            "plannedDepartureMinute": 120,
+            "cargo": {
+              "kind": "PARCELS",
+              "packageCount": 1,
+              "volumeCm3": 6447
+            }
+          },
+          {
+            "storeId": "delivery-candidate-227",
+            "plannedArrivalMinute": 125,
+            "plannedDepartureMinute": 126,
+            "cargo": {
+              "kind": "PARCELS",
+              "packageCount": 1,
+              "volumeCm3": 488
+            }
+          },
+          {
+            "storeId": "delivery-candidate-221",
+            "plannedArrivalMinute": 138,
+            "plannedDepartureMinute": 140,
+            "cargo": {
+              "kind": "PARCELS",
+              "packageCount": 1,
+              "volumeCm3": 14207
+            }
+          }
+        ],
+        "geometryId": "route-cordoba-2026-08-29-v3-07"
+      },
+      {
+        "id": "route-cordoba-2026-08-29-v3-08",
+        "truckId": "vehicle-08",
+        "departureMinute": 18,
+        "returnMinute": 313,
+        "stops": [
+          {
+            "storeId": "delivery-candidate-007",
+            "plannedArrivalMinute": 75,
+            "plannedDepartureMinute": 76,
+            "cargo": {
+              "kind": "PARCELS",
+              "packageCount": 1,
+              "volumeCm3": 16219
+            }
+          },
+          {
+            "storeId": "delivery-candidate-019",
+            "plannedArrivalMinute": 78,
+            "plannedDepartureMinute": 168,
+            "cargo": {
+              "kind": "PARCELS",
+              "packageCount": 1,
+              "volumeCm3": 6731
+            }
+          },
+          {
+            "storeId": "delivery-candidate-014",
+            "plannedArrivalMinute": 181,
+            "plannedDepartureMinute": 183,
+            "cargo": {
+              "kind": "PARCELS",
+              "packageCount": 1,
+              "volumeCm3": 16216
+            }
+          },
+          {
+            "storeId": "delivery-candidate-012",
+            "plannedArrivalMinute": 186,
+            "plannedDepartureMinute": 271,
+            "cargo": {
+              "kind": "PARCELS",
+              "packageCount": 1,
+              "volumeCm3": 9892
+            }
+          },
+          {
+            "storeId": "delivery-candidate-001",
+            "plannedArrivalMinute": 272,
+            "plannedDepartureMinute": 276,
+            "cargo": {
+              "kind": "PARCELS",
+              "packageCount": 1,
+              "volumeCm3": 176507
+            }
+          },
+          {
+            "storeId": "delivery-candidate-006",
+            "plannedArrivalMinute": 278,
+            "plannedDepartureMinute": 279,
+            "cargo": {
+              "kind": "PARCELS",
+              "packageCount": 9,
+              "volumeCm3": 267590
+            }
+          },
+          {
+            "storeId": "delivery-candidate-029",
+            "plannedArrivalMinute": 282,
+            "plannedDepartureMinute": 306,
+            "cargo": {
+              "kind": "PARCELS",
+              "packageCount": 1,
+              "volumeCm3": 24032
+            }
+          }
+        ],
+        "geometryId": "route-cordoba-2026-08-29-v3-08"
+      }
+    ]
+  }
+}

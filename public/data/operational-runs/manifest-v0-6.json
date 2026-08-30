@@ -1,0 +1,93 @@
+{
+  "schemaVersion": 2,
+  "runs": [
+    {
+      "id": "cordoba-2026-08-27-v3",
+      "targetDate": "2026-08-27",
+      "issuedAt": "2026-08-30T21:00:00-03:00",
+      "dataAsOf": "2026-08-30T21:00:00-03:00",
+      "mode": "SIMULATED",
+      "scenarioId": "cordoba-calibrated",
+      "modelVersion": "fleetflow-v0.6",
+      "artifact": "./generated/cordoba-2026-08-27-v3.json",
+      "routeArtifact": "./generated/cordoba-2026-08-27-v3.routes.geojson"
+    },
+    {
+      "id": "cordoba-2026-08-28-v3",
+      "targetDate": "2026-08-28",
+      "issuedAt": "2026-08-30T21:00:00-03:00",
+      "dataAsOf": "2026-08-30T21:00:00-03:00",
+      "mode": "SIMULATED",
+      "scenarioId": "cordoba-calibrated",
+      "modelVersion": "fleetflow-v0.6",
+      "artifact": "./generated/cordoba-2026-08-28-v3.json",
+      "routeArtifact": "./generated/cordoba-2026-08-28-v3.routes.geojson"
+    },
+    {
+      "id": "cordoba-2026-08-29-v3",
+      "targetDate": "2026-08-29",
+      "issuedAt": "2026-08-30T21:00:00-03:00",
+      "dataAsOf": "2026-08-30T21:00:00-03:00",
+      "mode": "SIMULATED",
+      "scenarioId": "cordoba-calibrated",
+      "modelVersion": "fleetflow-v0.6",
+      "artifact": "./generated/cordoba-2026-08-29-v3.json",
+      "routeArtifact": "./generated/cordoba-2026-08-29-v3.routes.geojson"
+    },
+    {
+      "id": "cordoba-2026-08-30-v3",
+      "targetDate": "2026-08-30",
+      "issuedAt": "2026-08-30T21:00:00-03:00",
+      "dataAsOf": "2026-08-30T21:00:00-03:00",
+      "mode": "SIMULATED",
+      "scenarioId": "cordoba-calibrated",
+      "modelVersion": "fleetflow-v0.6",
+      "artifact": "./generated/cordoba-2026-08-30-v3.json",
+      "routeArtifact": "./generated/cordoba-2026-08-30-v3.routes.geojson"
+    },
+    {
+      "id": "cordoba-2026-08-31-v3",
+      "targetDate": "2026-08-31",
+      "issuedAt": "2026-08-30T21:00:00-03:00",
+      "dataAsOf": "2026-08-30T21:00:00-03:00",
+      "mode": "FORECAST",
+      "scenarioId": "cordoba-calibrated",
+      "modelVersion": "fleetflow-v0.6",
+      "artifact": "./generated/cordoba-2026-08-31-v3.json",
+      "routeArtifact": "./generated/cordoba-2026-08-31-v3.routes.geojson"
+    },
+    {
+      "id": "cordoba-2026-09-01-v3",
+      "targetDate": "2026-09-01",
+      "issuedAt": "2026-08-30T21:00:00-03:00",
+      "dataAsOf": "2026-08-30T21:00:00-03:00",
+      "mode": "FORECAST",
+      "scenarioId": "cordoba-calibrated",
+      "modelVersion": "fleetflow-v0.6",
+      "artifact": "./generated/cordoba-2026-09-01-v3.json",
+      "routeArtifact": "./generated/cordoba-2026-09-01-v3.routes.geojson"
+    },
+    {
+      "id": "cordoba-2026-09-02-v3",
+      "targetDate": "2026-09-02",
+      "issuedAt": "2026-08-30T21:00:00-03:00",
+      "dataAsOf": "2026-08-30T21:00:00-03:00",
+      "mode": "FORECAST",
+      "scenarioId": "cordoba-calibrated",
+      "modelVersion": "fleetflow-v0.6",
+      "artifact": "./generated/cordoba-2026-09-02-v3.json",
+      "routeArtifact": "./generated/cordoba-2026-09-02-v3.routes.geojson"
+    },
+    {
+      "id": "cordoba-2026-09-03-v3",
+      "targetDate": "2026-09-03",
+      "issuedAt": "2026-08-30T21:00:00-03:00",
+      "dataAsOf": "2026-08-30T21:00:00-03:00",
+      "mode": "FORECAST",
+      "scenarioId": "cordoba-calibrated",
+      "modelVersion": "fleetflow-v0.6",
+      "artifact": "./generated/cordoba-2026-09-03-v3.json",
+      "routeArtifact": "./generated/cordoba-2026-09-03-v3.routes.geojson"
+    }
+  ]
+}
