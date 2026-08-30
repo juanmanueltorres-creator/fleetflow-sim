@@ -12,7 +12,15 @@
     "notes": [
       "Synthetic/calibrated replay; not observed Córdoba delivery data.",
       "Sábado: jornada liviana; weekly demand and travel cadence profile."
-    ]
+    ],
+    "operationalProfile": {
+      "day": 6,
+      "dayLabel": "Sábado",
+      "intensityLabel": "jornada liviana",
+      "demandMultiplier": 0.88,
+      "travelTimeMultiplier": 0.94,
+      "summary": "Hay menos carga para repartir y los recorridos usan un ritmo algo más fluido que una jornada base."
+    }
   },
   "scenario": {
     "id": "cordoba-calibrated-v1",

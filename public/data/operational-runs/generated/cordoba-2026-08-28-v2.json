@@ -12,7 +12,15 @@
     "notes": [
       "Synthetic/calibrated replay; not observed Córdoba delivery data.",
       "Viernes: jornada exigente; weekly demand and travel cadence profile."
-    ]
+    ],
+    "operationalProfile": {
+      "day": 5,
+      "dayLabel": "Viernes",
+      "intensityLabel": "jornada exigente",
+      "demandMultiplier": 1.16,
+      "travelTimeMultiplier": 1.12,
+      "summary": "Hay más carga para repartir y los recorridos usan un ritmo más lento que una jornada base."
+    }
   },
   "scenario": {
     "id": "cordoba-calibrated-v1",

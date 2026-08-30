@@ -12,7 +12,15 @@
     "notes": [
       "Synthetic/calibrated operational forecast; not observed Córdoba delivery data.",
       "Miércoles: jornada base; weekly demand and travel cadence profile."
-    ]
+    ],
+    "operationalProfile": {
+      "day": 3,
+      "dayLabel": "Miércoles",
+      "intensityLabel": "jornada base",
+      "demandMultiplier": 1,
+      "travelTimeMultiplier": 1,
+      "summary": "La jornada usa la referencia base de carga y ritmo para comparar el resto de la semana."
+    }
   },
   "scenario": {
     "id": "cordoba-calibrated-v1",

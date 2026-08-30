@@ -12,7 +12,15 @@
     "notes": [
       "Synthetic/calibrated operational forecast; not observed Córdoba delivery data.",
       "Jueves: jornada activa; weekly demand and travel cadence profile."
-    ]
+    ],
+    "operationalProfile": {
+      "day": 4,
+      "dayLabel": "Jueves",
+      "intensityLabel": "jornada activa",
+      "demandMultiplier": 1.07,
+      "travelTimeMultiplier": 1.04,
+      "summary": "La carga sube un poco sobre la referencia y los recorridos usan un ritmo apenas más lento."
+    }
   },
   "scenario": {
     "id": "cordoba-calibrated-v1",

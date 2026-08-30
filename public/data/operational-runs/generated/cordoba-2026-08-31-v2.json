@@ -12,7 +12,15 @@
     "notes": [
       "Synthetic/calibrated operational forecast; not observed Córdoba delivery data.",
       "Lunes: jornada exigente; weekly demand and travel cadence profile."
-    ]
+    ],
+    "operationalProfile": {
+      "day": 1,
+      "dayLabel": "Lunes",
+      "intensityLabel": "jornada exigente",
+      "demandMultiplier": 1.18,
+      "travelTimeMultiplier": 1.14,
+      "summary": "Hoy entra más carga y los recorridos usan un ritmo algo más lento que una jornada base."
+    }
   },
   "scenario": {
     "id": "cordoba-calibrated-v1",
