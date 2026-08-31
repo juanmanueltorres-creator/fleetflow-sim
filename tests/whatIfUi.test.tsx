@@ -131,7 +131,7 @@ describe('TIME → DECISION what-if UX', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'EARLY START' }))
     await waitFor(() => expect(screen.getByTestId('fleet-map')).toHaveTextContent(mapSignature(earlyRun, earlyRoutes)))
-    expect(screen.getByText('05:00')).toBeInTheDocument()
+    expect(screen.getByRole('region', { name: 'Simulation clock' })).toHaveTextContent('05:00')
     expect(screen.getByText('WHAT_IF · MODEL OUTPUT')).toBeInTheDocument()
     expect(screen.getByText('SHIFT_DEPARTURE -60 min')).toBeInTheDocument()
     expect(screen.getByText(/finishes 60 min earlier/i)).toBeInTheDocument()
