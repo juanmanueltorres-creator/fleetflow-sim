@@ -91,13 +91,14 @@ afterEach(() => {
 })
 
 describe('TIME → DECISION what-if UX', () => {
-  it('loads alternatives lazily, switches one map, and resets comparison on TIME change', async () => {
+  it('loads alternatives lazily, renders the auditable comparison, switches one map, and resets on TIME change', async () => {
     const fetchMock = makeFetch()
     vi.stubGlobal('fetch', fetchMock)
 
     render(<App />)
 
     expect(await screen.findByTestId('fleet-map')).toHaveTextContent(mapSignature(baseRun, baseRoutes))
+    expect(screen.getByText('Operational timeline + decision simulation · V0.6')).toBeInTheDocument()
     expect(await screen.findByRole('button', { name: 'Compare scenarios' })).toBeInTheDocument()
     expect(fetchMock.mock.calls.some(([url]) => String(url) === CATALOG_URL)).toBe(true)
     expect(fetchMock.mock.calls.some(([url]) => String(url) === resolveArtifactUrl(earlyEntry.artifact))).toBe(false)
@@ -110,7 +111,23 @@ describe('TIME → DECISION what-if UX', () => {
     expect(screen.getByRole('button', { name: 'BALANCED LOAD' })).toBeInTheDocument()
     expect(fetchMock.mock.calls.some(([url]) => String(url) === resolveArtifactUrl(earlyEntry.artifact))).toBe(true)
     expect(fetchMock.mock.calls.some(([url]) => String(url) === resolveArtifactUrl(balancedEntry.artifact))).toBe(true)
-    expect(screen.getByRole('table', { name: 'Scenario outcome comparison' })).toBeInTheDocument()
+
+    const table = screen.getByRole('table', { name: 'Scenario outcome comparison' })
+    for (const rowLabel of [
+      'Packages',
+      'Deliveries',
+      'Vehicles',
+      'Start',
+      'Finish',
+      'Operation span',
+      'Distance',
+      'Fuel est.',
+      'Mean utilization',
+      'Max utilization',
+      'Package spread',
+    ]) {
+      expect(table).toHaveTextContent(rowLabel)
+    }
 
     fireEvent.click(screen.getByRole('button', { name: 'EARLY START' }))
     await waitFor(() => expect(screen.getByTestId('fleet-map')).toHaveTextContent(mapSignature(earlyRun, earlyRoutes)))
@@ -119,7 +136,22 @@ describe('TIME → DECISION what-if UX', () => {
     expect(screen.getByText('SHIFT_DEPARTURE -60 min')).toBeInTheDocument()
     expect(screen.getByText(/finishes 60 min earlier/i)).toBeInTheDocument()
     expect(screen.queryByText(/60 min faster/i)).not.toBeInTheDocument()
-    expect(screen.queryByText(/the map base does not change/i)).not.toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: 'Qué estás viendo' })).not.toBeInTheDocument()
+    expect(screen.queryByText(/Acá la base del mapa no cambia/i)).not.toBeInTheDocument()
+
+    const whatIf = earlyRun.provenance.whatIf!
+    expect(screen.getByText('Base run ID')).toBeInTheDocument()
+    expect(screen.getByText(baseRun.id)).toBeInTheDocument()
+    expect(screen.getByText('Action-set ID')).toBeInTheDocument()
+    expect(screen.getByText(whatIf.actionSet.id)).toBeInTheDocument()
+    expect(screen.getByText('Action-set version')).toBeInTheDocument()
+    expect(screen.getByText('Derivation model')).toBeInTheDocument()
+    expect(screen.getByText(whatIf.derivationModel)).toBeInTheDocument()
+    expect(screen.getByText('Base context')).toBeInTheDocument()
+    expect(screen.getByText(/omitted/i)).toBeInTheDocument()
+    expect(screen.getByText(
+      'Deterministic model output under frozen Base assumptions. Not an observed operation or guaranteed prediction.',
+    )).toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: 'BALANCED LOAD' }))
     await waitFor(() => expect(screen.getByTestId('fleet-map')).toHaveTextContent(mapSignature(balancedRun, balancedRoutes)))
