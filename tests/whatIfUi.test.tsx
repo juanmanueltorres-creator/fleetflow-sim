@@ -5,6 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import App from '../src/App'
 import type { FleetScenario } from '../src/domain/types'
 import type { RouteGeometryCollection } from '../src/map/routeAssets'
+import { formatOperationalDate } from '../src/scenario/operationalRuns/date'
 import type { OperationalRun, OperationalRunManifestV2 } from '../src/scenario/operationalRuns/types'
 import type { WhatIfComparisonCatalog } from '../src/scenario/whatIf/types'
 
@@ -125,7 +126,13 @@ describe('TIME → DECISION what-if UX', () => {
     expect(screen.getByRole('table', { name: 'Scenario outcome comparison' })).toBeInTheDocument()
     expect(screen.getByText('REBALANCE_STOPS · BALANCE_PACKAGES')).toBeInTheDocument()
 
-    fireEvent.click(screen.getByRole('button', { name: new RegExp(nextRun.targetDate.replaceAll('-', '.*')) }))
+    fireEvent.click(screen.getByRole('button', {
+      name: `${formatOperationalDate(nextEntry.targetDate)}, ${nextEntry.mode}`,
+    }))
+    await waitFor(() => expect(screen.getByTestId('fleet-map')).toHaveTextContent(mapSignature(nextRun, nextRoutes)))
+    expect(screen.queryByRole('table', { name: 'Scenario outcome comparison' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'EARLY START' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Compare scenarios' })).not.toBeInTheDocument()
   })
 
   it('keeps the Base usable when one alternative fails', async () => {
