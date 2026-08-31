@@ -48,7 +48,7 @@ describe('FleetFlow app shell', () => {
     render(<App />)
 
     expect(screen.getByRole('heading', { name: 'FleetFlow Sim' })).toBeInTheDocument()
-    expect(screen.getByText('Operational timeline simulation · V0.5')).toBeInTheDocument()
+    expect(screen.getByText('Operational timeline + decision simulation · V0.6')).toBeInTheDocument()
     expect(screen.getByRole('radio', { name: /Córdoba calibrado/i })).toBeChecked()
     expect(screen.getByRole('radio', { name: /Coca Coqui/i })).not.toBeChecked()
     expect(screen.getByText('06:00')).toBeInTheDocument()
