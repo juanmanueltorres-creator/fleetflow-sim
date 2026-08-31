@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "comparisons": [
+    {
+      "id": "cordoba-2026-08-27-v3-comparison-v1",
+      "label": "Córdoba 2026-08-27 · What-If V0",
+      "baseRunId": "cordoba-2026-08-27-v3",
+      "alternatives": [
+        {
+          "label": "Early start",
+          "entry": {
+            "id": "cordoba-2026-08-27-v3-what-if-early-start-v1",
+            "targetDate": "2026-08-27",
+            "issuedAt": "2026-08-30T21:05:00-03:00",
+            "dataAsOf": "2026-08-30T21:00:00-03:00",
+            "mode": "WHAT_IF",
+            "scenarioId": "cordoba-calibrated",
+            "modelVersion": "fleetflow-v0.6",
+            "artifact": "./generated/cordoba-2026-08-27-v3-what-if-early-start-v1.json",
+            "routeArtifact": "./generated/cordoba-2026-08-27-v3-what-if-early-start-v1.routes.geojson"
+          }
+        },
+        {
+          "label": "Balanced load",
+          "entry": {
+            "id": "cordoba-2026-08-27-v3-what-if-balanced-load-v1",
+            "targetDate": "2026-08-27",
+            "issuedAt": "2026-08-30T21:05:00-03:00",
+            "dataAsOf": "2026-08-30T21:00:00-03:00",
+            "mode": "WHAT_IF",
+            "scenarioId": "cordoba-calibrated",
+            "modelVersion": "fleetflow-v0.6",
+            "artifact": "./generated/cordoba-2026-08-27-v3-what-if-balanced-load-v1.json",
+            "routeArtifact": "./generated/cordoba-2026-08-27-v3-what-if-balanced-load-v1.routes.geojson"
+          }
+        }
+      ]
+    }
+  ]
+}
