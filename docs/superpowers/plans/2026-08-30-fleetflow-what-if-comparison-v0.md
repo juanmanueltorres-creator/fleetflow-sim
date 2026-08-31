@@ -55,10 +55,8 @@ scripts/generate-what-if-comparison.mjs
 src/components/ScenarioDecisionRail.tsx
 src/components/ScenarioComparisonPanel.tsx
 public/data/operational-runs/what-if-comparisons.json
-public/data/operational-runs/generated/<selected-base>-what-if-early-start-v1.json
-public/data/operational-runs/generated/<selected-base>-what-if-early-start-v1.routes.geojson
-public/data/operational-runs/generated/<selected-base>-what-if-balanced-load-v1.json
-public/data/operational-runs/generated/<selected-base>-what-if-balanced-load-v1.routes.geojson
+generator-created Early Start run + route artifacts under public/data/operational-runs/generated/
+generator-created Balanced Load run + route artifacts under public/data/operational-runs/generated/
 tests/whatIfContracts.test.ts
 tests/whatIfDerivation.test.ts
 tests/whatIfGenerator.test.ts
@@ -71,7 +69,7 @@ tests/simulationWindow.test.ts
 tests/whatIfUi.test.tsx
 ```
 
-The `<selected-base>` portion above is not a manually supplied placeholder: `scripts/lib/what-if-generator.mjs#selectEligibleBaseBundle()` deterministically computes it from published V0.6 artifacts and the generator constructs the filenames from that returned `base.run.id`.
+Task 3 defines the exact deterministic artifact IDs from the selected Base `run.id`; no manual filename/date input is allowed.
 
 Modify:
 
@@ -282,6 +280,7 @@ git commit -m "feat: add what-if run contracts"
 - Produces: `previewBalancedAssignment(baseRun)`
 - Produces: `deriveEarlyStart({ baseRun, baseRoutes, actionSet, issuedAt })`
 - Produces: `deriveBalancedLoad({ baseRun, actionSet, issuedAt, profile, routePreparer })`
+- Produces: `assertDerivedWhatIfArtifact({ baseRun, baseRoutes, derivedRun, derivedRoutes, actionSet })`
 
 - [ ] **Step 1: Write RED Early Start tests**
 
@@ -481,14 +480,32 @@ const scenario = scheduleScenarioFromRoutes({
 
 Reject Base runs without a positive finite `operationalProfile.travelTimeMultiplier`.
 
-- [ ] **Step 9: Run GREEN**
+- [ ] **Step 9: Implement offline derived-artifact assertions**
+
+`assertDerivedWhatIfArtifact()` must fail before publication when:
+
+```text
+derived mode is not WHAT_IF
+targetDate/dataAsOf/scenarioId/modelVersion differ from Base
+whatIf lineage/action set differs from the supplied actionSet
+run/route metadata binding differs
+destination or cargo conservation fails
+truck/depot/capacity/fuel signatures differ
+operationalProfile or spatialDemand differs from Base
+Early changes assignment/order/route feature geometry/properties or shifts any schedule field by the wrong amount
+Balanced assigns a destination zero/multiple times, leaves a truck empty, exceeds volume capacity, or fails to reduce package spread
+```
+
+Task 4 adds the independent TypeScript runtime validation layer; this JS assertion protects the offline writer before bytes are published.
+
+- [ ] **Step 10: Run GREEN**
 
 ```bash
 npm test -- tests/whatIfDerivation.test.ts tests/v06RouteTiming.test.ts
 npm run build
 ```
 
-- [ ] **Step 10: Commit**
+- [ ] **Step 11: Commit**
 
 ```bash
 git add scripts/lib/what-if-derivation.mjs tests/whatIfDerivation.test.ts
@@ -507,7 +524,7 @@ git commit -m "feat: derive deterministic what-if scenarios"
 - Test: `tests/whatIfCli.test.ts`
 
 **Interfaces:**
-- Consumes: Task 2 derivation functions
+- Consumes: Task 2 derivation/assertion functions
 - Consumes: PR2 `prepareRouteCollection()` for Balanced only
 - Produces: `selectEligibleBaseBundle(bundles)`
 - Produces: `generateWhatIfComparison({ manifest, bundles, profile, issuedAt, routePreparer })`
@@ -535,6 +552,8 @@ non-PARCELS run is rejected
 empty Base route is rejected
 zero package spread is rejected
 invalid route metadata/topology is rejected
+duplicate destinations/assignments are rejected
+non-monotonic Base route schedule is rejected
 capacity-infeasible balancing is rejected
 Balanced preview with an empty truck is rejected
 Balanced preview that does not lower spread is rejected
@@ -562,6 +581,8 @@ Balanced action-set id == <base-id>-balanced-load-v1
 comparison id == <base-id>-comparison-v1
 ```
 
+The angle-bracket forms in these assertions are contract notation for values computed from `base.run.id`; tests construct the expected strings programmatically and do not substitute human-supplied values.
+
 - [ ] **Step 3: Write RED CLI immutability tests**
 
 In a temporary output directory, create `what-if-comparisons.json` before invoking the CLI and assert the process exits non-zero with `refusing to overwrite` before any routing request can occur.
@@ -585,10 +606,13 @@ npm test -- tests/whatIfGenerator.test.ts tests/whatIfCli.test.ts
 ```text
 entry/run are V0.6 and agree on id/date/model/mode
 mode is SIMULATED or FORECAST
-exactly 8 trucks/routes
+scenario destination IDs are unique
+exactly 8 trucks and exactly one non-empty route per truck
+all destinations are assigned exactly once
+all route schedules are finite and monotonic
 all truck capacities are PARCELS with positive finite capacityCm3
 all route stops are PARCELS with positive finite packageCount/volumeCm3
-all trucks have at least one Base stop
+all route parcel volumes fit Base truck capacity
 route collection metadata binds runId/targetDate/modelVersion
 route feature ids/truck ids/waypoint count match scenario
 Base package spread > 0
@@ -627,6 +651,8 @@ const balancedActionSet = {
   actions: [{ type: 'REBALANCE_STOPS', strategy: 'BALANCE_PACKAGES' }],
 }
 ```
+
+After deriving each alternative, call Task 2 `assertDerivedWhatIfArtifact()` before constructing its manifest entry.
 
 Return:
 
@@ -1013,8 +1039,8 @@ git commit -m "feat: derive what-if outcomes and deltas"
 
 **Files:**
 - Create by generator: `public/data/operational-runs/what-if-comparisons.json`
-- Create by generator: two WHAT_IF run JSON artifacts
-- Create by generator: two matching `.routes.geojson` artifacts
+- Create by generator: two WHAT_IF run JSON artifacts under `public/data/operational-runs/generated/`
+- Create by generator: two matching `.routes.geojson` artifacts under `public/data/operational-runs/generated/`
 - Create: `tests/whatIfPublishedArtifacts.test.ts`
 
 **Interfaces:**
@@ -1202,6 +1228,7 @@ date without a comparison -> no Compare control
 one broken alternative -> Scenario comparison unavailable, Base map still rendered
 comparison catalog failure -> Base remains usable
 optional metric null -> table renders —
+WHAT_IF view does not render the old OperationalExplainer sentence claiming the map base does not change
 ```
 
 - [ ] **Step 5: Create the decision rail**
@@ -1249,11 +1276,26 @@ Package spread
 
 For the selected alternative render Base-relative deltas without winner colors/badges. Use `—` for null metrics.
 
+Render a visible state label:
+
+```text
+WHAT_IF · MODEL OUTPUT
+```
+
 Render action copy from `provenance.whatIf.actionSet`:
 
 ```text
 SHIFT_DEPARTURE -60 min
 REBALANCE_STOPS · BALANCE_PACKAGES
+```
+
+Render provenance rows for:
+
+```text
+Base run ID
+action-set ID
+action-set version
+derivation model
 ```
 
 Render frozen-input summary and the disclosure:
@@ -1287,7 +1329,9 @@ const displayedBundle = selectedAlternativeRunId && comparisonSet
   : activeBundle
 ```
 
-Use `displayedBundle` for `activeRun`, `activeScenario`, routes, map, snapshot, current KPIs, FleetPanel, and OperationalExplainer. Keep `selectedRunId`/date rail tied to Base.
+Use `displayedBundle` for `activeRun`, `activeScenario`, routes, map, snapshot, current KPIs, FleetPanel, and ScenarioProvenance run mode. Keep `selectedRunId`/date rail tied to Base.
+
+Render `OperationalExplainer` only for non-WHAT_IF runs; the comparison panel is the authoritative explanation for WHAT_IF alternatives.
 
 - [ ] **Step 8: Add lazy catalog discovery and comparison loading**
 
@@ -1502,10 +1546,11 @@ git commit -m "docs: document FleetFlow what-if comparison v0"
 19. Early simulation starts at minute `-60` / 05:00 so the complete shifted operation is visible; Base/Balanced continue to start at minute `0` / 06:00.
 20. Changing date or scenario clears comparison/alternative selection before loading the next Base.
 21. Dates without a comparison show normal FleetFlow behavior and no comparison controls.
-22. No global score, winner, recommendation, optimizer, risk metric, or prediction claim is introduced.
-23. Historical V0.5 and published V0.6 Base artifacts remain byte-untouched.
-24. `src/simulation/engine.ts` and `src/simulation/clock.ts` remain untouched.
-25. Full automated tests and production build pass.
+22. WHAT_IF UI shows action details, Base run ID, action-set ID/version, derivation model, frozen inputs, Base context state, and explicit model-output disclosure.
+23. No global score, winner, recommendation, optimizer, risk metric, or prediction claim is introduced.
+24. Historical V0.5 and published V0.6 Base artifacts remain byte-untouched.
+25. `src/simulation/engine.ts` and `src/simulation/clock.ts` remain untouched.
+26. Full automated tests and production build pass.
 
 ## Execution Gate
 
