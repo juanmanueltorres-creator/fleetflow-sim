@@ -5,6 +5,7 @@ import {
   type ScenarioDelta,
   type ScenarioOutcome,
 } from '../scenario/whatIf/outcomes'
+import type { OperationalBundle } from '../scenario/operationalRuns/bundle'
 import type { ScenarioComparisonSet } from '../scenario/whatIf/types'
 
 interface ScenarioComparisonPanelProps {
@@ -22,10 +23,9 @@ function formatDelta(value: number | null, unit = ''): string {
   return `${rounded > 0 ? '+' : ''}${rounded.toFixed(1)}${unit}`
 }
 
-function actionLabel(runId: string, comparison: ScenarioComparisonSet): string {
-  if (runId === comparison.base.run.id) return 'Baseline operational run'
-  const bundle = comparison.alternatives.find((item) => item.bundle.run.id === runId)?.bundle
-  const action = bundle?.run.provenance.whatIf?.actionSet.actions[0]
+function actionLabel(bundle: OperationalBundle): string {
+  if (bundle.run.mode !== 'WHAT_IF') return 'Baseline operational run'
+  const action = bundle.run.provenance.whatIf?.actionSet.actions[0]
   if (!action) return '—'
   if (action.type === 'SHIFT_DEPARTURE') return `SHIFT_DEPARTURE ${action.minutes} min`
   return `REBALANCE_STOPS · ${action.strategy}`
@@ -36,6 +36,13 @@ function earlySemanticNote(delta: ScenarioDelta | null): string | null {
     return null
   }
   return `finishes ${Math.abs(delta.operationEndDeltaMinutes)} min earlier; operational duration unchanged`
+}
+
+function baseContextLabel(comparison: ScenarioComparisonSet): string {
+  const context = comparison.base.context
+  if (context.status === 'available') return 'available'
+  if (context.status === 'unavailable') return 'unavailable'
+  return 'omitted · not modeled'
 }
 
 export function ScenarioComparisonPanel({
@@ -53,24 +60,25 @@ export function ScenarioComparisonPanel({
   })
   const columns: Array<{
     label: string
-    runId: string
+    bundle: OperationalBundle
     outcome: ScenarioOutcome
     delta: ScenarioDelta | null
   }> = [
     {
       label: 'BASE',
-      runId: comparison.base.run.id,
+      bundle: comparison.base,
       outcome: baseOutcome,
       delta: null,
     },
     ...alternatives.map((item) => ({
       label: item.label === 'Early start' ? 'EARLY START' : 'BALANCED LOAD',
-      runId: item.bundle.run.id,
+      bundle: item.bundle,
       outcome: item.outcome,
       delta: item.delta,
     })),
   ]
-  const selectedColumn = columns.find((column) => column.runId === selectedRunId) ?? columns[0]
+  const selectedColumn = columns.find((column) => column.bundle.run.id === selectedRunId) ?? columns[0]
+  const selectedWhatIf = selectedColumn.bundle.run.provenance.whatIf
 
   return (
     <section className="scenario-comparison-panel" aria-label="Scenario comparison">
@@ -79,19 +87,22 @@ export function ScenarioComparisonPanel({
           <span className="panel-label">Decision comparison</span>
           <strong>{selectedColumn.label}</strong>
         </div>
-        {selectedRunId !== comparison.base.run.id ? (
+        {selectedWhatIf ? (
           <div className="what-if-model-note">
             <strong>WHAT_IF · MODEL OUTPUT</strong>
-            <span>Scenario outcome, not an observed operation or guaranteed prediction.</span>
+            <span>Deterministic model output under frozen Base assumptions. Not an observed operation or guaranteed prediction.</span>
           </div>
         ) : null}
       </div>
 
       <div className="scenario-action-strip">
         {columns.map((column) => (
-          <div key={column.runId} data-selected={column.runId === selectedRunId ? 'true' : undefined}>
+          <div
+            key={column.bundle.run.id}
+            data-selected={column.bundle.run.id === selectedRunId ? 'true' : undefined}
+          >
             <strong>{column.label}</strong>
-            <span>{actionLabel(column.runId, comparison)}</span>
+            <span>{actionLabel(column.bundle)}</span>
             {earlySemanticNote(column.delta) ? <small>{earlySemanticNote(column.delta)}</small> : null}
           </div>
         ))}
@@ -102,45 +113,88 @@ export function ScenarioComparisonPanel({
           <thead>
             <tr>
               <th>Outcome</th>
-              {columns.map((column) => <th key={column.runId}>{column.label}</th>)}
+              {columns.map((column) => <th key={column.bundle.run.id}>{column.label}</th>)}
             </tr>
           </thead>
           <tbody>
             <tr>
-              <th>Finish time</th>
-              {columns.map((column) => <td key={column.runId}>{formatSimulationTime(column.outcome.operationEndMinute)}</td>)}
+              <th>Packages</th>
+              {columns.map((column) => <td key={column.bundle.run.id}>{formatNumber(column.outcome.totalPackages, 0)}</td>)}
             </tr>
             <tr>
-              <th>Operational span</th>
-              {columns.map((column) => <td key={column.runId}>{column.outcome.operationSpanMinutes.toFixed(0)} min</td>)}
+              <th>Deliveries</th>
+              {columns.map((column) => (
+                <td key={column.bundle.run.id}>
+                  {column.outcome.completedDeliveries}/{column.outcome.totalDeliveries}
+                </td>
+              ))}
             </tr>
             <tr>
-              <th>Planned distance</th>
-              {columns.map((column) => <td key={column.runId}>{formatNumber(column.outcome.plannedDistanceKm)} km</td>)}
+              <th>Vehicles</th>
+              {columns.map((column) => <td key={column.bundle.run.id}>{column.bundle.run.scenario.trucks.length}</td>)}
             </tr>
             <tr>
-              <th>Estimated fuel</th>
-              {columns.map((column) => <td key={column.runId}>{formatNumber(column.outcome.estimatedFuelUsedL)} L</td>)}
+              <th>Start</th>
+              {columns.map((column) => <td key={column.bundle.run.id}>{formatSimulationTime(column.outcome.operationStartMinute)}</td>)}
+            </tr>
+            <tr>
+              <th>Finish</th>
+              {columns.map((column) => <td key={column.bundle.run.id}>{formatSimulationTime(column.outcome.operationEndMinute)}</td>)}
+            </tr>
+            <tr>
+              <th>Operation span</th>
+              {columns.map((column) => <td key={column.bundle.run.id}>{column.outcome.operationSpanMinutes.toFixed(0)} min</td>)}
+            </tr>
+            <tr>
+              <th>Distance</th>
+              {columns.map((column) => <td key={column.bundle.run.id}>{formatNumber(column.outcome.plannedDistanceKm)} km</td>)}
+            </tr>
+            <tr>
+              <th>Fuel est.</th>
+              {columns.map((column) => <td key={column.bundle.run.id}>{formatNumber(column.outcome.estimatedFuelUsedL)} L</td>)}
             </tr>
             <tr>
               <th>Mean utilization</th>
-              {columns.map((column) => <td key={column.runId}>{formatNumber(column.outcome.meanVehicleUtilizationPct)}%</td>)}
+              {columns.map((column) => <td key={column.bundle.run.id}>{formatNumber(column.outcome.meanVehicleUtilizationPct)}%</td>)}
             </tr>
             <tr>
-              <th>Package load spread</th>
-              {columns.map((column) => <td key={column.runId}>{formatNumber(column.outcome.packageLoadSpread, 0)}</td>)}
+              <th>Max utilization</th>
+              {columns.map((column) => <td key={column.bundle.run.id}>{formatNumber(column.outcome.maxVehicleUtilizationPct)}%</td>)}
             </tr>
             <tr>
-              <th>Δ finish vs Base</th>
-              {columns.map((column) => <td key={column.runId}>{column.delta ? formatDelta(column.delta.operationEndDeltaMinutes, ' min') : '—'}</td>)}
-            </tr>
-            <tr>
-              <th>Δ distance vs Base</th>
-              {columns.map((column) => <td key={column.runId}>{column.delta ? formatDelta(column.delta.distanceDeltaKm, ' km') : '—'}</td>)}
+              <th>Package spread</th>
+              {columns.map((column) => <td key={column.bundle.run.id}>{formatNumber(column.outcome.packageLoadSpread, 0)}</td>)}
             </tr>
           </tbody>
         </table>
       </div>
+
+      {selectedColumn.delta ? (
+        <div className="scenario-delta-summary" aria-label="Selected scenario deltas versus Base">
+          <span>Δ finish {formatDelta(selectedColumn.delta.operationEndDeltaMinutes, ' min')}</span>
+          <span>Δ span {formatDelta(selectedColumn.delta.operationSpanDeltaMinutes, ' min')}</span>
+          <span>Δ distance {formatDelta(selectedColumn.delta.distanceDeltaKm, ' km')}</span>
+          <span>Δ fuel {formatDelta(selectedColumn.delta.estimatedFuelDeltaL, ' L')}</span>
+          <span>Δ mean util. {formatDelta(selectedColumn.delta.meanUtilizationDeltaPct, ' pp')}</span>
+          <span>Δ max util. {formatDelta(selectedColumn.delta.maxUtilizationDeltaPct, ' pp')}</span>
+          <span>Δ package spread {formatDelta(selectedColumn.delta.packageLoadSpreadDelta)}</span>
+        </div>
+      ) : null}
+
+      {selectedWhatIf ? (
+        <div className="scenario-audit-grid" aria-label="What-if provenance and frozen assumptions">
+          <div><span>Base run ID</span><strong>{selectedWhatIf.baseRunId}</strong></div>
+          <div><span>Action-set ID</span><strong>{selectedWhatIf.actionSet.id}</strong></div>
+          <div><span>Action-set version</span><strong>{selectedWhatIf.actionSetVersion}</strong></div>
+          <div><span>Derivation model</span><strong>{selectedWhatIf.derivationModel}</strong></div>
+          <div><span>Base context</span><strong>{baseContextLabel(comparison)}</strong></div>
+          <p>
+            Frozen Base assumptions: target date and data vintage, destination demand and cargo,
+            depot and fleet identities/capacities, operational profile, spatial-demand provenance,
+            and Base context state. The selected action changes only its declared operational inputs.
+          </p>
+        </div>
+      ) : null}
     </section>
   )
 }
