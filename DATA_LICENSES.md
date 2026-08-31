@@ -31,6 +31,8 @@ The generated Córdoba scenario then samples from those aggregate distributions 
 
 This repository does not attempt to relicense the Amazon source data. Reuse of source-derived artifacts should respect the source dataset's `CC BY-NC 4.0` terms and attribution requirements.
 
+The V0 What-If comparison introduces **no new parcel-demand source**. Early Start and Balanced Load both inherit the same synthetic Base destination cargo; they transform declared operational decisions rather than importing new observed package data.
+
 ## Córdoba municipal GTFS
 
 **Official dataset:** https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319
@@ -78,6 +80,21 @@ public/data/operational-runs/generated/cordoba-*-v3.routes.geojson
 
 These route files are generated during development using an OSRM routing service and are not evidence of measured or observed vehicle tracks. V0.6 route metadata binds each artifact to its synthetic `OperationalRun`; that binding does not change the underlying OSM attribution boundary.
 
+### What-If route artifacts
+
+The checked-in What-If V0 experiment publishes two additional run-bound route artifacts:
+
+```text
+public/data/operational-runs/generated/*-what-if-early-start-v1.routes.geojson
+public/data/operational-runs/generated/*-what-if-balanced-load-v1.routes.geojson
+```
+
+**Early Start** is a schedule-only intervention. Its route geometry and route properties are an exact rebound copy of the selected Base run's OSM-derived road artifact; only the route binding metadata points to the immutable derived WHAT_IF run.
+
+**Balanced Load** changes complete-stop assignment/order and therefore receives newly prepared road geometry through the same offline OSRM/OSM-derived routing workflow used by FleetFlow's generated route artifacts.
+
+Both route artifacts are **simulation inputs**, not observed vehicle tracks, GPS traces, measured traffic paths, or evidence that a real operator drove those roads in the modeled sequence. The What-If comparison does not add a new road-data source or change the OSM/ODbL attribution boundary.
+
 ## OpenFreeMap
 
 **Project:** https://openfreemap.org/
@@ -93,6 +110,8 @@ The public service is external infrastructure and is provided under OpenFreeMap'
 FleetFlow calls OSRM only during **offline route preparation**. The deployed browser does not make runtime OSRM requests.
 
 OSRM computes routes over OSM-derived road data. The resulting static route assets remain subject to the applicable OpenStreetMap data attribution/licensing requirements described above.
+
+For What-If V0, Early Start requires no new OSRM routing because it preserves Base geometry. Balanced Load uses OSRM offline after deterministic stop reassignment/order. The resulting checked-in geometry is frozen for the published comparison; FleetFlow does not represent OSRM output as live traffic, observed road condition, or measured travel behavior.
 
 ## Application dependencies
 
@@ -110,8 +129,11 @@ Córdoba municipal GTFS               -> CC-BY-SA-AR (CBA) + attribution
 GTFS-derived candidate pool          -> synthetic derived artifact; preserve source terms
 OpenStreetMap map + road data        -> ODbL + attribution
 V0.6 per-run road GeoJSON            -> generated from OSM routing; retain OSM attribution
-OpenFreeMap public basemap service    -> OpenFreeMap terms + required attribution
-Synthetic Córdoba scenario content    -> generated FleetFlow scenario, with provenance disclosed
+What-If Early route GeoJSON          -> rebound Base OSM-derived geometry; retain OSM attribution
+What-If Balanced route GeoJSON       -> newly prepared OSM/OSRM-derived geometry; retain OSM attribution
+What-If parcel demand                -> same synthetic Base demand; no new source introduced
+OpenFreeMap public basemap service   -> OpenFreeMap terms + required attribution
+Synthetic Córdoba scenario content   -> generated FleetFlow scenario, with provenance disclosed
 ```
 
-If this project is reused commercially, verify the external-data terms independently rather than assuming FleetFlow's MIT code license covers the Amazon- or GTFS-derived artifacts.
+If this project is reused commercially, verify the external-data terms independently rather than assuming FleetFlow's MIT code license covers the Amazon-, GTFS-, or OSM-derived artifacts.

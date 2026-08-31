@@ -25,6 +25,7 @@ export interface ScenarioDefinition {
   routeAsset: string
   operationalRuns?: {
     manifestUrl: string
+    comparisonCatalogUrl?: string
   }
   scenario: FleetScenario
   provenance: ScenarioProvenance
@@ -48,6 +49,7 @@ const definitions: Record<ScenarioId, ScenarioDefinition> = {
     routeAsset: './data/cordoba-calibrated-routes.geojson',
     operationalRuns: {
       manifestUrl: './data/operational-runs/manifest-v0-6.json',
+      comparisonCatalogUrl: './data/operational-runs/what-if-comparisons.json',
     },
     scenario: requireValidScenario('Calibrated Cordoba', calibratedScenario),
     provenance: {

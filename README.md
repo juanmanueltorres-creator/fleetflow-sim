@@ -1,10 +1,10 @@
 # FleetFlow Sim
 
-Open-source visual fleet simulator for testing last-mile operations on an interactive map: vehicles move along road-following routes, execute scheduled stops, carry capacity-constrained loads, and expose the operation through a compact fleet HUD.
+Open-source visual fleet simulator for testing last-mile operations and explicit decision alternatives on an interactive map: vehicles move along road-following routes, execute scheduled stops, carry capacity-constrained loads, and expose the operation through a compact fleet HUD.
 
 **Live demo:** https://juanmanueltorres-creator.github.io/fleetflow-sim/
 
-## V0.6 — Daily Spatial Demand
+## V0.6 — Daily Spatial Demand + What-If Comparison
 
 V0.6 makes the Córdoba operational timeline spatially variable while preserving the fixed eight-vehicle fleet and the existing simulation engine. Each published date is an immutable `OperationalRun` bundle with its own synthetic delivery set, parcel assignment, schedule, and road-following GeoJSON route artifact.
 
@@ -14,7 +14,7 @@ The active timeline is referenced by:
 public/data/operational-runs/manifest-v0-6.json
 ```
 
-For the checked-in 2026-08-27 through 2026-09-03 window, every run has:
+For the checked-in 2026-08-27 through 2026-09-03 window, every Base run has:
 
 - exactly 8 synthetic delivery vehicles and the same Córdoba depot
 - 45–65 active synthetic delivery destinations selected from a versioned 240-point candidate pool
@@ -30,6 +30,53 @@ For the checked-in 2026-08-27 through 2026-09-03 window, every run has:
 **V0.6 runs are deterministic model outputs, not observed Córdoba operations.** They do not represent live parcel demand, telemetry, traffic, weather, a real operator's customer list, or measured delivery routes.
 
 **V0.6 uses per-run route artifacts and `manifest-v0-6.json`.** The historical V0.5 `manifest.json` and its generated artifacts remain checked in and valid for compatibility, but they are no longer the active Córdoba timeline.
+
+### What-If V0 — TIME → DECISION
+
+FleetFlow now keeps operational time and decision alternatives as two separate dimensions:
+
+```text
+TIME      -> selects one immutable Base OperationalRun
+DECISION  -> selects Base / Early Start / Balanced Load for that Base
+```
+
+The operational timeline remains authoritative for TIME. WHAT_IF alternatives do **not** appear in `manifest-v0-6.json`; they are referenced separately by:
+
+```text
+public/data/operational-runs/what-if-comparisons.json
+```
+
+The first checked-in experiment uses the deterministically selected Base run:
+
+```text
+cordoba-2026-08-27-v3
+```
+
+and publishes two immutable alternatives:
+
+```text
+Early Start    -> SHIFT_DEPARTURE -60 min
+Balanced Load  -> REBALANCE_STOPS · BALANCE_PACKAGES
+```
+
+**Early Start** is a pure schedule intervention. It shifts departure, stop arrival/departure, and return times by exactly -60 minutes while freezing Base demand, destination assignment/order, vehicle identities, route geometry, operational profile, spatial-demand provenance, and Base context state. The UI therefore describes the result as **finishing 60 minutes earlier with operational duration unchanged**, not as “60 minutes faster”.
+
+**Balanced Load** reassigns complete delivery stops across the same eight vehicles using deterministic package-count balancing subject to parcel-volume capacity. Destination cargo is never split or invented. Stops are then ordered deterministically, road geometry is prepared offline through OSRM, and route timing is rebuilt with the same V0.6 timing model used by Base generation. It is a transparent deterministic balancing strategy, not a claim of mathematical optimality.
+
+For every alternative, FleetFlow preserves machine-readable lineage back to its Base run and action set. Runtime comparison derives outcomes through the existing simulation engine and reports explicit Base-relative deltas for operation timing, distance, estimated fuel, vehicle utilization, and package-load spread.
+
+FleetFlow intentionally does **not** collapse those outcomes into a global score, winner, recommendation, risk score, or guaranteed prediction. A scenario can improve one modeled outcome while worsening another; the comparison UI exposes those trade-offs directly.
+
+The browser discovers the lightweight comparison catalog after the Base run loads, but alternative run/route artifacts are loaded only when the user chooses **Compare scenarios**. Base + Early + Balanced are validated atomically before the decision rail becomes active. If comparison loading fails, the Base operational run remains usable.
+
+All WHAT_IF results carry the same epistemic boundary:
+
+```text
+simulation != operation
+scenario outcome != guaranteed prediction
+prepared road route != observed vehicle track
+missing context != zero context
+```
 
 ### Reproducing the V0.6 spatial artifacts
 
@@ -59,9 +106,24 @@ node scripts/generate-v0-6-operational-runs.mjs \
 
 The V0.6 generator uses OSRM only during offline route preparation. It validates every run before publication and refuses to overwrite an existing manifest, run JSON, or route GeoJSON.
 
-### Stable What-If handoff
+### Reproducing the published What-If V0 experiment
 
-PR2 intentionally stops at the immutable Base-run boundary. A later What-If implementation must consume the existing V0.6 contracts instead of inventing a parallel model:
+The canonical publication command is:
+
+```bash
+npm run generate:what-if:v0 -- \
+  --manifest public/data/operational-runs/manifest-v0-6.json \
+  --profile src/scenario/calibration/amazon-last-mile-v1.json \
+  --issued-at 2026-08-30T21:05:00-03:00 \
+  --output-dir public/data/operational-runs \
+  --catalog-name what-if-comparisons.json
+```
+
+The generator selects the eligible Base deterministically; there is no manual Base override in V0. It derives Early locally, performs OSRM route preparation only for Balanced Load, validates differential invariants before publication, then writes the two run JSONs, two bound route GeoJSONs, and the comparison catalog as immutable outputs.
+
+Publication is append-only. Running the same command again against the same output directory exits non-zero with `refusing to overwrite` **before** starting new route preparation.
+
+The stable handoff reused by the What-If implementation is:
 
 ```text
 Base modelVersion: fleetflow-v0.6
@@ -69,13 +131,12 @@ Base artifact: OperationalRun
 Route artifact: V2-bound GeoJSON
 Timing interface: scripts/lib/v0-6-route-timing.mjs#scheduleScenarioFromRoutes
 Candidate IDs/cargo: frozen inside each published Base run
+Simulation engine: unchanged
 ```
-
-What-If comparison is **not** implemented in V0.6 PR2.
 
 ## V0.5 — Operational Timeline Foundation
 
-V0.5 introduced a date-aware operational layer above the calibrated `FleetScenario` and simulation engine. The browser loads an immutable `OperationalRun` selected from a checked-in manifest, then passes that run's scenario into the same simulation pipeline used by V0.4. That bundle boundary remains the foundation used by V0.6.
+V0.5 introduced a date-aware operational layer above the calibrated `FleetScenario` and simulation engine. The browser loads an immutable `OperationalRun` selected from a checked-in manifest, then passes that run's scenario into the same simulation pipeline used by V0.4. That bundle boundary remains the foundation used by V0.6 and What-If V0.
 
 Each run carries explicit evidence metadata:
 
@@ -145,10 +206,10 @@ The connected top rail lets you switch atomically between:
 
 | Scenario | Purpose | Vehicles | Stops | Cargo |
 | --- | --- | ---: | ---: | --- |
-| **Córdoba calibrado** | Public-data-calibrated behavior with the active V0.6 spatial timeline and synthetic Córdoba geography | 8 | 45–65 per day | Parcels / volume |
+| **Córdoba calibrado** | Public-data-calibrated behavior with the active V0.6 spatial timeline, synthetic Córdoba geography, and one published What-If decision experiment | 8 | 45–65 per day | Parcels / volume |
 | **Coca Coqui · Legacy V0** | Original fully synthetic proof of concept | 5 | 15 | Mass / kg |
 
-Switching scenarios resets the clock, pauses playback, loads the matching operational/static route asset, and remounts the map so layers and popups cannot leak between scenarios. Legacy V0 has no operational timeline and remains on its original static scenario path.
+Switching scenarios resets the clock, pauses playback, loads the matching operational/static route asset, and remounts the map so layers and popups cannot leak between scenarios. Legacy V0 has no operational timeline or What-If catalog and remains on its original static scenario path.
 
 ## Evidence pipeline
 
@@ -190,10 +251,24 @@ V0.4 calibrated fleet template       Córdoba GTFS spatial proxy
                                       OperationalRun Catalog
                                                 |
                                                 v
-                                         FleetScenario
+                                      Base OperationalBundle
                                                 |
-                                                v
-                         existing Simulation Engine -> FleetSnapshot -> map / HUD
+                  +-----------------------------+-----------------------------+
+                  |                                                           |
+                  v                                                           v
+       existing Simulation Engine                              What-If action derivation
+                  |                                                           |
+                  v                                                           v
+           FleetSnapshot                                      derived OperationalRun + routes
+                  |                                                           |
+                  v                                                           v
+              map / HUD                                      existing Simulation Engine
+                                                                              |
+                                                                              v
+                                                                  ScenarioOutcome + Base delta
+                                                                              |
+                                                                              v
+                                                                  decision comparison UI
 ```
 
 The checked-in Amazon calibration profile was derived from the `High` route subset and summarizes:
@@ -236,6 +311,8 @@ fleetflow:v0.6:cordoba:${targetDate}:assignment
 fleetflow:v0.6:cordoba:candidate-pool-v1
 ```
 
+What-If V0 action derivation itself is deterministic and uses stable action-set IDs/lineage. Published simulation outcomes are deterministic for the frozen checked-in run and route artifacts.
+
 Production generation never calls `Math.random()`. Tests regenerate the calibrated scenario and V0.6 logical artifacts with deterministic inputs and validate the checked-in published bundles.
 
 The generated V0.4 calibrated scenario fixes route stop counts to:
@@ -253,21 +330,23 @@ React + TypeScript + Vite
         |
         +-- Scenario Registry
         |     +-- Córdoba calibrated
-        |     |     `-- OperationalRun Catalog -> OperationalBundle
-        |     |                                  +-- run JSON
-        |     |                                  `-- bound route GeoJSON
+        |     |     +-- OperationalRun Catalog -> OperationalBundle
+        |     |     |                            +-- run JSON
+        |     |     |                            `-- bound route GeoJSON
+        |     |     `-- What-If Comparison Catalog -> Base + Early + Balanced
         |     `-- Coca Coqui Legacy V0 -> static FleetScenario
         |
         +-- existing pure time-based simulation engine
+        +-- ScenarioOutcome + Base-relative delta layer
         +-- MASS / PARCELS cargo contracts
         +-- Turf route interpolation / bearing
         +-- checked-in GeoJSON road routes
         +-- one GeoJSON vehicle source
         +-- MapLibre GL + OpenFreeMap
-        `-- React timeline / clock / controls / KPIs / fleet / provenance
+        `-- React timeline / decision rail / clock / controls / KPIs / fleet / provenance
 ```
 
-Operational runs are loaded lazily from `public/data`; run JSON and route artifacts are not imported into the JavaScript bundle. The deployed browser does **not** call OSRM or any routing API. Road geometry is prepared ahead of time and committed as static GeoJSON.
+Operational runs and What-If alternatives are loaded lazily from `public/data`; run JSON and route artifacts are not imported into the JavaScript bundle. The deployed browser does **not** call OSRM or any routing API. Road geometry is prepared ahead of time and committed as static GeoJSON.
 
 ## Static road routes
 
@@ -283,11 +362,20 @@ Historical calibrated Córdoba V0.4/V0.5 shared routes:
 public/data/cordoba-calibrated-routes.geojson
 ```
 
-V0.6 active Córdoba routes are bound per run under:
+V0.6 active Córdoba routes are bound per Base run under:
 
 ```text
 public/data/operational-runs/generated/cordoba-*-v3.routes.geojson
 ```
+
+The published What-If alternatives also own run-bound route artifacts under the same generated directory:
+
+```text
+public/data/operational-runs/generated/*-what-if-early-start-v1.routes.geojson
+public/data/operational-runs/generated/*-what-if-balanced-load-v1.routes.geojson
+```
+
+Early Start republishes/rebinds the exact Base road geometry so run/route metadata remains strongly bound. Balanced Load receives newly prepared road geometry offline after deterministic reassignment/ordering.
 
 To regenerate the legacy/shared route assets during development:
 
@@ -349,25 +437,25 @@ CI runs the full test suite and a production build on pushes and pull requests.
 
 ## Scope boundaries
 
-V0.6 PR2 intentionally has no backend, database, authentication, live GPS, IoT, live weather, live traffic, incident feed, browser routing, production dispatch integration, production-grade route optimizer, ML model, context score, or What-If implementation.
-
-The current project demonstrates an immutable operational-bundle boundary above the existing deterministic engine:
+What-If V0 proves one narrow, reproducible decision loop:
 
 ```text
-OperationalRun Catalog -> OperationalBundle -> FleetScenario -> Simulation Engine -> FleetSnapshot -> map / dashboard
+Base OperationalBundle -> explicit ActionSet -> derived OperationalRun -> existing Simulation Engine -> ScenarioOutcome -> Base-relative Delta
 ```
 
-Future observed, context, telemetry, or What-If adapters can target those same boundaries without changing the current simulation engine contract.
+It intentionally has no backend, database, authentication, live GPS, IoT, live weather, live traffic, incident feed, browser routing, production dispatch integration, autonomous agent, reinforcement learning, Monte Carlo engine, production-grade route optimizer, ML model, opaque risk/context score, automatic winner, or interactive scenario editor.
+
+The Base context state is frozen across the comparison. Early Start does not silently recompute traffic or weather for its shifted clock time. Missing context remains missing rather than being converted to zero or fabricated. Territorial/context intelligence can be integrated later through explicit adapters without being absorbed into FleetFlow's operational decision model.
 
 ## Roadmap
 
 High-value next increments:
 
-1. What-If Base-versus-intervention comparison reusing the frozen V0.6 Base run and `scheduleScenarioFromRoutes`
-2. external operational context such as weather, traffic, holidays, and calendar demand signals
-3. multiple forecast vintages plus explicit observed-data adapters
-4. incidents, delays, replanning, and planned-versus-actual comparisons
-5. optimization experiments such as baseline versus CVRP/OR-Tools assignments
+1. external operational context adapters such as weather, traffic, holidays, and calendar demand signals with explicit evidence semantics
+2. multiple forecast vintages plus explicit observed-data adapters
+3. incidents, delays, replanning, and planned-versus-actual comparisons
+4. additional transparent decision actions and capacity/service constraints
+5. optimization experiments such as baseline versus CVRP/OR-Tools assignments, kept separate from the transparent V0 balancing strategy
 6. live telemetry adapters through the existing `FleetSnapshot` contract
 
 ## Data, attribution and licenses

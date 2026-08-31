@@ -1,8 +1,10 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { FleetPanel } from './components/FleetPanel'
 import { KpiPanel } from './components/KpiPanel'
 import { OperationalDateRail } from './components/OperationalDateRail'
 import { OperationalExplainer } from './components/OperationalExplainer'
+import { ScenarioComparisonPanel } from './components/ScenarioComparisonPanel'
+import { ScenarioDecisionRail } from './components/ScenarioDecisionRail'
 import { ScenarioProvenance } from './components/ScenarioProvenance'
 import { ScenarioSwitcher } from './components/ScenarioSwitcher'
 import { SimulationClock } from './components/SimulationClock'
@@ -18,9 +20,7 @@ import {
   loadOperationalRunManifest,
   selectDefaultRunEntry,
 } from './scenario/operationalRuns/catalog'
-import {
-  getCordobaOperationalDate,
-} from './scenario/operationalRuns/date'
+import { getCordobaOperationalDate } from './scenario/operationalRuns/date'
 import type {
   OperationalRunManifest,
   OperationalRunManifestEntry,
@@ -30,9 +30,19 @@ import {
   getScenarioDefinition,
   type ScenarioId,
 } from './scenario/scenarioRegistry'
+import {
+  findWhatIfComparisonForBase,
+  loadWhatIfComparisonCatalog,
+} from './scenario/whatIf/catalog'
+import { loadScenarioComparison } from './scenario/whatIf/loader'
+import type {
+  ScenarioComparisonSet,
+  WhatIfComparisonDefinition,
+} from './scenario/whatIf/types'
 import { advanceSimulationMinute } from './simulation/clock'
 import { getFleetSnapshot } from './simulation/engine'
 import { deriveFleetMetrics } from './simulation/metrics'
+import { getSimulationStartMinute } from './simulation/window'
 
 export default function App() {
   const [scenarioId, setScenarioId] = useState<ScenarioId>(DEFAULT_SCENARIO_ID)
@@ -44,18 +54,42 @@ export default function App() {
   const [activeBundle, setActiveBundle] = useState<OperationalBundle | null>(null)
   const [runLoading, setRunLoading] = useState(false)
   const [runError, setRunError] = useState(false)
+  const [comparisonDefinition, setComparisonDefinition] = useState<WhatIfComparisonDefinition | null>(null)
+  const [comparisonSet, setComparisonSet] = useState<ScenarioComparisonSet | null>(null)
+  const [comparisonLoading, setComparisonLoading] = useState(false)
+  const [comparisonError, setComparisonError] = useState(false)
+  const [selectedDecisionRunId, setSelectedDecisionRunId] = useState<string | null>(null)
   const [simulationMinute, setSimulationMinute] = useState(0)
   const [isPlaying, setIsPlaying] = useState(false)
   const [speed, setSpeed] = useState(60)
+  const comparisonRequestId = useRef(0)
 
   const activeDefinition = getScenarioDefinition(scenarioId)
   const timeline = activeDefinition.operationalRuns
-  const activeRun = timeline ? activeBundle?.run ?? null : null
+
+  const displayBundle = useMemo(() => {
+    if (!comparisonSet || !selectedDecisionRunId) return activeBundle
+    if (selectedDecisionRunId === comparisonSet.base.run.id) return comparisonSet.base
+    return comparisonSet.alternatives.find(
+      (item) => item.bundle.run.id === selectedDecisionRunId,
+    )?.bundle ?? comparisonSet.base
+  }, [activeBundle, comparisonSet, selectedDecisionRunId])
+
+  const activeRun = timeline ? displayBundle?.run ?? null : null
   const activeScenario = timeline ? activeRun?.scenario ?? null : activeDefinition.scenario
-  const routes = timeline ? activeBundle?.routes ?? null : staticRoutes
+  const routes = timeline ? displayBundle?.routes ?? null : staticRoutes
   const simulationEndMinute = activeScenario
     ? Math.max(0, ...activeScenario.routes.map((route) => route.returnMinute))
     : 0
+
+  const clearComparison = () => {
+    comparisonRequestId.current += 1
+    setComparisonDefinition(null)
+    setComparisonSet(null)
+    setComparisonLoading(false)
+    setComparisonError(false)
+    setSelectedDecisionRunId(null)
+  }
 
   useEffect(() => {
     let cancelled = false
@@ -137,7 +171,7 @@ export default function App() {
     }).then((bundle) => {
       if (cancelled) return
       setIsPlaying(false)
-      setSimulationMinute(0)
+      setSimulationMinute(getSimulationStartMinute(bundle.run.scenario))
       setActiveBundle(bundle)
       setSelectedRunId(entry.id)
       setPendingRunId(null)
@@ -154,6 +188,32 @@ export default function App() {
       cancelled = true
     }
   }, [activeDefinition.routeAsset, pendingRunId, runManifest, scenarioId, timeline])
+
+  useEffect(() => {
+    const catalogUrl = timeline?.comparisonCatalogUrl
+    const base = activeBundle
+
+    comparisonRequestId.current += 1
+    setComparisonDefinition(null)
+    setComparisonSet(null)
+    setComparisonLoading(false)
+    setComparisonError(false)
+    setSelectedDecisionRunId(null)
+
+    if (!catalogUrl || !base) return
+
+    let cancelled = false
+    void loadWhatIfComparisonCatalog(catalogUrl).then((catalog) => {
+      if (cancelled) return
+      setComparisonDefinition(findWhatIfComparisonForBase(catalog, base.run.id))
+    }).catch(() => {
+      if (!cancelled) setComparisonDefinition(null)
+    })
+
+    return () => {
+      cancelled = true
+    }
+  }, [activeBundle, timeline?.comparisonCatalogUrl])
 
   useEffect(() => {
     if (timeline) {
@@ -247,17 +307,68 @@ export default function App() {
 
   const resetSimulation = () => {
     setIsPlaying(false)
-    setSimulationMinute(0)
+    setSimulationMinute(activeScenario ? getSimulationStartMinute(activeScenario) : 0)
+  }
+
+  const openComparison = async () => {
+    const catalogUrl = timeline?.comparisonCatalogUrl
+    const definition = comparisonDefinition
+    const base = activeBundle
+    if (!catalogUrl || !definition || !base || comparisonLoading) return
+
+    const requestId = comparisonRequestId.current + 1
+    comparisonRequestId.current = requestId
+    setComparisonLoading(true)
+    setComparisonError(false)
+
+    try {
+      const comparison = await loadScenarioComparison({
+        definition,
+        base,
+        catalogUrl,
+      })
+      if (comparisonRequestId.current !== requestId) return
+      setComparisonSet(comparison)
+      setSelectedDecisionRunId(comparison.base.run.id)
+      setIsPlaying(false)
+      setSimulationMinute(getSimulationStartMinute(comparison.base.run.scenario))
+    } catch {
+      if (comparisonRequestId.current !== requestId) return
+      setComparisonSet(null)
+      setSelectedDecisionRunId(null)
+      setComparisonError(true)
+    } finally {
+      if (comparisonRequestId.current === requestId) setComparisonLoading(false)
+    }
+  }
+
+  const changeDecision = (runId: string) => {
+    if (!comparisonSet || runId === selectedDecisionRunId) return
+    const nextBundle = runId === comparisonSet.base.run.id
+      ? comparisonSet.base
+      : comparisonSet.alternatives.find((item) => item.bundle.run.id === runId)?.bundle
+    if (!nextBundle) return
+
+    setSelectedDecisionRunId(runId)
+    setIsPlaying(false)
+    setSimulationMinute(getSimulationStartMinute(nextBundle.run.scenario))
   }
 
   const changeOperationalRun = (nextId: string) => {
     if (nextId === selectedRunId || nextId === pendingRunId) return
+    const wasComparing = comparisonSet !== null
+    clearComparison()
+    if (wasComparing && activeBundle) {
+      setIsPlaying(false)
+      setSimulationMinute(getSimulationStartMinute(activeBundle.run.scenario))
+    }
     setRunError(false)
     setPendingRunId(nextId)
   }
 
   const changeScenario = (nextId: ScenarioId) => {
     if (nextId === scenarioId) return
+    clearComparison()
     setIsPlaying(false)
     setSimulationMinute(0)
     setStaticRoutes(null)
@@ -273,6 +384,16 @@ export default function App() {
 
   const timelineEntries: OperationalRunManifestEntry[] = runManifest
     ? [...runManifest.runs].filter((entry) => entry.scenarioId === scenarioId)
+    : []
+
+  const decisionOptions = comparisonSet
+    ? [
+        { id: comparisonSet.base.run.id, label: 'BASE' as const },
+        ...comparisonSet.alternatives.map((item) => ({
+          id: item.bundle.run.id,
+          label: item.label === 'Early start' ? 'EARLY START' as const : 'BALANCED LOAD' as const,
+        })),
+      ]
     : []
 
   const showRunLoading = Boolean(timeline && !runError && (runLoading || !activeScenario))
@@ -303,7 +424,7 @@ export default function App() {
 
       {activeScenario && routes && snapshot && metrics ? (
         <FleetMap
-          key={`${scenarioId}:${activeBundle?.run.id ?? 'static'}`}
+          key={`${scenarioId}:${displayBundle?.run.id ?? 'static'}`}
           scenario={activeScenario}
           routes={routes}
           snapshot={snapshot}
@@ -313,7 +434,7 @@ export default function App() {
       <div className="interface-frame">
         <div className="top-rail">
           <header className="brand-card">
-            <p className="eyebrow">Operational timeline simulation · V0.5</p>
+            <p className="eyebrow">Operational timeline + decision simulation · V0.6</p>
             <h1>FleetFlow Sim</h1>
             <p>{activeScenario?.label ?? activeDefinition.label}</p>
             <ScenarioSwitcher value={scenarioId} onChange={changeScenario} />
@@ -340,10 +461,38 @@ export default function App() {
           </div>
         </div>
 
+        {comparisonDefinition && !comparisonSet ? (
+          <div className="scenario-compare-launcher">
+            <button type="button" onClick={() => void openComparison()} disabled={comparisonLoading}>
+              {comparisonLoading ? 'Loading alternatives…' : 'Compare scenarios'}
+            </button>
+          </div>
+        ) : null}
+
+        {comparisonError ? (
+          <div className="scenario-comparison-error" role="status">
+            Scenario comparison unavailable
+          </div>
+        ) : null}
+
+        {comparisonSet && selectedDecisionRunId ? (
+          <div className="scenario-decision-dock">
+            <ScenarioDecisionRail
+              options={decisionOptions}
+              selectedId={selectedDecisionRunId}
+              onSelect={changeDecision}
+            />
+            <ScenarioComparisonPanel
+              comparison={comparisonSet}
+              selectedRunId={selectedDecisionRunId}
+            />
+          </div>
+        ) : null}
+
         {activeScenario && snapshot && metrics ? (
           <aside className="operations-panel">
             <KpiPanel metrics={metrics} />
-            {timeline && activeRun ? (
+            {timeline && activeRun && activeRun.mode !== 'WHAT_IF' ? (
               <OperationalExplainer run={activeRun} />
             ) : null}
             <FleetPanel scenario={activeScenario} snapshot={snapshot} />
