@@ -1,6 +1,7 @@
 import { validateScenario } from '../../domain/scenarioValidation'
 import type { FleetScenario } from '../../domain/types'
 import { SCENARIO_IDS } from '../scenarioRegistry'
+import { validateWhatIfProvenance } from '../whatIf/validation'
 import {
   OPERATIONAL_RUN_MODES,
   type OperationalProfileProvenance,
@@ -279,6 +280,17 @@ export function validateOperationalRun(value: unknown): string[] {
     const spatialDemand = value.provenance.spatialDemand
     if (spatialDemand !== undefined && !isSpatialDemandShape(spatialDemand)) {
       errors.push('Operational run provenance spatial demand is invalid')
+    }
+
+    const whatIf = value.provenance.whatIf
+    if (value.mode === 'WHAT_IF') {
+      if (whatIf === undefined) {
+        errors.push('Operational run WHAT_IF provenance is required')
+      } else {
+        errors.push(...validateWhatIfProvenance(whatIf))
+      }
+    } else if (whatIf !== undefined) {
+      errors.push('Operational run WHAT_IF provenance is only allowed for WHAT_IF mode')
     }
   }
 
