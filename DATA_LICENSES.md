@@ -31,6 +31,26 @@ The generated Córdoba scenario then samples from those aggregate distributions 
 
 This repository does not attempt to relicense the Amazon source data. Reuse of source-derived artifacts should respect the source dataset's `CC BY-NC 4.0` terms and attribution requirements.
 
+## Córdoba municipal GTFS
+
+**Official dataset:** https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319
+
+**Municipal dataset identifiers used for candidate-pool v1:** dataset `3319`, version `6122` (`GTFS Transporte Publico 03/2023`), resource `18772`.
+
+**Source license reported by the Córdoba Open Data API:** `CC-BY-SA-AR (CBA)`.
+
+FleetFlow uses the static Córdoba GTFS only as an **offline spatial reference/proxy** when constructing the synthetic delivery-candidate universe. It does not treat public-transport stops, routes, passenger activity, or proximity to transit as observed parcel demand.
+
+The raw GTFS archive and its real stop IDs/names are not required by the deployed application and are not committed merely to run FleetFlow. The checked-in derived artifact is:
+
+```text
+src/scenario/operationalRuns/candidate-pool-v1.json
+```
+
+Candidate-pool v1 contains 240 neutral synthetic locations (`Entrega 001` ... `Entrega 240`) generated deterministically from the spatial structure of the GTFS source. Candidate coordinates are offset synthetic points; they are not represented as real customers, businesses, residences, or exact transit stops. The artifact records the candidate-pool generator/version, GTFS reference URL, spatial zone, relative spatial weight, and deterministic seed.
+
+Reuse of the GTFS-derived candidate artifact should preserve the Córdoba source attribution and applicable `CC-BY-SA-AR (CBA)` requirements. The source license applies independently from FleetFlow's MIT-licensed application code.
+
 ## OpenStreetMap
 
 **Official copyright/license page:** https://www.openstreetmap.org/copyright
@@ -43,14 +63,20 @@ FleetFlow uses OSM-based road context for its prepared static route geometries. 
 © OpenStreetMap contributors
 ```
 
-The checked-in route assets are:
+Checked-in route assets include the historical shared routes:
 
 ```text
 public/data/coca-coqui-routes.geojson
 public/data/cordoba-calibrated-routes.geojson
 ```
 
-They are generated during development using an OSRM routing service and are not evidence of measured or observed vehicle tracks.
+and the V0.6 immutable per-run route artifacts referenced by `manifest-v0-6.json`:
+
+```text
+public/data/operational-runs/generated/cordoba-*-v3.routes.geojson
+```
+
+These route files are generated during development using an OSRM routing service and are not evidence of measured or observed vehicle tracks. V0.6 route metadata binds each artifact to its synthetic `OperationalRun`; that binding does not change the underlying OSM attribution boundary.
 
 ## OpenFreeMap
 
@@ -80,9 +106,12 @@ In short:
 FleetFlow source code                -> MIT
 Amazon source calibration input      -> CC BY-NC 4.0
 Amazon-derived aggregate profile     -> respect source terms / attribution
-OpenStreetMap map + road data         -> ODbL + attribution
+Córdoba municipal GTFS               -> CC-BY-SA-AR (CBA) + attribution
+GTFS-derived candidate pool          -> synthetic derived artifact; preserve source terms
+OpenStreetMap map + road data        -> ODbL + attribution
+V0.6 per-run road GeoJSON            -> generated from OSM routing; retain OSM attribution
 OpenFreeMap public basemap service    -> OpenFreeMap terms + required attribution
 Synthetic Córdoba scenario content    -> generated FleetFlow scenario, with provenance disclosed
 ```
 
-If this project is reused commercially, verify the external-data terms independently rather than assuming FleetFlow's MIT code license covers the Amazon-derived calibration artifacts.
+If this project is reused commercially, verify the external-data terms independently rather than assuming FleetFlow's MIT code license covers the Amazon- or GTFS-derived artifacts.

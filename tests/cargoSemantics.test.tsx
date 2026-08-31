@@ -149,10 +149,11 @@ describe('parcel simulation snapshot', () => {
 describe('parcel operational copy', () => {
   const snapshot = getFleetSnapshot(parcelScenario, parcelGeometries, 1) as FleetSnapshot
 
-  it('shows parcel load and generic vehicle wording in the fleet panel', () => {
+  it('shows planned and remaining parcel load with generic vehicle wording', () => {
     render(<FleetPanel scenario={parcelScenario} snapshot={snapshot} />)
     expect(screen.getByText('1 vehículo')).toBeInTheDocument()
-    expect(screen.getByText('12 paquetes')).toBeInTheDocument()
+    expect(screen.getByText('Plan · 12 paquetes')).toBeInTheDocument()
+    expect(screen.getByText('Restan · 12 paquetes')).toBeInTheDocument()
     expect(screen.getByText('37% de capacidad ocupada')).toBeInTheDocument()
   })
 

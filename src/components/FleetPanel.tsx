@@ -17,6 +17,10 @@ function vehicleCountLabel(count: number): string {
   return `${count} ${count === 1 ? 'vehículo' : 'vehículos'}`
 }
 
+function packageCountLabel(count: number): string {
+  return `${count} ${count === 1 ? 'paquete' : 'paquetes'}`
+}
+
 function statusLabel(status: TruckStatus, cargo: RemainingCargo): string {
   if (status === 'UNLOADING' && cargo.kind === 'PARCELS') {
     return 'Entregando'
@@ -25,13 +29,14 @@ function statusLabel(status: TruckStatus, cargo: RemainingCargo): string {
   return STATUS_LABELS[status]
 }
 
-function cargoLines(cargo: RemainingCargo): string[] {
+function cargoLines(cargo: RemainingCargo, plannedPackages: number): string[] {
   if (cargo.kind === 'MASS') {
     return [`${Math.round(cargo.quantityKg)} kg en carga`]
   }
 
   return [
-    `${cargo.packageCount} ${cargo.packageCount === 1 ? 'paquete' : 'paquetes'}`,
+    `Plan · ${packageCountLabel(plannedPackages)}`,
+    `Restan · ${packageCountLabel(cargo.packageCount)}`,
     `${Math.round(cargo.utilizationPct)}% de capacidad ocupada`,
   ]
 }
@@ -57,6 +62,10 @@ export function FleetPanel({ scenario, snapshot }: FleetPanelProps) {
           const nextStore = truckSnapshot.nextStopId
             ? storesById.get(truckSnapshot.nextStopId)
             : null
+          const plannedPackages = route.stops.reduce(
+            (sum, stop) => sum + (stop.cargo.kind === 'PARCELS' ? stop.cargo.packageCount : 0),
+            0,
+          )
 
           return (
             <article className="truck-card" key={truck.id}>
@@ -68,7 +77,7 @@ export function FleetPanel({ scenario, snapshot }: FleetPanelProps) {
               </div>
               <p>{nextStore ? `Sigue · ${nextStore.name}` : 'Ruta completa'}</p>
               <span>{truckSnapshot.completedDeliveries} / {route.stops.length} entregas</span>
-              {cargoLines(truckSnapshot.remainingCargo).map((line) => (
+              {cargoLines(truckSnapshot.remainingCargo, plannedPackages).map((line) => (
                 <span key={line}>{line}</span>
               ))}
             </article>

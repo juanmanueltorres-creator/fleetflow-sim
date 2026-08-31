@@ -13,11 +13,22 @@ export interface OperationalProfileProvenance {
   summary: string
 }
 
+export interface OperationalSpatialDemandProvenance {
+  candidatePoolVersion: string
+  deliveryCount: number
+  gtfsReference: string
+  demandSeed: string
+  spatialSeed: string
+  operationsSeed: string
+  assignmentSeed: string
+}
+
 export interface OperationalRunProvenance {
   generator: string
   seed: string
   notes: string[]
   operationalProfile?: OperationalProfileProvenance
+  spatialDemand?: OperationalSpatialDemandProvenance
 }
 
 export interface OperationalRun {

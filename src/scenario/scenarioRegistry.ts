@@ -47,7 +47,7 @@ const definitions: Record<ScenarioId, ScenarioDefinition> = {
     badge: 'Calibrado',
     routeAsset: './data/cordoba-calibrated-routes.geojson',
     operationalRuns: {
-      manifestUrl: './data/operational-runs/manifest.json',
+      manifestUrl: './data/operational-runs/manifest-v0-6.json',
     },
     scenario: requireValidScenario('Calibrated Cordoba', calibratedScenario),
     provenance: {

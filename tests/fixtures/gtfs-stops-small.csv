@@ -1,0 +1,17 @@
+stop_id,stop_name,stop_lat,stop_lon
+n1,Norte Uno,-31.410100,-64.188800
+n2,Norte Dos,-31.408100,-64.188500
+ne1,Noreste Uno,-31.412100,-64.180800
+ne2,Noreste Dos,-31.410800,-64.178800
+e1,Este Uno,-31.420100,-64.178800
+e2,Este Dos,-31.419700,-64.176800
+se1,Sudeste Uno,-31.428100,-64.180800
+se2,Sudeste Dos,-31.430100,-64.178800
+s1,Sur Uno,-31.430100,-64.188800
+s2,Sur Dos,-31.432100,-64.188500
+sw1,Sudoeste Uno,-31.428100,-64.196800
+sw2,Sudoeste Dos,-31.430100,-64.198800
+w1,Oeste Uno,-31.420100,-64.198800
+w2,Oeste Dos,-31.419700,-64.200800
+nw1,Noroeste Uno,-31.412100,-64.196800
+nw2,Noroeste Dos,-31.410100,-64.198800

@@ -8,14 +8,18 @@ vi.mock('../src/map/FleetMap', () => ({
   FleetMap: () => <div data-testid="fleet-map" />,
 }))
 
+const MANIFEST_URL = './data/operational-runs/manifest-v0-6.json'
+const RUN_30_URL = './data/operational-runs/generated/cordoba-2026-08-30-v3.json'
+const ROUTES_30_URL = './data/operational-runs/generated/cordoba-2026-08-30-v3.routes.geojson'
+
 const manifest = JSON.parse(
-  readFileSync(resolve(process.cwd(), 'public/data/operational-runs/manifest.json'), 'utf8'),
+  readFileSync(resolve(process.cwd(), 'public/data/operational-runs/manifest-v0-6.json'), 'utf8'),
 )
 const run30 = JSON.parse(
-  readFileSync(resolve(process.cwd(), 'public/data/operational-runs/generated/cordoba-2026-08-30-v2.json'), 'utf8'),
+  readFileSync(resolve(process.cwd(), 'public/data/operational-runs/generated/cordoba-2026-08-30-v3.json'), 'utf8'),
 )
-const calibratedRoutes = JSON.parse(
-  readFileSync(resolve(process.cwd(), 'public/data/cordoba-calibrated-routes.geojson'), 'utf8'),
+const routes30 = JSON.parse(
+  readFileSync(resolve(process.cwd(), 'public/data/operational-runs/generated/cordoba-2026-08-30-v3.routes.geojson'), 'utf8'),
 )
 
 function response(payload: unknown): Promise<Response> {
@@ -27,9 +31,9 @@ describe('FleetFlow app shell', () => {
     vi.setSystemTime(new Date('2026-08-30T15:00:00Z'))
     vi.stubGlobal('fetch', vi.fn((input: RequestInfo | URL) => {
       const url = String(input)
-      if (url === './data/operational-runs/manifest.json') return response(manifest)
-      if (url === './data/operational-runs/generated/cordoba-2026-08-30-v2.json') return response(run30)
-      if (url === './data/cordoba-calibrated-routes.geojson') return response(calibratedRoutes)
+      if (url === MANIFEST_URL) return response(manifest)
+      if (url === RUN_30_URL) return response(run30)
+      if (url === ROUTES_30_URL) return response(routes30)
       return Promise.resolve({ ok: false, status: 404, json: async () => ({}) } as Response)
     }))
   })
@@ -40,7 +44,7 @@ describe('FleetFlow app shell', () => {
     vi.useRealTimers()
   })
 
-  it('renders the V0.5 identity, calibrated operational default and simulation controls', async () => {
+  it('renders the existing identity, active V0.6 operational default and simulation controls', async () => {
     render(<App />)
 
     expect(screen.getByRole('heading', { name: 'FleetFlow Sim' })).toBeInTheDocument()

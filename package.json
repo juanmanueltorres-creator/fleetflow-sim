@@ -12,7 +12,8 @@
     "prepare:routes:calibrated": "node scripts/prepare-routes.mjs --scenario src/scenario/generated/cordoba-calibrated-v1.json --output public/data/cordoba-calibrated-routes.geojson",
     "calibrate:amazon": "node scripts/calibrate-amazon.mjs",
     "generate:calibrated": "node scripts/generate-calibrated-scenario.mjs --profile src/scenario/calibration/amazon-last-mile-v1.json --routes public/data/cordoba-calibrated-routes.geojson --output src/scenario/generated/cordoba-calibrated-v1.json --seed fleetflow-cordoba-v0.4",
-    "generate:operational-runs": "node scripts/generate-operational-runs.mjs --profile src/scenario/calibration/amazon-last-mile-v1.json --routes public/data/cordoba-calibrated-routes.geojson"
+    "generate:operational-runs": "node scripts/generate-operational-runs.mjs --profile src/scenario/calibration/amazon-last-mile-v1.json --routes public/data/cordoba-calibrated-routes.geojson",
+    "generate:operational-runs:v0.6": "node scripts/generate-v0-6-operational-runs.mjs"
   },
   "dependencies": {
     "@turf/along": "7.4.0",

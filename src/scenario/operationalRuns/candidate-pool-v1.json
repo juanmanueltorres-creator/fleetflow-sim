@@ -1,0 +1,3609 @@
+{
+  "schemaVersion": 1,
+  "version": "cordoba-delivery-pool-v1",
+  "generator": "cordoba-gtfs-candidate-pool-v1",
+  "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319",
+  "seed": "fleetflow:v0.6:cordoba:candidate-pool-v1",
+  "candidates": [
+    {
+      "id": "delivery-candidate-001",
+      "label": "Entrega 001",
+      "position": [
+        -64.17537,
+        -31.377634
+      ],
+      "zoneId": "zone-0",
+      "spatialWeight": 0.25742574257425743,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-002",
+      "label": "Entrega 002",
+      "position": [
+        -64.172808,
+        -31.343229
+      ],
+      "zoneId": "zone-0",
+      "spatialWeight": 0.21782178217821782,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-003",
+      "label": "Entrega 003",
+      "position": [
+        -64.185776,
+        -31.415734
+      ],
+      "zoneId": "zone-0",
+      "spatialWeight": 0.9108910891089109,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-004",
+      "label": "Entrega 004",
+      "position": [
+        -64.185784,
+        -31.40118
+      ],
+      "zoneId": "zone-0",
+      "spatialWeight": 0.31683168316831684,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-005",
+      "label": "Entrega 005",
+      "position": [
+        -64.208662,
+        -31.33579
+      ],
+      "zoneId": "zone-0",
+      "spatialWeight": 0.15841584158415842,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-006",
+      "label": "Entrega 006",
+      "position": [
+        -64.184077,
+        -31.371868
+      ],
+      "zoneId": "zone-0",
+      "spatialWeight": 0.27722772277227725,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-007",
+      "label": "Entrega 007",
+      "position": [
+        -64.187751,
+        -31.411678
+      ],
+      "zoneId": "zone-0",
+      "spatialWeight": 0.8811881188118812,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-008",
+      "label": "Entrega 008",
+      "position": [
+        -64.187275,
+        -31.410415
+      ],
+      "zoneId": "zone-0",
+      "spatialWeight": 0.8811881188118812,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-009",
+      "label": "Entrega 009",
+      "position": [
+        -64.185515,
+        -31.390272
+      ],
+      "zoneId": "zone-0",
+      "spatialWeight": 0.21782178217821782,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-010",
+      "label": "Entrega 010",
+      "position": [
+        -64.174654,
+        -31.340323
+      ],
+      "zoneId": "zone-0",
+      "spatialWeight": 0.26732673267326734,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-011",
+      "label": "Entrega 011",
+      "position": [
+        -64.186541,
+        -31.412597
+      ],
+      "zoneId": "zone-0",
+      "spatialWeight": 0.801980198019802,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-012",
+      "label": "Entrega 012",
+      "position": [
+        -64.174116,
+        -31.381896
+      ],
+      "zoneId": "zone-0",
+      "spatialWeight": 0.40594059405940597,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-013",
+      "label": "Entrega 013",
+      "position": [
+        -64.184168,
+        -31.366528
+      ],
+      "zoneId": "zone-0",
+      "spatialWeight": 0.33663366336633666,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-014",
+      "label": "Entrega 014",
+      "position": [
+        -64.192632,
+        -31.387516
+      ],
+      "zoneId": "zone-0",
+      "spatialWeight": 0.22772277227722773,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-015",
+      "label": "Entrega 015",
+      "position": [
+        -64.193014,
+        -31.411463
+      ],
+      "zoneId": "zone-0",
+      "spatialWeight": 0.8514851485148515,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-016",
+      "label": "Entrega 016",
+      "position": [
+        -64.175676,
+        -31.334799
+      ],
+      "zoneId": "zone-0",
+      "spatialWeight": 0.24752475247524752,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-017",
+      "label": "Entrega 017",
+      "position": [
+        -64.209856,
+        -31.365608
+      ],
+      "zoneId": "zone-0",
+      "spatialWeight": 0.3564356435643564,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-018",
+      "label": "Entrega 018",
+      "position": [
+        -64.194389,
+        -31.396052
+      ],
+      "zoneId": "zone-0",
+      "spatialWeight": 0.5148514851485149,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-019",
+      "label": "Entrega 019",
+      "position": [
+        -64.183881,
+        -31.411938
+      ],
+      "zoneId": "zone-0",
+      "spatialWeight": 0.900990099009901,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-020",
+      "label": "Entrega 020",
+      "position": [
+        -64.206354,
+        -31.37077
+      ],
+      "zoneId": "zone-0",
+      "spatialWeight": 0.32673267326732675,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-021",
+      "label": "Entrega 021",
+      "position": [
+        -64.176876,
+        -31.329219
+      ],
+      "zoneId": "zone-0",
+      "spatialWeight": 0.2079207920792079,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-022",
+      "label": "Entrega 022",
+      "position": [
+        -64.195758,
+        -31.395747
+      ],
+      "zoneId": "zone-0",
+      "spatialWeight": 0.45544554455445546,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-023",
+      "label": "Entrega 023",
+      "position": [
+        -64.183238,
+        -31.363335
+      ],
+      "zoneId": "zone-0",
+      "spatialWeight": 0.3069306930693069,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-024",
+      "label": "Entrega 024",
+      "position": [
+        -64.187218,
+        -31.420102
+      ],
+      "zoneId": "zone-0",
+      "spatialWeight": 0.7524752475247525,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-025",
+      "label": "Entrega 025",
+      "position": [
+        -64.190832,
+        -31.408267
+      ],
+      "zoneId": "zone-0",
+      "spatialWeight": 0.5643564356435643,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-026",
+      "label": "Entrega 026",
+      "position": [
+        -64.189396,
+        -31.417129
+      ],
+      "zoneId": "zone-0",
+      "spatialWeight": 0.7623762376237624,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-027",
+      "label": "Entrega 027",
+      "position": [
+        -64.189036,
+        -31.394145
+      ],
+      "zoneId": "zone-0",
+      "spatialWeight": 0.31683168316831684,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-028",
+      "label": "Entrega 028",
+      "position": [
+        -64.222438,
+        -31.347115
+      ],
+      "zoneId": "zone-0",
+      "spatialWeight": 0.21782178217821782,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-029",
+      "label": "Entrega 029",
+      "position": [
+        -64.207463,
+        -31.375053
+      ],
+      "zoneId": "zone-0",
+      "spatialWeight": 0.3465346534653465,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-030",
+      "label": "Entrega 030",
+      "position": [
+        -64.177723,
+        -31.353159
+      ],
+      "zoneId": "zone-0",
+      "spatialWeight": 0.2079207920792079,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-031",
+      "label": "Entrega 031",
+      "position": [
+        -64.154579,
+        -31.381613
+      ],
+      "zoneId": "zone-1",
+      "spatialWeight": 0.2608695652173913,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-032",
+      "label": "Entrega 032",
+      "position": [
+        -64.157837,
+        -31.406696
+      ],
+      "zoneId": "zone-1",
+      "spatialWeight": 0.42391304347826086,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-033",
+      "label": "Entrega 033",
+      "position": [
+        -64.167275,
+        -31.409925
+      ],
+      "zoneId": "zone-1",
+      "spatialWeight": 0.33695652173913043,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-034",
+      "label": "Entrega 034",
+      "position": [
+        -64.15552,
+        -31.405704
+      ],
+      "zoneId": "zone-1",
+      "spatialWeight": 0.3804347826086957,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-035",
+      "label": "Entrega 035",
+      "position": [
+        -64.180949,
+        -31.414644
+      ],
+      "zoneId": "zone-1",
+      "spatialWeight": 0.967391304347826,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-036",
+      "label": "Entrega 036",
+      "position": [
+        -64.165254,
+        -31.380577
+      ],
+      "zoneId": "zone-1",
+      "spatialWeight": 0.43478260869565216,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-037",
+      "label": "Entrega 037",
+      "position": [
+        -64.170394,
+        -31.41106
+      ],
+      "zoneId": "zone-1",
+      "spatialWeight": 0.34782608695652173,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-038",
+      "label": "Entrega 038",
+      "position": [
+        -64.152246,
+        -31.387585
+      ],
+      "zoneId": "zone-1",
+      "spatialWeight": 0.3695652173913043,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-039",
+      "label": "Entrega 039",
+      "position": [
+        -64.131268,
+        -31.393277
+      ],
+      "zoneId": "zone-1",
+      "spatialWeight": 0.29347826086956524,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-040",
+      "label": "Entrega 040",
+      "position": [
+        -64.146791,
+        -31.343129
+      ],
+      "zoneId": "zone-1",
+      "spatialWeight": 0.09782608695652174,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-041",
+      "label": "Entrega 041",
+      "position": [
+        -64.137751,
+        -31.369787
+      ],
+      "zoneId": "zone-1",
+      "spatialWeight": 0.3695652173913043,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-042",
+      "label": "Entrega 042",
+      "position": [
+        -64.156974,
+        -31.406492
+      ],
+      "zoneId": "zone-1",
+      "spatialWeight": 0.4782608695652174,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-043",
+      "label": "Entrega 043",
+      "position": [
+        -64.124209,
+        -31.387363
+      ],
+      "zoneId": "zone-1",
+      "spatialWeight": 0.2717391304347826,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-044",
+      "label": "Entrega 044",
+      "position": [
+        -64.147704,
+        -31.363866
+      ],
+      "zoneId": "zone-1",
+      "spatialWeight": 0.3695652173913043,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-045",
+      "label": "Entrega 045",
+      "position": [
+        -64.178894,
+        -31.412131
+      ],
+      "zoneId": "zone-1",
+      "spatialWeight": 0.5543478260869565,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-046",
+      "label": "Entrega 046",
+      "position": [
+        -64.15597,
+        -31.39062
+      ],
+      "zoneId": "zone-1",
+      "spatialWeight": 0.42391304347826086,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-047",
+      "label": "Entrega 047",
+      "position": [
+        -64.130201,
+        -31.378625
+      ],
+      "zoneId": "zone-1",
+      "spatialWeight": 0.2608695652173913,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-048",
+      "label": "Entrega 048",
+      "position": [
+        -64.156639,
+        -31.398648
+      ],
+      "zoneId": "zone-1",
+      "spatialWeight": 0.4782608695652174,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-049",
+      "label": "Entrega 049",
+      "position": [
+        -64.123643,
+        -31.374741
+      ],
+      "zoneId": "zone-1",
+      "spatialWeight": 0.043478260869565216,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-050",
+      "label": "Entrega 050",
+      "position": [
+        -64.145296,
+        -31.372396
+      ],
+      "zoneId": "zone-1",
+      "spatialWeight": 0.30434782608695654,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-051",
+      "label": "Entrega 051",
+      "position": [
+        -64.153696,
+        -31.395842
+      ],
+      "zoneId": "zone-1",
+      "spatialWeight": 0.2717391304347826,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-052",
+      "label": "Entrega 052",
+      "position": [
+        -64.169959,
+        -31.384661
+      ],
+      "zoneId": "zone-1",
+      "spatialWeight": 0.4673913043478261,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-053",
+      "label": "Entrega 053",
+      "position": [
+        -64.144205,
+        -31.368835
+      ],
+      "zoneId": "zone-1",
+      "spatialWeight": 0.391304347826087,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-054",
+      "label": "Entrega 054",
+      "position": [
+        -64.143867,
+        -31.38991
+      ],
+      "zoneId": "zone-1",
+      "spatialWeight": 0.2717391304347826,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-055",
+      "label": "Entrega 055",
+      "position": [
+        -64.183056,
+        -31.411604
+      ],
+      "zoneId": "zone-1",
+      "spatialWeight": 0.9347826086956522,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-056",
+      "label": "Entrega 056",
+      "position": [
+        -64.163406,
+        -31.383072
+      ],
+      "zoneId": "zone-1",
+      "spatialWeight": 0.391304347826087,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-057",
+      "label": "Entrega 057",
+      "position": [
+        -64.175093,
+        -31.415416
+      ],
+      "zoneId": "zone-1",
+      "spatialWeight": 0.5760869565217391,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-058",
+      "label": "Entrega 058",
+      "position": [
+        -64.152918,
+        -31.365211
+      ],
+      "zoneId": "zone-1",
+      "spatialWeight": 0.33695652173913043,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-059",
+      "label": "Entrega 059",
+      "position": [
+        -64.161448,
+        -31.375533
+      ],
+      "zoneId": "zone-1",
+      "spatialWeight": 0.3695652173913043,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-060",
+      "label": "Entrega 060",
+      "position": [
+        -64.161179,
+        -31.410278
+      ],
+      "zoneId": "zone-1",
+      "spatialWeight": 0.45652173913043476,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-061",
+      "label": "Entrega 061",
+      "position": [
+        -64.179926,
+        -31.421651
+      ],
+      "zoneId": "zone-2",
+      "spatialWeight": 0.632183908045977,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-062",
+      "label": "Entrega 062",
+      "position": [
+        -64.148591,
+        -31.424864
+      ],
+      "zoneId": "zone-2",
+      "spatialWeight": 0.47126436781609193,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-063",
+      "label": "Entrega 063",
+      "position": [
+        -64.109816,
+        -31.439055
+      ],
+      "zoneId": "zone-2",
+      "spatialWeight": 0.2988505747126437,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-064",
+      "label": "Entrega 064",
+      "position": [
+        -64.16554,
+        -31.414729
+      ],
+      "zoneId": "zone-2",
+      "spatialWeight": 0.5057471264367817,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-065",
+      "label": "Entrega 065",
+      "position": [
+        -64.152622,
+        -31.426782
+      ],
+      "zoneId": "zone-2",
+      "spatialWeight": 0.367816091954023,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-066",
+      "label": "Entrega 066",
+      "position": [
+        -64.156671,
+        -31.413903
+      ],
+      "zoneId": "zone-2",
+      "spatialWeight": 0.4367816091954023,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-067",
+      "label": "Entrega 067",
+      "position": [
+        -64.157822,
+        -31.412829
+      ],
+      "zoneId": "zone-2",
+      "spatialWeight": 0.5287356321839081,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-068",
+      "label": "Entrega 068",
+      "position": [
+        -64.151175,
+        -31.418895
+      ],
+      "zoneId": "zone-2",
+      "spatialWeight": 0.47126436781609193,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-069",
+      "label": "Entrega 069",
+      "position": [
+        -64.164127,
+        -31.428206
+      ],
+      "zoneId": "zone-2",
+      "spatialWeight": 0.4482758620689655,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-070",
+      "label": "Entrega 070",
+      "position": [
+        -64.1431,
+        -31.421946
+      ],
+      "zoneId": "zone-2",
+      "spatialWeight": 0.4482758620689655,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-071",
+      "label": "Entrega 071",
+      "position": [
+        -64.145722,
+        -31.434259
+      ],
+      "zoneId": "zone-2",
+      "spatialWeight": 0.3448275862068966,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-072",
+      "label": "Entrega 072",
+      "position": [
+        -64.15427,
+        -31.412032
+      ],
+      "zoneId": "zone-2",
+      "spatialWeight": 0.47126436781609193,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-073",
+      "label": "Entrega 073",
+      "position": [
+        -64.166784,
+        -31.425076
+      ],
+      "zoneId": "zone-2",
+      "spatialWeight": 0.45977011494252873,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-074",
+      "label": "Entrega 074",
+      "position": [
+        -64.13995,
+        -31.425355
+      ],
+      "zoneId": "zone-2",
+      "spatialWeight": 0.40229885057471265,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-075",
+      "label": "Entrega 075",
+      "position": [
+        -64.170382,
+        -31.425722
+      ],
+      "zoneId": "zone-2",
+      "spatialWeight": 0.4827586206896552,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-076",
+      "label": "Entrega 076",
+      "position": [
+        -64.148719,
+        -31.413685
+      ],
+      "zoneId": "zone-2",
+      "spatialWeight": 0.28735632183908044,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-077",
+      "label": "Entrega 077",
+      "position": [
+        -64.157017,
+        -31.414304
+      ],
+      "zoneId": "zone-2",
+      "spatialWeight": 0.45977011494252873,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-078",
+      "label": "Entrega 078",
+      "position": [
+        -64.160677,
+        -31.414434
+      ],
+      "zoneId": "zone-2",
+      "spatialWeight": 0.5747126436781609,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-079",
+      "label": "Entrega 079",
+      "position": [
+        -64.155354,
+        -31.417303
+      ],
+      "zoneId": "zone-2",
+      "spatialWeight": 0.5172413793103449,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-080",
+      "label": "Entrega 080",
+      "position": [
+        -64.116568,
+        -31.428197
+      ],
+      "zoneId": "zone-2",
+      "spatialWeight": 0.3333333333333333,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-081",
+      "label": "Entrega 081",
+      "position": [
+        -64.185825,
+        -31.421935
+      ],
+      "zoneId": "zone-2",
+      "spatialWeight": 0.9425287356321839,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-082",
+      "label": "Entrega 082",
+      "position": [
+        -64.155357,
+        -31.423191
+      ],
+      "zoneId": "zone-2",
+      "spatialWeight": 0.5632183908045977,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-083",
+      "label": "Entrega 083",
+      "position": [
+        -64.131138,
+        -31.422877
+      ],
+      "zoneId": "zone-2",
+      "spatialWeight": 0.39080459770114945,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-084",
+      "label": "Entrega 084",
+      "position": [
+        -64.122686,
+        -31.437618
+      ],
+      "zoneId": "zone-2",
+      "spatialWeight": 0.3793103448275862,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-085",
+      "label": "Entrega 085",
+      "position": [
+        -64.132422,
+        -31.414053
+      ],
+      "zoneId": "zone-2",
+      "spatialWeight": 0.19540229885057472,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-086",
+      "label": "Entrega 086",
+      "position": [
+        -64.152418,
+        -31.427636
+      ],
+      "zoneId": "zone-2",
+      "spatialWeight": 0.5172413793103449,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-087",
+      "label": "Entrega 087",
+      "position": [
+        -64.151974,
+        -31.423081
+      ],
+      "zoneId": "zone-2",
+      "spatialWeight": 0.5632183908045977,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-088",
+      "label": "Entrega 088",
+      "position": [
+        -64.128771,
+        -31.430489
+      ],
+      "zoneId": "zone-2",
+      "spatialWeight": 0.3793103448275862,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-089",
+      "label": "Entrega 089",
+      "position": [
+        -64.155598,
+        -31.415994
+      ],
+      "zoneId": "zone-2",
+      "spatialWeight": 0.45977011494252873,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-090",
+      "label": "Entrega 090",
+      "position": [
+        -64.175119,
+        -31.418242
+      ],
+      "zoneId": "zone-2",
+      "spatialWeight": 0.5747126436781609,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-091",
+      "label": "Entrega 091",
+      "position": [
+        -64.162273,
+        -31.438081
+      ],
+      "zoneId": "zone-3",
+      "spatialWeight": 0.5125,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-092",
+      "label": "Entrega 092",
+      "position": [
+        -64.167601,
+        -31.459366
+      ],
+      "zoneId": "zone-3",
+      "spatialWeight": 0.375,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-093",
+      "label": "Entrega 093",
+      "position": [
+        -64.146514,
+        -31.44175
+      ],
+      "zoneId": "zone-3",
+      "spatialWeight": 0.4625,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-094",
+      "label": "Entrega 094",
+      "position": [
+        -64.102034,
+        -31.464062
+      ],
+      "zoneId": "zone-3",
+      "spatialWeight": 0.3625,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-095",
+      "label": "Entrega 095",
+      "position": [
+        -64.097182,
+        -31.466424
+      ],
+      "zoneId": "zone-3",
+      "spatialWeight": 0.35,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-096",
+      "label": "Entrega 096",
+      "position": [
+        -64.082435,
+        -31.46142
+      ],
+      "zoneId": "zone-3",
+      "spatialWeight": 0.3375,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-097",
+      "label": "Entrega 097",
+      "position": [
+        -64.158581,
+        -31.431995
+      ],
+      "zoneId": "zone-3",
+      "spatialWeight": 0.5625,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-098",
+      "label": "Entrega 098",
+      "position": [
+        -64.176101,
+        -31.438772
+      ],
+      "zoneId": "zone-3",
+      "spatialWeight": 0.3875,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-099",
+      "label": "Entrega 099",
+      "position": [
+        -64.15724,
+        -31.450795
+      ],
+      "zoneId": "zone-3",
+      "spatialWeight": 0.3125,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-100",
+      "label": "Entrega 100",
+      "position": [
+        -64.133871,
+        -31.446722
+      ],
+      "zoneId": "zone-3",
+      "spatialWeight": 0.3125,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-101",
+      "label": "Entrega 101",
+      "position": [
+        -64.157046,
+        -31.443598
+      ],
+      "zoneId": "zone-3",
+      "spatialWeight": 0.6,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-102",
+      "label": "Entrega 102",
+      "position": [
+        -64.142787,
+        -31.443953
+      ],
+      "zoneId": "zone-3",
+      "spatialWeight": 0.35,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-103",
+      "label": "Entrega 103",
+      "position": [
+        -64.147137,
+        -31.448142
+      ],
+      "zoneId": "zone-3",
+      "spatialWeight": 0.375,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-104",
+      "label": "Entrega 104",
+      "position": [
+        -64.184557,
+        -31.424807
+      ],
+      "zoneId": "zone-3",
+      "spatialWeight": 0.775,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-105",
+      "label": "Entrega 105",
+      "position": [
+        -64.168439,
+        -31.429433
+      ],
+      "zoneId": "zone-3",
+      "spatialWeight": 0.675,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-106",
+      "label": "Entrega 106",
+      "position": [
+        -64.084644,
+        -31.465313
+      ],
+      "zoneId": "zone-3",
+      "spatialWeight": 0.3625,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-107",
+      "label": "Entrega 107",
+      "position": [
+        -64.172983,
+        -31.428057
+      ],
+      "zoneId": "zone-3",
+      "spatialWeight": 0.475,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-108",
+      "label": "Entrega 108",
+      "position": [
+        -64.170072,
+        -31.439116
+      ],
+      "zoneId": "zone-3",
+      "spatialWeight": 0.4625,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-109",
+      "label": "Entrega 109",
+      "position": [
+        -64.119571,
+        -31.446084
+      ],
+      "zoneId": "zone-3",
+      "spatialWeight": 0.3125,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-110",
+      "label": "Entrega 110",
+      "position": [
+        -64.109833,
+        -31.460006
+      ],
+      "zoneId": "zone-3",
+      "spatialWeight": 0.45,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-111",
+      "label": "Entrega 111",
+      "position": [
+        -64.166046,
+        -31.430134
+      ],
+      "zoneId": "zone-3",
+      "spatialWeight": 0.675,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-112",
+      "label": "Entrega 112",
+      "position": [
+        -64.149662,
+        -31.445378
+      ],
+      "zoneId": "zone-3",
+      "spatialWeight": 0.475,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-113",
+      "label": "Entrega 113",
+      "position": [
+        -64.137735,
+        -31.47694
+      ],
+      "zoneId": "zone-3",
+      "spatialWeight": 0.3,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-114",
+      "label": "Entrega 114",
+      "position": [
+        -64.162806,
+        -31.444288
+      ],
+      "zoneId": "zone-3",
+      "spatialWeight": 0.575,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-115",
+      "label": "Entrega 115",
+      "position": [
+        -64.160822,
+        -31.442756
+      ],
+      "zoneId": "zone-3",
+      "spatialWeight": 0.4875,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-116",
+      "label": "Entrega 116",
+      "position": [
+        -64.087723,
+        -31.464322
+      ],
+      "zoneId": "zone-3",
+      "spatialWeight": 0.3125,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-117",
+      "label": "Entrega 117",
+      "position": [
+        -64.170486,
+        -31.457503
+      ],
+      "zoneId": "zone-3",
+      "spatialWeight": 0.425,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-118",
+      "label": "Entrega 118",
+      "position": [
+        -64.136532,
+        -31.480619
+      ],
+      "zoneId": "zone-3",
+      "spatialWeight": 0.275,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-119",
+      "label": "Entrega 119",
+      "position": [
+        -64.162015,
+        -31.459177
+      ],
+      "zoneId": "zone-3",
+      "spatialWeight": 0.4375,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-120",
+      "label": "Entrega 120",
+      "position": [
+        -64.1644,
+        -31.453084
+      ],
+      "zoneId": "zone-3",
+      "spatialWeight": 0.4125,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-121",
+      "label": "Entrega 121",
+      "position": [
+        -64.196178,
+        -31.450488
+      ],
+      "zoneId": "zone-4",
+      "spatialWeight": 0.6222222222222222,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-122",
+      "label": "Entrega 122",
+      "position": [
+        -64.183195,
+        -31.44545
+      ],
+      "zoneId": "zone-4",
+      "spatialWeight": 0.34444444444444444,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-123",
+      "label": "Entrega 123",
+      "position": [
+        -64.192464,
+        -31.442501
+      ],
+      "zoneId": "zone-4",
+      "spatialWeight": 0.9444444444444444,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-124",
+      "label": "Entrega 124",
+      "position": [
+        -64.189087,
+        -31.432461
+      ],
+      "zoneId": "zone-4",
+      "spatialWeight": 0.8888888888888888,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-125",
+      "label": "Entrega 125",
+      "position": [
+        -64.198386,
+        -31.443826
+      ],
+      "zoneId": "zone-4",
+      "spatialWeight": 0.5333333333333333,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-126",
+      "label": "Entrega 126",
+      "position": [
+        -64.203977,
+        -31.481359
+      ],
+      "zoneId": "zone-4",
+      "spatialWeight": 0.2777777777777778,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-127",
+      "label": "Entrega 127",
+      "position": [
+        -64.196125,
+        -31.439953
+      ],
+      "zoneId": "zone-4",
+      "spatialWeight": 0.8111111111111111,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-128",
+      "label": "Entrega 128",
+      "position": [
+        -64.193708,
+        -31.44475
+      ],
+      "zoneId": "zone-4",
+      "spatialWeight": 0.8888888888888888,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-129",
+      "label": "Entrega 129",
+      "position": [
+        -64.18668,
+        -31.421386
+      ],
+      "zoneId": "zone-4",
+      "spatialWeight": 0.7555555555555555,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-130",
+      "label": "Entrega 130",
+      "position": [
+        -64.192233,
+        -31.440248
+      ],
+      "zoneId": "zone-4",
+      "spatialWeight": 0.9777777777777777,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-131",
+      "label": "Entrega 131",
+      "position": [
+        -64.191684,
+        -31.444268
+      ],
+      "zoneId": "zone-4",
+      "spatialWeight": 0.8555555555555555,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-132",
+      "label": "Entrega 132",
+      "position": [
+        -64.197066,
+        -31.435592
+      ],
+      "zoneId": "zone-4",
+      "spatialWeight": 0.6888888888888889,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-133",
+      "label": "Entrega 133",
+      "position": [
+        -64.18052,
+        -31.44227
+      ],
+      "zoneId": "zone-4",
+      "spatialWeight": 0.45555555555555555,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-134",
+      "label": "Entrega 134",
+      "position": [
+        -64.209379,
+        -31.484345
+      ],
+      "zoneId": "zone-4",
+      "spatialWeight": 0.37777777777777777,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-135",
+      "label": "Entrega 135",
+      "position": [
+        -64.195678,
+        -31.450016
+      ],
+      "zoneId": "zone-4",
+      "spatialWeight": 0.6222222222222222,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-136",
+      "label": "Entrega 136",
+      "position": [
+        -64.194878,
+        -31.449962
+      ],
+      "zoneId": "zone-4",
+      "spatialWeight": 0.6,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-137",
+      "label": "Entrega 137",
+      "position": [
+        -64.194719,
+        -31.443731
+      ],
+      "zoneId": "zone-4",
+      "spatialWeight": 0.8222222222222222,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-138",
+      "label": "Entrega 138",
+      "position": [
+        -64.177537,
+        -31.447372
+      ],
+      "zoneId": "zone-4",
+      "spatialWeight": 0.37777777777777777,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-139",
+      "label": "Entrega 139",
+      "position": [
+        -64.192117,
+        -31.436113
+      ],
+      "zoneId": "zone-4",
+      "spatialWeight": 0.9,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-140",
+      "label": "Entrega 140",
+      "position": [
+        -64.185182,
+        -31.441778
+      ],
+      "zoneId": "zone-4",
+      "spatialWeight": 0.6444444444444445,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-141",
+      "label": "Entrega 141",
+      "position": [
+        -64.189523,
+        -31.423792
+      ],
+      "zoneId": "zone-4",
+      "spatialWeight": 0.7333333333333333,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-142",
+      "label": "Entrega 142",
+      "position": [
+        -64.215402,
+        -31.481889
+      ],
+      "zoneId": "zone-4",
+      "spatialWeight": 0.24444444444444444,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-143",
+      "label": "Entrega 143",
+      "position": [
+        -64.184763,
+        -31.430805
+      ],
+      "zoneId": "zone-4",
+      "spatialWeight": 0.5888888888888889,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-144",
+      "label": "Entrega 144",
+      "position": [
+        -64.193069,
+        -31.442254
+      ],
+      "zoneId": "zone-4",
+      "spatialWeight": 0.9555555555555556,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-145",
+      "label": "Entrega 145",
+      "position": [
+        -64.183309,
+        -31.436138
+      ],
+      "zoneId": "zone-4",
+      "spatialWeight": 0.6888888888888889,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-146",
+      "label": "Entrega 146",
+      "position": [
+        -64.194342,
+        -31.44104
+      ],
+      "zoneId": "zone-4",
+      "spatialWeight": 0.8666666666666667,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-147",
+      "label": "Entrega 147",
+      "position": [
+        -64.194528,
+        -31.443081
+      ],
+      "zoneId": "zone-4",
+      "spatialWeight": 0.9222222222222223,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-148",
+      "label": "Entrega 148",
+      "position": [
+        -64.188112,
+        -31.441177
+      ],
+      "zoneId": "zone-4",
+      "spatialWeight": 0.5888888888888889,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-149",
+      "label": "Entrega 149",
+      "position": [
+        -64.203066,
+        -31.455024
+      ],
+      "zoneId": "zone-4",
+      "spatialWeight": 0.45555555555555555,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-150",
+      "label": "Entrega 150",
+      "position": [
+        -64.188028,
+        -31.435299
+      ],
+      "zoneId": "zone-4",
+      "spatialWeight": 0.8888888888888888,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-151",
+      "label": "Entrega 151",
+      "position": [
+        -64.201712,
+        -31.430293
+      ],
+      "zoneId": "zone-5",
+      "spatialWeight": 0.36486486486486486,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-152",
+      "label": "Entrega 152",
+      "position": [
+        -64.229014,
+        -31.470252
+      ],
+      "zoneId": "zone-5",
+      "spatialWeight": 0.6351351351351351,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-153",
+      "label": "Entrega 153",
+      "position": [
+        -64.199878,
+        -31.42932
+      ],
+      "zoneId": "zone-5",
+      "spatialWeight": 0.4594594594594595,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-154",
+      "label": "Entrega 154",
+      "position": [
+        -64.240841,
+        -31.443258
+      ],
+      "zoneId": "zone-5",
+      "spatialWeight": 0.40540540540540543,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-155",
+      "label": "Entrega 155",
+      "position": [
+        -64.200714,
+        -31.443795
+      ],
+      "zoneId": "zone-5",
+      "spatialWeight": 0.6081081081081081,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-156",
+      "label": "Entrega 156",
+      "position": [
+        -64.200542,
+        -31.432343
+      ],
+      "zoneId": "zone-5",
+      "spatialWeight": 0.4189189189189189,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-157",
+      "label": "Entrega 157",
+      "position": [
+        -64.232892,
+        -31.467314
+      ],
+      "zoneId": "zone-5",
+      "spatialWeight": 0.35135135135135137,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-158",
+      "label": "Entrega 158",
+      "position": [
+        -64.192796,
+        -31.423434
+      ],
+      "zoneId": "zone-5",
+      "spatialWeight": 0.527027027027027,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-159",
+      "label": "Entrega 159",
+      "position": [
+        -64.237174,
+        -31.444931
+      ],
+      "zoneId": "zone-5",
+      "spatialWeight": 0.2702702702702703,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-160",
+      "label": "Entrega 160",
+      "position": [
+        -64.199729,
+        -31.433061
+      ],
+      "zoneId": "zone-5",
+      "spatialWeight": 0.5405405405405406,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-161",
+      "label": "Entrega 161",
+      "position": [
+        -64.245873,
+        -31.483607
+      ],
+      "zoneId": "zone-5",
+      "spatialWeight": 0.21621621621621623,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-162",
+      "label": "Entrega 162",
+      "position": [
+        -64.215252,
+        -31.444408
+      ],
+      "zoneId": "zone-5",
+      "spatialWeight": 0.581081081081081,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-163",
+      "label": "Entrega 163",
+      "position": [
+        -64.231716,
+        -31.436352
+      ],
+      "zoneId": "zone-5",
+      "spatialWeight": 0.35135135135135137,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-164",
+      "label": "Entrega 164",
+      "position": [
+        -64.228395,
+        -31.471703
+      ],
+      "zoneId": "zone-5",
+      "spatialWeight": 0.4189189189189189,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-165",
+      "label": "Entrega 165",
+      "position": [
+        -64.18932,
+        -31.421266
+      ],
+      "zoneId": "zone-5",
+      "spatialWeight": 0.8918918918918919,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-166",
+      "label": "Entrega 166",
+      "position": [
+        -64.212577,
+        -31.444006
+      ],
+      "zoneId": "zone-5",
+      "spatialWeight": 0.5405405405405406,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-167",
+      "label": "Entrega 167",
+      "position": [
+        -64.201003,
+        -31.42864
+      ],
+      "zoneId": "zone-5",
+      "spatialWeight": 0.32432432432432434,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-168",
+      "label": "Entrega 168",
+      "position": [
+        -64.192821,
+        -31.427774
+      ],
+      "zoneId": "zone-5",
+      "spatialWeight": 0.6216216216216216,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-169",
+      "label": "Entrega 169",
+      "position": [
+        -64.245073,
+        -31.476638
+      ],
+      "zoneId": "zone-5",
+      "spatialWeight": 0.4189189189189189,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-170",
+      "label": "Entrega 170",
+      "position": [
+        -64.244252,
+        -31.448404
+      ],
+      "zoneId": "zone-5",
+      "spatialWeight": 0.2702702702702703,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-171",
+      "label": "Entrega 171",
+      "position": [
+        -64.210991,
+        -31.458992
+      ],
+      "zoneId": "zone-5",
+      "spatialWeight": 0.581081081081081,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-172",
+      "label": "Entrega 172",
+      "position": [
+        -64.237295,
+        -31.447096
+      ],
+      "zoneId": "zone-5",
+      "spatialWeight": 0.3108108108108108,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-173",
+      "label": "Entrega 173",
+      "position": [
+        -64.209741,
+        -31.438746
+      ],
+      "zoneId": "zone-5",
+      "spatialWeight": 0.5540540540540541,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-174",
+      "label": "Entrega 174",
+      "position": [
+        -64.247071,
+        -31.476535
+      ],
+      "zoneId": "zone-5",
+      "spatialWeight": 0.3783783783783784,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-175",
+      "label": "Entrega 175",
+      "position": [
+        -64.213692,
+        -31.44425
+      ],
+      "zoneId": "zone-5",
+      "spatialWeight": 0.4864864864864865,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-176",
+      "label": "Entrega 176",
+      "position": [
+        -64.219213,
+        -31.455122
+      ],
+      "zoneId": "zone-5",
+      "spatialWeight": 0.3108108108108108,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-177",
+      "label": "Entrega 177",
+      "position": [
+        -64.240993,
+        -31.480429
+      ],
+      "zoneId": "zone-5",
+      "spatialWeight": 0.2702702702702703,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-178",
+      "label": "Entrega 178",
+      "position": [
+        -64.192827,
+        -31.425324
+      ],
+      "zoneId": "zone-5",
+      "spatialWeight": 0.5135135135135135,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-179",
+      "label": "Entrega 179",
+      "position": [
+        -64.210832,
+        -31.445956
+      ],
+      "zoneId": "zone-5",
+      "spatialWeight": 0.5405405405405406,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-180",
+      "label": "Entrega 180",
+      "position": [
+        -64.204779,
+        -31.437746
+      ],
+      "zoneId": "zone-5",
+      "spatialWeight": 0.4594594594594595,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-181",
+      "label": "Entrega 181",
+      "position": [
+        -64.249255,
+        -31.41459
+      ],
+      "zoneId": "zone-6",
+      "spatialWeight": 0.3013698630136986,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-182",
+      "label": "Entrega 182",
+      "position": [
+        -64.203748,
+        -31.417431
+      ],
+      "zoneId": "zone-6",
+      "spatialWeight": 0.3972602739726027,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-183",
+      "label": "Entrega 183",
+      "position": [
+        -64.264611,
+        -31.407855
+      ],
+      "zoneId": "zone-6",
+      "spatialWeight": 0.5068493150684932,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-184",
+      "label": "Entrega 184",
+      "position": [
+        -64.270427,
+        -31.426714
+      ],
+      "zoneId": "zone-6",
+      "spatialWeight": 0.1917808219178082,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-185",
+      "label": "Entrega 185",
+      "position": [
+        -64.258567,
+        -31.413157
+      ],
+      "zoneId": "zone-6",
+      "spatialWeight": 0.5616438356164384,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-186",
+      "label": "Entrega 186",
+      "position": [
+        -64.26701,
+        -31.412196
+      ],
+      "zoneId": "zone-6",
+      "spatialWeight": 0.4520547945205479,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-187",
+      "label": "Entrega 187",
+      "position": [
+        -64.205514,
+        -31.415534
+      ],
+      "zoneId": "zone-6",
+      "spatialWeight": 0.3835616438356164,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-188",
+      "label": "Entrega 188",
+      "position": [
+        -64.258953,
+        -31.399587
+      ],
+      "zoneId": "zone-6",
+      "spatialWeight": 0.3698630136986301,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-189",
+      "label": "Entrega 189",
+      "position": [
+        -64.214626,
+        -31.419658
+      ],
+      "zoneId": "zone-6",
+      "spatialWeight": 0.4520547945205479,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-190",
+      "label": "Entrega 190",
+      "position": [
+        -64.21693,
+        -31.426987
+      ],
+      "zoneId": "zone-6",
+      "spatialWeight": 0.3287671232876712,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-191",
+      "label": "Entrega 191",
+      "position": [
+        -64.232212,
+        -31.431075
+      ],
+      "zoneId": "zone-6",
+      "spatialWeight": 0.4246575342465753,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-192",
+      "label": "Entrega 192",
+      "position": [
+        -64.256937,
+        -31.41245
+      ],
+      "zoneId": "zone-6",
+      "spatialWeight": 0.410958904109589,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-193",
+      "label": "Entrega 193",
+      "position": [
+        -64.21736,
+        -31.420369
+      ],
+      "zoneId": "zone-6",
+      "spatialWeight": 0.4246575342465753,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-194",
+      "label": "Entrega 194",
+      "position": [
+        -64.265763,
+        -31.411086
+      ],
+      "zoneId": "zone-6",
+      "spatialWeight": 0.6164383561643836,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-195",
+      "label": "Entrega 195",
+      "position": [
+        -64.241856,
+        -31.409699
+      ],
+      "zoneId": "zone-6",
+      "spatialWeight": 0.4246575342465753,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-196",
+      "label": "Entrega 196",
+      "position": [
+        -64.265677,
+        -31.408217
+      ],
+      "zoneId": "zone-6",
+      "spatialWeight": 0.589041095890411,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-197",
+      "label": "Entrega 197",
+      "position": [
+        -64.224437,
+        -31.417537
+      ],
+      "zoneId": "zone-6",
+      "spatialWeight": 0.4794520547945205,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-198",
+      "label": "Entrega 198",
+      "position": [
+        -64.255693,
+        -31.421762
+      ],
+      "zoneId": "zone-6",
+      "spatialWeight": 0.1780821917808219,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-199",
+      "label": "Entrega 199",
+      "position": [
+        -64.23714,
+        -31.413064
+      ],
+      "zoneId": "zone-6",
+      "spatialWeight": 0.273972602739726,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-200",
+      "label": "Entrega 200",
+      "position": [
+        -64.226546,
+        -31.424034
+      ],
+      "zoneId": "zone-6",
+      "spatialWeight": 0.4246575342465753,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-201",
+      "label": "Entrega 201",
+      "position": [
+        -64.236095,
+        -31.416288
+      ],
+      "zoneId": "zone-6",
+      "spatialWeight": 0.2602739726027397,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-202",
+      "label": "Entrega 202",
+      "position": [
+        -64.260502,
+        -31.419364
+      ],
+      "zoneId": "zone-6",
+      "spatialWeight": 0.2191780821917808,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-203",
+      "label": "Entrega 203",
+      "position": [
+        -64.243885,
+        -31.404557
+      ],
+      "zoneId": "zone-6",
+      "spatialWeight": 0.4520547945205479,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-204",
+      "label": "Entrega 204",
+      "position": [
+        -64.206354,
+        -31.418537
+      ],
+      "zoneId": "zone-6",
+      "spatialWeight": 0.3835616438356164,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-205",
+      "label": "Entrega 205",
+      "position": [
+        -64.213155,
+        -31.415682
+      ],
+      "zoneId": "zone-6",
+      "spatialWeight": 0.273972602739726,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-206",
+      "label": "Entrega 206",
+      "position": [
+        -64.222261,
+        -31.426668
+      ],
+      "zoneId": "zone-6",
+      "spatialWeight": 0.3561643835616438,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-207",
+      "label": "Entrega 207",
+      "position": [
+        -64.25762,
+        -31.408074
+      ],
+      "zoneId": "zone-6",
+      "spatialWeight": 0.4520547945205479,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-208",
+      "label": "Entrega 208",
+      "position": [
+        -64.263869,
+        -31.416473
+      ],
+      "zoneId": "zone-6",
+      "spatialWeight": 0.3013698630136986,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-209",
+      "label": "Entrega 209",
+      "position": [
+        -64.225463,
+        -31.419287
+      ],
+      "zoneId": "zone-6",
+      "spatialWeight": 0.4383561643835616,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-210",
+      "label": "Entrega 210",
+      "position": [
+        -64.236173,
+        -31.409114
+      ],
+      "zoneId": "zone-6",
+      "spatialWeight": 0.3561643835616438,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-211",
+      "label": "Entrega 211",
+      "position": [
+        -64.228329,
+        -31.362683
+      ],
+      "zoneId": "zone-7",
+      "spatialWeight": 0.36904761904761907,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-212",
+      "label": "Entrega 212",
+      "position": [
+        -64.223323,
+        -31.400807
+      ],
+      "zoneId": "zone-7",
+      "spatialWeight": 0.4880952380952381,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-213",
+      "label": "Entrega 213",
+      "position": [
+        -64.19427,
+        -31.414087
+      ],
+      "zoneId": "zone-7",
+      "spatialWeight": 0.8214285714285714,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-214",
+      "label": "Entrega 214",
+      "position": [
+        -64.253891,
+        -31.328536
+      ],
+      "zoneId": "zone-7",
+      "spatialWeight": 0.21428571428571427,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-215",
+      "label": "Entrega 215",
+      "position": [
+        -64.217388,
+        -31.364192
+      ],
+      "zoneId": "zone-7",
+      "spatialWeight": 0.4880952380952381,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-216",
+      "label": "Entrega 216",
+      "position": [
+        -64.214519,
+        -31.408629
+      ],
+      "zoneId": "zone-7",
+      "spatialWeight": 0.25,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-217",
+      "label": "Entrega 217",
+      "position": [
+        -64.20179,
+        -31.406536
+      ],
+      "zoneId": "zone-7",
+      "spatialWeight": 0.6190476190476191,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-218",
+      "label": "Entrega 218",
+      "position": [
+        -64.256614,
+        -31.365572
+      ],
+      "zoneId": "zone-7",
+      "spatialWeight": 0.11904761904761904,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-219",
+      "label": "Entrega 219",
+      "position": [
+        -64.245111,
+        -31.341432
+      ],
+      "zoneId": "zone-7",
+      "spatialWeight": 0.44047619047619047,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-220",
+      "label": "Entrega 220",
+      "position": [
+        -64.231227,
+        -31.361302
+      ],
+      "zoneId": "zone-7",
+      "spatialWeight": 0.5,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-221",
+      "label": "Entrega 221",
+      "position": [
+        -64.2521,
+        -31.394834
+      ],
+      "zoneId": "zone-7",
+      "spatialWeight": 0.5595238095238095,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-222",
+      "label": "Entrega 222",
+      "position": [
+        -64.252588,
+        -31.391122
+      ],
+      "zoneId": "zone-7",
+      "spatialWeight": 0.42857142857142855,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-223",
+      "label": "Entrega 223",
+      "position": [
+        -64.21504,
+        -31.387096
+      ],
+      "zoneId": "zone-7",
+      "spatialWeight": 0.40476190476190477,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-224",
+      "label": "Entrega 224",
+      "position": [
+        -64.235194,
+        -31.357038
+      ],
+      "zoneId": "zone-7",
+      "spatialWeight": 0.38095238095238093,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-225",
+      "label": "Entrega 225",
+      "position": [
+        -64.237724,
+        -31.343182
+      ],
+      "zoneId": "zone-7",
+      "spatialWeight": 0.47619047619047616,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-226",
+      "label": "Entrega 226",
+      "position": [
+        -64.260328,
+        -31.322862
+      ],
+      "zoneId": "zone-7",
+      "spatialWeight": 0.34523809523809523,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-227",
+      "label": "Entrega 227",
+      "position": [
+        -64.256323,
+        -31.323417
+      ],
+      "zoneId": "zone-7",
+      "spatialWeight": 0.34523809523809523,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-228",
+      "label": "Entrega 228",
+      "position": [
+        -64.25063,
+        -31.389907
+      ],
+      "zoneId": "zone-7",
+      "spatialWeight": 0.4642857142857143,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-229",
+      "label": "Entrega 229",
+      "position": [
+        -64.224306,
+        -31.384021
+      ],
+      "zoneId": "zone-7",
+      "spatialWeight": 0.4642857142857143,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-230",
+      "label": "Entrega 230",
+      "position": [
+        -64.251341,
+        -31.38811
+      ],
+      "zoneId": "zone-7",
+      "spatialWeight": 0.36904761904761907,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-231",
+      "label": "Entrega 231",
+      "position": [
+        -64.22237,
+        -31.358753
+      ],
+      "zoneId": "zone-7",
+      "spatialWeight": 0.34523809523809523,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-232",
+      "label": "Entrega 232",
+      "position": [
+        -64.215387,
+        -31.403598
+      ],
+      "zoneId": "zone-7",
+      "spatialWeight": 0.47619047619047616,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-233",
+      "label": "Entrega 233",
+      "position": [
+        -64.233711,
+        -31.340278
+      ],
+      "zoneId": "zone-7",
+      "spatialWeight": 0.25,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-234",
+      "label": "Entrega 234",
+      "position": [
+        -64.19728,
+        -31.409656
+      ],
+      "zoneId": "zone-7",
+      "spatialWeight": 0.8690476190476191,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-235",
+      "label": "Entrega 235",
+      "position": [
+        -64.232039,
+        -31.343913
+      ],
+      "zoneId": "zone-7",
+      "spatialWeight": 0.30952380952380953,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-236",
+      "label": "Entrega 236",
+      "position": [
+        -64.243452,
+        -31.345041
+      ],
+      "zoneId": "zone-7",
+      "spatialWeight": 0.42857142857142855,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-237",
+      "label": "Entrega 237",
+      "position": [
+        -64.199144,
+        -31.410739
+      ],
+      "zoneId": "zone-7",
+      "spatialWeight": 0.8690476190476191,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-238",
+      "label": "Entrega 238",
+      "position": [
+        -64.241043,
+        -31.344746
+      ],
+      "zoneId": "zone-7",
+      "spatialWeight": 0.4166666666666667,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-239",
+      "label": "Entrega 239",
+      "position": [
+        -64.245859,
+        -31.353203
+      ],
+      "zoneId": "zone-7",
+      "spatialWeight": 0.35714285714285715,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    },
+    {
+      "id": "delivery-candidate-240",
+      "label": "Entrega 240",
+      "position": [
+        -64.222338,
+        -31.394379
+      ],
+      "zoneId": "zone-7",
+      "spatialWeight": 0.30952380952380953,
+      "provenance": {
+        "generator": "cordoba-gtfs-candidate-pool-v1",
+        "candidatePoolVersion": "cordoba-delivery-pool-v1",
+        "gtfsReference": "https://gobiernoabierto.cordoba.gob.ar/data/datos-abiertos/categoria/transporte-urbano/gtfs-de-la-ciudada-de-cordoba/3319"
+      }
+    }
+  ]
+}

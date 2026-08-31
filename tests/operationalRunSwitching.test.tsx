@@ -4,10 +4,11 @@ import { resolve } from 'node:path'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import App from '../src/App'
 import type { FleetScenario } from '../src/domain/types'
+import type { RouteGeometryCollection } from '../src/map/routeAssets'
 import type {
   OperationalRun,
   OperationalRunManifest,
-  OperationalRunManifestV1,
+  OperationalRunManifestV2,
 } from '../src/scenario/operationalRuns/types'
 
 vi.mock('../src/map/FleetMap', () => ({
@@ -18,24 +19,29 @@ vi.mock('../src/map/FleetMap', () => ({
   ),
 }))
 
-const MANIFEST_URL = './data/operational-runs/manifest.json'
-const RUN_30_URL = './data/operational-runs/generated/cordoba-2026-08-30-v2.json'
-const RUN_31_URL = './data/operational-runs/generated/cordoba-2026-08-31-v2.json'
+const MANIFEST_URL = './data/operational-runs/manifest-v0-6.json'
+const RUN_30_URL = './data/operational-runs/generated/cordoba-2026-08-30-v3.json'
+const ROUTES_30_URL = './data/operational-runs/generated/cordoba-2026-08-30-v3.routes.geojson'
+const RUN_31_URL = './data/operational-runs/generated/cordoba-2026-08-31-v3.json'
+const ROUTES_31_URL = './data/operational-runs/generated/cordoba-2026-08-31-v3.routes.geojson'
 const RUN_04_URL = './data/operational-runs/generated/cordoba-2026-09-04-v-race.json'
-const ROUTES_URL = './data/cordoba-calibrated-routes.geojson'
+const ROUTES_04_URL = './data/operational-runs/generated/cordoba-2026-09-04-v-race.routes.geojson'
 
 const manifest = JSON.parse(
-  readFileSync(resolve(process.cwd(), 'public/data/operational-runs/manifest.json'), 'utf8'),
+  readFileSync(resolve(process.cwd(), 'public/data/operational-runs/manifest-v0-6.json'), 'utf8'),
 ) as OperationalRunManifest
 const run30 = JSON.parse(
-  readFileSync(resolve(process.cwd(), 'public/data/operational-runs/generated/cordoba-2026-08-30-v2.json'), 'utf8'),
+  readFileSync(resolve(process.cwd(), 'public/data/operational-runs/generated/cordoba-2026-08-30-v3.json'), 'utf8'),
 ) as OperationalRun
+const routes30 = JSON.parse(
+  readFileSync(resolve(process.cwd(), 'public/data/operational-runs/generated/cordoba-2026-08-30-v3.routes.geojson'), 'utf8'),
+) as RouteGeometryCollection
 const run31 = JSON.parse(
-  readFileSync(resolve(process.cwd(), 'public/data/operational-runs/generated/cordoba-2026-08-31-v2.json'), 'utf8'),
+  readFileSync(resolve(process.cwd(), 'public/data/operational-runs/generated/cordoba-2026-08-31-v3.json'), 'utf8'),
 ) as OperationalRun
-const calibratedRoutes = JSON.parse(
-  readFileSync(resolve(process.cwd(), 'public/data/cordoba-calibrated-routes.geojson'), 'utf8'),
-)
+const routes31 = JSON.parse(
+  readFileSync(resolve(process.cwd(), 'public/data/operational-runs/generated/cordoba-2026-08-31-v3.routes.geojson'), 'utf8'),
+) as RouteGeometryCollection
 
 const run04: OperationalRun = structuredClone(run31)
 run04.id = 'cordoba-2026-09-04-v-race'
@@ -47,11 +53,18 @@ run04.provenance = {
 }
 run04.scenario.routes[0].returnMinute += 17
 
-const manifestV1 = manifest as OperationalRunManifestV1
-const raceManifest: OperationalRunManifestV1 = {
-  schemaVersion: 1,
+const routes04: RouteGeometryCollection = structuredClone(routes31)
+routes04.metadata = {
+  runId: run04.id,
+  targetDate: run04.targetDate,
+  modelVersion: run04.modelVersion,
+}
+
+const manifestV2 = manifest as OperationalRunManifestV2
+const raceManifest: OperationalRunManifestV2 = {
+  schemaVersion: 2,
   runs: [
-    ...manifestV1.runs,
+    ...manifestV2.runs,
     {
       id: run04.id,
       targetDate: run04.targetDate,
@@ -61,6 +74,7 @@ const raceManifest: OperationalRunManifestV1 = {
       scenarioId: run04.scenarioId,
       modelVersion: run04.modelVersion,
       artifact: './generated/cordoba-2026-09-04-v-race.json',
+      routeArtifact: './generated/cordoba-2026-09-04-v-race.routes.geojson',
     },
   ],
 }
@@ -103,14 +117,15 @@ afterEach(() => {
 })
 
 describe('operational run switching', () => {
-  it('loads the Córdoba default run after the manifest and switches dates atomically', async () => {
+  it('loads the Córdoba default V0.6 bundle and switches dates atomically', async () => {
     const run31Response = deferred<Response>()
     const fetchMock = vi.fn((input: RequestInfo | URL) => {
       const url = String(input)
       if (url === MANIFEST_URL) return Promise.resolve(jsonResponse(manifest))
       if (url === RUN_30_URL) return Promise.resolve(jsonResponse(run30))
+      if (url === ROUTES_30_URL) return Promise.resolve(jsonResponse(routes30))
       if (url === RUN_31_URL) return run31Response.promise
-      if (url === ROUTES_URL) return Promise.resolve(jsonResponse(calibratedRoutes))
+      if (url === ROUTES_31_URL) return Promise.resolve(jsonResponse(routes31))
       return Promise.resolve(jsonResponse({}, 404))
     })
     vi.stubGlobal('fetch', fetchMock)
@@ -120,6 +135,7 @@ describe('operational run switching', () => {
     expect(await screen.findByTestId('fleet-map')).toHaveTextContent(`return-total:${returnTotal(run30.scenario)}`)
     expect(fetchMock.mock.calls[0]?.[0]).toBe(MANIFEST_URL)
     expect(fetchMock.mock.calls[1]?.[0]).toBe(RUN_30_URL)
+    expect(fetchMock.mock.calls[2]?.[0]).toBe(ROUTES_30_URL)
     expect(screen.getByRole('button', { name: /30 DE AGO DE 2026, SIMULATED/i })).toHaveAttribute('aria-current', 'date')
 
     fireEvent.click(screen.getByRole('button', { name: 'Play simulation' }))
@@ -139,6 +155,7 @@ describe('operational run switching', () => {
         `return-total:${returnTotal(run31.scenario)}`,
       )
     })
+    expect(fetchMock.mock.calls.some(([url]) => String(url) === ROUTES_31_URL)).toBe(true)
     expect(screen.getByText('06:00')).toBeInTheDocument()
     expect(screen.getByText('Paused')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /31 DE AGO DE 2026, FORECAST/i })).toHaveAttribute('aria-current', 'date')
@@ -154,16 +171,18 @@ describe('operational run switching', () => {
     const truckCard = screen.getByText(truck?.label ?? '').closest('article')
     expect(truckCard).not.toBeNull()
     const packageCount = routePackageTotal(run31.scenario, differingRouteIndex)
-    expect(within(truckCard as HTMLElement).getByText(`${packageCount} ${packageCount === 1 ? 'paquete' : 'paquetes'}`)).toBeInTheDocument()
+    const packageLabel = `${packageCount} ${packageCount === 1 ? 'paquete' : 'paquetes'}`
+    expect(within(truckCard as HTMLElement).getByText(`Plan · ${packageLabel}`)).toBeInTheDocument()
+    expect(within(truckCard as HTMLElement).getByText(`Restan · ${packageLabel}`)).toBeInTheDocument()
   })
 
-  it('fails closed when a selected run is unavailable', async () => {
+  it('fails closed when a selected V0.6 bundle is unavailable', async () => {
     const fetchMock = vi.fn((input: RequestInfo | URL) => {
       const url = String(input)
       if (url === MANIFEST_URL) return Promise.resolve(jsonResponse(manifest))
       if (url === RUN_30_URL) return Promise.resolve(jsonResponse(run30))
+      if (url === ROUTES_30_URL) return Promise.resolve(jsonResponse(routes30))
       if (url === RUN_31_URL) return Promise.resolve(jsonResponse({}, 404))
-      if (url === ROUTES_URL) return Promise.resolve(jsonResponse(calibratedRoutes))
       return Promise.resolve(jsonResponse({}, 404))
     })
     vi.stubGlobal('fetch', fetchMock)
@@ -189,7 +208,7 @@ describe('operational run switching', () => {
     })
   })
 
-  it('ignores a stale slower bundle after a newer date succeeds', async () => {
+  it('ignores a stale slower V0.6 bundle after a newer date succeeds', async () => {
     const run31Response = deferred<Response>()
     const run04Response = deferred<Response>()
 
@@ -197,9 +216,11 @@ describe('operational run switching', () => {
       const url = String(input)
       if (url === MANIFEST_URL) return Promise.resolve(jsonResponse(raceManifest))
       if (url === RUN_30_URL) return Promise.resolve(jsonResponse(run30))
+      if (url === ROUTES_30_URL) return Promise.resolve(jsonResponse(routes30))
       if (url === RUN_31_URL) return run31Response.promise
+      if (url === ROUTES_31_URL) return Promise.resolve(jsonResponse(routes31))
       if (url === RUN_04_URL) return run04Response.promise
-      if (url === ROUTES_URL) return Promise.resolve(jsonResponse(calibratedRoutes))
+      if (url === ROUTES_04_URL) return Promise.resolve(jsonResponse(routes04))
       return Promise.resolve(jsonResponse({}, 404))
     })
     vi.stubGlobal('fetch', fetchMock)

@@ -5,6 +5,7 @@ import {
   OPERATIONAL_RUN_MODES,
   type OperationalProfileProvenance,
   type OperationalRun,
+  type OperationalSpatialDemandProvenance,
 } from './types'
 
 const RUN_ID = /^[a-z0-9]+(?:-[a-z0-9]+)*$/i
@@ -173,6 +174,20 @@ function isOperationalProfileShape(value: unknown): value is OperationalProfileP
     && isNonEmptyString(value.summary)
 }
 
+function isSpatialDemandShape(value: unknown): value is OperationalSpatialDemandProvenance {
+  return isRecord(value)
+    && isNonEmptyString(value.candidatePoolVersion)
+    && Number.isInteger(value.deliveryCount)
+    && isFiniteNumber(value.deliveryCount)
+    && value.deliveryCount >= 45
+    && value.deliveryCount <= 65
+    && isNonEmptyString(value.gtfsReference)
+    && isNonEmptyString(value.demandSeed)
+    && isNonEmptyString(value.spatialSeed)
+    && isNonEmptyString(value.operationsSeed)
+    && isNonEmptyString(value.assignmentSeed)
+}
+
 function duplicateStoreId(scenario: FleetScenario): string | null {
   const seen = new Set<string>()
 
@@ -259,6 +274,11 @@ export function validateOperationalRun(value: unknown): string[] {
       ) {
         errors.push('Operational run provenance operational profile day does not match targetDate')
       }
+    }
+
+    const spatialDemand = value.provenance.spatialDemand
+    if (spatialDemand !== undefined && !isSpatialDemandShape(spatialDemand)) {
+      errors.push('Operational run provenance spatial demand is invalid')
     }
   }
 
