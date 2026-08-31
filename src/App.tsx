@@ -434,7 +434,7 @@ export default function App() {
       <div className="interface-frame">
         <div className="top-rail">
           <header className="brand-card">
-            <p className="eyebrow">Operational timeline simulation · V0.5</p>
+            <p className="eyebrow">Operational timeline + decision simulation · V0.6</p>
             <h1>FleetFlow Sim</h1>
             <p>{activeScenario?.label ?? activeDefinition.label}</p>
             <ScenarioSwitcher value={scenarioId} onChange={changeScenario} />
@@ -492,7 +492,7 @@ export default function App() {
         {activeScenario && snapshot && metrics ? (
           <aside className="operations-panel">
             <KpiPanel metrics={metrics} />
-            {timeline && activeRun ? (
+            {timeline && activeRun && activeRun.mode !== 'WHAT_IF' ? (
               <OperationalExplainer run={activeRun} />
             ) : null}
             <FleetPanel scenario={activeScenario} snapshot={snapshot} />
