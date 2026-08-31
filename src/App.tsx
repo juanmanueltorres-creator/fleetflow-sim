@@ -356,8 +356,12 @@ export default function App() {
 
   const changeOperationalRun = (nextId: string) => {
     if (nextId === selectedRunId || nextId === pendingRunId) return
+    const wasComparing = comparisonSet !== null
     clearComparison()
-    setIsPlaying(false)
+    if (wasComparing && activeBundle) {
+      setIsPlaying(false)
+      setSimulationMinute(getSimulationStartMinute(activeBundle.run.scenario))
+    }
     setRunError(false)
     setPendingRunId(nextId)
   }
