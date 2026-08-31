@@ -117,7 +117,7 @@ describe('TIME → DECISION what-if UX', () => {
     expect(screen.getByText('05:00')).toBeInTheDocument()
     expect(screen.getByText('WHAT_IF · MODEL OUTPUT')).toBeInTheDocument()
     expect(screen.getByText('SHIFT_DEPARTURE -60 min')).toBeInTheDocument()
-    expect(screen.getByText(/finalizes 60 min earlier/i)).toBeInTheDocument()
+    expect(screen.getByText(/finishes 60 min earlier/i)).toBeInTheDocument()
     expect(screen.queryByText(/60 min faster/i)).not.toBeInTheDocument()
     expect(screen.queryByText(/the map base does not change/i)).not.toBeInTheDocument()
 
