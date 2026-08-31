@@ -1,0 +1,64 @@
+name: Publish What-If V0 Temp
+
+on:
+  push:
+    branches:
+      - feat/what-if-comparison-v0
+    paths:
+      - .github/workflows/publish-what-if-temp.yml
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/what-if-comparison-v0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install --no-audit --no-fund
+      - name: Generate immutable What-If V0 artifacts
+        run: |
+          set -o pipefail
+          npm run generate:what-if:v0 -- \
+            --manifest public/data/operational-runs/manifest-v0-6.json \
+            --profile src/scenario/calibration/amazon-last-mile-v1.json \
+            --issued-at 2026-08-30T21:05:00-03:00 \
+            --output-dir public/data/operational-runs \
+            --catalog-name what-if-comparisons.json | tee /tmp/what-if-generation.log
+          grep -q '^Selected Base: ' /tmp/what-if-generation.log
+          grep -q '^Early: ' /tmp/what-if-generation.log
+          grep -q '^Balanced: ' /tmp/what-if-generation.log
+          grep -q '^Catalog: ' /tmp/what-if-generation.log
+      - name: Verify published artifacts and build
+        run: |
+          npm test -- tests/whatIfPublishedArtifacts.test.ts tests/whatIfComparisonLoader.test.ts tests/whatIfOutcomes.test.ts
+          npm run build
+      - name: Verify immutable rerun fails before routing
+        run: |
+          set +e
+          npm run generate:what-if:v0 -- \
+            --manifest public/data/operational-runs/manifest-v0-6.json \
+            --profile src/scenario/calibration/amazon-last-mile-v1.json \
+            --issued-at 2026-08-30T21:05:00-03:00 \
+            --output-dir public/data/operational-runs \
+            --catalog-name what-if-comparisons.json > /tmp/what-if-rerun.log 2>&1
+          status=$?
+          set -e
+          test "$status" -ne 0
+          grep -qi 'refusing to overwrite' /tmp/what-if-rerun.log
+      - name: Commit generated experiment
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add public/data/operational-runs/what-if-comparisons.json
+          git add public/data/operational-runs/generated/*-what-if-early-start-v1.json
+          git add public/data/operational-runs/generated/*-what-if-early-start-v1.routes.geojson
+          git add public/data/operational-runs/generated/*-what-if-balanced-load-v1.json
+          git add public/data/operational-runs/generated/*-what-if-balanced-load-v1.routes.geojson
+          git commit -m 'feat: publish first FleetFlow what-if experiment'
+          git push origin HEAD:feat/what-if-comparison-v0
