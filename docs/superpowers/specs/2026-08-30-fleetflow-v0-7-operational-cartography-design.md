@@ -2,13 +2,11 @@
 
 ## Status
 
-Approved design direction after visual/product review on 2026-08-30. This file is the canonical design proposal for FleetFlow V0.7. Final user review of this written spec is required before implementation planning begins.
+Approved design direction after visual/product review on 2026-08-30. This is the canonical design proposal for FleetFlow V0.7. Final user review of this written spec is required before implementation planning begins.
 
 ## Purpose
 
 FleetFlow V0.7 does not add a new simulation model. It changes how the existing V0.6 + What-If V0 system is perceived and understood.
-
-The product goal is:
 
 > Make FleetFlow feel like an operational instrument for understanding a logistics system and comparing explicit decisions, not like a generic dark dashboard or a technical demo.
 
@@ -25,7 +23,7 @@ feature: FleetFlow What-If Comparison V0
 
 The baseline already contains:
 
-- V0.6 immutable Córdoba Daily Spatial Demand runs,
+- immutable Córdoba Daily Spatial Demand Base runs,
 - eight fixed vehicles,
 - 45–65 active synthetic destinations per day,
 - per-run road-following route artifacts,
@@ -54,9 +52,9 @@ V0.7 must not introduce:
 - a second comparison contract,
 - a generic digital-twin framework,
 - Web3/NFT functionality,
-- decorative animation libraries without a demonstrated interaction need.
+- decorative animation dependencies without a demonstrated interaction need.
 
-The NFT/Web3 references are visual and interaction references only.
+NFT/Web3 projects are visual and interaction references only.
 
 ## External visual manifesto
 
@@ -66,13 +64,11 @@ The cross-project visual source of truth lives in the private GeoPlatform knowle
 08 - Ideas/Manifiesto visual - Operational Cartography y motion system.md
 ```
 
-V0.7 translates that manifesto into FleetFlow-specific product rules.
+V0.7 translates that manifesto into FleetFlow-specific rules.
 
-## Visual north star
+## Visual north star — Operational Cartography
 
-### Operational Cartography
-
-The selected direction is **Operational Cartography**:
+The selected direction is:
 
 - map-first,
 - dark editorial base,
@@ -80,33 +76,33 @@ The selected direction is **Operational Cartography**:
 - high information density with clear hierarchy,
 - thin structural borders,
 - compact telemetry,
-- subtle geometric/honeycomb language,
+- restrained honeycomb/geometric language,
 - serif identity + monospace operational data,
 - bronze/gold identity,
 - cyan for model/active technical signals,
 - crimson only for restrictions/errors,
 - no generic SaaS-card aesthetic,
-- no gratuitous neon or gaming HUD treatment.
+- no gratuitous neon or gaming-HUD treatment.
 
 The product should look designed around a spatial operating model rather than assembled from independent cards.
 
-## Existing identity to preserve
+## Identity to preserve
 
-FleetFlow already uses the same family identity as the broader Decision Technologies visual system:
+FleetFlow already uses the Decision Technologies family palette:
 
 ```text
-ink          #070706
-panel        #0d0b08
-panel raised #11100d
-border       #2f261c
-border strong#5f4226
-gold         #d2b173
-gold deep    #8b6238
-bone         #efe4d0
-bone bright  #fff3dc
-muted        #8f8171
-cyan         #72c7e8
-crimson      #8f2d2d
+ink           #070706
+panel         #0d0b08
+panel raised  #11100d
+border        #2f261c
+border strong #5f4226
+gold          #d2b173
+gold deep     #8b6238
+bone          #efe4d0
+bone bright   #fff3dc
+muted         #8f8171
+cyan          #72c7e8
+crimson       #8f2d2d
 ```
 
 Typography remains conceptually:
@@ -116,32 +112,28 @@ Editorial / identity     Palatino / Book Antiqua / Georgia family
 Operational / metadata  monospace family
 ```
 
-V0.7 may refine sizing, spacing and weight but does not replace the identity with a new design system.
+V0.7 may refine sizing, spacing and weight but does not replace the identity with another design system.
 
 ## Product presentation
 
 The repository and technical product remain **FleetFlow Sim**.
 
-The Córdoba experience may present the product using the descriptive product line:
+The Córdoba experience presents:
 
 ```text
 FleetFlow Sim
 Córdoba · Last-Mile Twin
 ```
 
-`Last-Mile Twin` is a presentation descriptor for the bounded Córdoba operational simulation. It must not imply live telemetry or a complete digital replica of Córdoba.
+`Córdoba · Last-Mile Twin` is a bounded presentation descriptor. It must not imply live telemetry or a complete digital replica of Córdoba.
 
 ## First-entry opening card
 
-### Goal
+A new visitor should understand the system before interacting with it. The opening card is one compact overlay, not a multi-step onboarding flow.
 
-A new visitor should understand the product before interacting with controls.
+### Required semantics
 
-The opening card is one compact overlay, not a multi-step onboarding flow.
-
-### Required message
-
-The copy should communicate, in simple direct Spanish:
+It must explain in simple direct Spanish that:
 
 1. this is a simulated delivery operation in Córdoba,
 2. the user can change the operating day and compare explicit decisions,
@@ -168,18 +160,18 @@ Exact wording may be polished during implementation while preserving these seman
 
 ### Behavior
 
-- Appears over the map after the first valid Base bundle is available.
-- Does not replace the map with a blank onboarding page.
-- Background remains visibly spatial, with a controlled darkening/vignette.
-- One clear primary action dismisses it.
-- Escape and an explicit close control must also work.
-- Dismissal may persist locally for the browser using a versioned local-storage key.
-- A small persistent help/info affordance must allow reopening it.
+- Appears after the first valid Córdoba Base bundle is available.
+- The valid map remains visibly present behind a controlled darkening/vignette.
+- One primary action dismisses it.
+- Escape and an explicit close control also dismiss it.
+- Dismissal persists locally under the versioned key `fleetflow:intro:v0.7:dismissed`.
+- A persistent compact help/info affordance can reopen it.
 - No backend persistence.
+- Legacy/static scenarios do not independently trigger this Córdoba product intro.
 
-## Primary information architecture
+## Information architecture
 
-V0.7 organizes the application into five immediately understandable concepts:
+The interface exposes five concepts explicitly:
 
 ```text
 TIME      which operating day is selected
@@ -189,11 +181,11 @@ OUTCOME   what the model produces and how it differs from Base
 EVIDENCE  source/provenance/context semantics and limitations
 ```
 
-These concepts should be visible in the interface vocabulary. The user should not need to infer them from component placement.
+The user should not need to infer these concepts from placement alone.
 
 ## Map-first shell
 
-The map remains full-viewport under the interface frame.
+The map remains full-viewport under one connected interface frame.
 
 Desktop structure:
 
@@ -207,105 +199,96 @@ Desktop structure:
 │                                                   │ context/source   │
 │                                                   │ provenance       │
 ├───────────────────────────────────────────────────┴──────────────────┤
-│ DECISION · BASE / EARLY / BALANCED · outcome microcharts · deltas   │
+│ DECISION · BASE / EARLY / BALANCED · microcharts · deltas           │
 └──────────────────────────────────────────────────────────────────────┘
 ```
 
-The interface should read as one connected frame around the map, not several floating cards.
+Panels should read as attached parts of one instrument, not floating independent cards.
 
 ### Desktop constraints
 
-At common desktop sizes such as 1366×768 and 1440×900:
+At 1366×768 and 1440×900:
 
-- the map remains the largest single visual surface,
-- the right operational rail remains compact,
-- the bottom decision area must not permanently consume close to half the viewport,
-- critical labels and values must not be clipped,
-- no primary information requires a modal after the opening card is dismissed.
+- the map remains the largest single surface,
+- the right operational rail stays compact,
+- the bottom decision region is shallow by default,
+- critical labels and values are not clipped,
+- no primary decision information requires a modal after the intro is dismissed.
 
-The current What-If dock maximum height of roughly 47vh is considered too large as a default V0.7 state.
+The current What-If dock behavior allowing roughly 47vh is too large as the normal V0.7 state.
 
-## Top rail
+## Top rail — TIME
 
-The top rail continues to own TIME and playback.
-
-It should show, without excessive copy:
+The top rail owns TIME and playback and should expose:
 
 - FleetFlow identity,
-- Córdoba / selected scenario label,
+- `Córdoba · Last-Mile Twin`,
 - operational date selector,
 - simulation clock,
 - playback state/speed,
-- selected run mode (`SIMULATED`, `FORECAST`, `WHAT_IF`) when relevant.
+- selected run mode (`SIMULATED`, `FORECAST`, `WHAT_IF`) where relevant.
 
-The current long product eyebrow should be reduced in visual dominance.
+The product title stays editorial; operational state is compact monospace.
 
-The title should feel editorial and branded, while operational state remains mono and compact.
+## Right rail — OPERATION + EVIDENCE
 
-## Right operational rail
+The rail answers:
 
-The right rail should answer:
+> What is true in the currently selected plan, and what is the status of the inputs behind it?
 
-> What is true in the currently selected plan?
-
-Priority order:
+Priority:
 
 1. compact KPIs,
 2. active fleet state,
 3. context/provenance state,
-4. explanatory copy.
+4. short explanatory copy.
 
-Long explanatory prose should not push live operational information below the fold on typical desktop screens.
+Long prose must not push live operational information below the fold at common desktop sizes.
 
-The existing `OperationalExplainer` semantics are retained but its visual footprint may be compressed or integrated into a provenance/context block.
+The existing `OperationalExplainer` semantics remain, but its footprint may be compressed or incorporated into a context/provenance summary.
 
 ## DECISION is always discoverable
 
-The current `Compare scenarios` launcher hides the key product capability behind a button.
+The current `Compare scenarios` launcher hides the product's key decision capability behind a button. V0.7 removes that launcher as the primary discovery mechanism.
 
-V0.7 removes that discoverability problem.
+When the selected Base has a comparison definition:
 
-When the selected Base run has a published comparison definition:
-
-- a compact DECISION strip is visible immediately,
-- it communicates that Base / Early Start / Balanced Load exist,
-- comparison loading must remain non-blocking for Base operation,
-- alternative bundles may load automatically after the Base interface is usable,
-- loading/failure state appears inside the DECISION strip rather than as a detached floating error card,
+- a compact DECISION region appears immediately,
+- Base / Early Start / Balanced Load are visibly named,
+- alternatives begin loading automatically only after the Base map/operation is usable,
+- Base rendering never waits for alternative loading,
+- comparison validation remains atomic,
+- loading/failure state stays inside DECISION,
 - Base remains fully usable if comparison loading fails.
 
-This preserves the existing comparison catalog and runtime validation contracts. V0.7 does not store precomputed outcome metrics in the catalog.
+V0.7 does not add outcome metrics to `what-if-comparisons.json`; outcomes continue to be derived through the current runtime/domain functions.
 
-## Decision loading behavior
-
-Preferred sequence:
+### Required loading sequence
 
 ```text
 load valid Base bundle
         ↓
-render map + operation immediately
+render map + operation
         ↓
 discover comparison definition
         ↓
-show DECISION strip as available/loading
+show DECISION · loading
         ↓
-load + validate both alternatives in background
+automatically load + validate both alternatives
         ↓
 commit ScenarioComparisonSet atomically
         ↓
-render outcome microcharts/deltas
+render decision selector + outcome graphics
 ```
 
-The Base experience must never wait for What-If alternatives.
-
-If loading fails:
+Failure renders concise local state such as:
 
 ```text
 DECISION
 Comparison unavailable · Base remains active
 ```
 
-No partial alternative set is displayed.
+No partial comparison is shown.
 
 ## Decision selector
 
@@ -315,21 +298,19 @@ When comparison is valid:
 [ BASE ] [ EARLY START ] [ BALANCED LOAD ]
 ```
 
-Selection continues to switch one validated bundle into the existing single map/simulation engine.
+Selection still switches one validated bundle into the existing single map/simulation engine. No three-map view is introduced.
 
-No three-map view is introduced.
+Gold identifies current selection. Cyan identifies `WHAT_IF · MODEL OUTPUT`; cyan must not imply a recommended result.
 
-The selected alternative uses the existing gold identity state. `WHAT_IF · MODEL OUTPUT` uses cyan as technical/model semantics, not as a positive recommendation signal.
+## OUTCOME visualization
 
-## Outcome visualization
-
-The current comparison table is semantically correct but visually too spreadsheet-like to carry the main decision experience.
+The current comparison table is semantically correct but too spreadsheet-like to be the primary decision surface.
 
 V0.7 promotes compact comparative graphics while retaining an audit-friendly detailed view.
 
 ### Primary outcome set
 
-The first visual comparison should prioritize:
+Prioritize:
 
 - completion clock,
 - operation span,
@@ -338,22 +319,22 @@ The first visual comparison should prioritize:
 - mean/max utilization when available,
 - package-load spread.
 
-Packages, deliveries, fleet size and frozen inputs remain visible as invariant/context information rather than competing equally with decision deltas.
+Packages, deliveries, fleet size and frozen inputs remain visible as invariant/context information rather than receiving equal visual weight.
 
 ### Microchart grammar
 
-Use small, deterministic SVG/CSS visualizations rather than a charting dependency in V0.7.
+Use deterministic CSS/inline SVG, not a charting dependency.
 
-Allowed patterns:
+Allowed forms:
 
 - short horizontal comparison bars,
-- compact three-scenario columns,
+- three-scenario columns,
 - baseline markers,
 - delta labels,
-- thin progress/load bars,
-- tiny timeline marks for start/finish.
+- thin utilization/load bars,
+- tiny start/finish timeline marks.
 
-Example conceptual treatment:
+Conceptual treatment:
 
 ```text
 FIN
@@ -372,28 +353,28 @@ EARLY      18    ━━━━━━━━━     Δ 0
 BALANCED    5    ━━           Δ -13
 ```
 
-Bar length conveys magnitude only. Color must not silently encode a winner/loser interpretation.
+Bar length conveys magnitude only. Color does not encode winner/loser semantics.
 
 ### No hidden recommendation
 
-The UI must not introduce:
+Never introduce:
 
 - green = best,
 - red = worst,
 - medals,
 - winner badges,
-- “recommended” labels,
+- `recommended`,
 - automatic ranking.
 
-A scenario can improve one modeled outcome and worsen another.
+A scenario may improve one modeled outcome while worsening another.
 
-## Detailed comparison / audit layer
+## Detailed comparison / audit
 
-The complete numerical comparison and machine-readable provenance remain accessible below or adjacent to the microchart summary.
+The full numerical comparison and machine-readable provenance remain accessible in a compact detail region adjacent to or below the summary.
 
-The existing table can be retained in a compact audit/detail region, but it is no longer the first visual object in the decision experience.
+The existing table can remain as an audit view, but is no longer the first object in the decision experience.
 
-Required audit information for WHAT_IF remains:
+Required WHAT_IF audit information remains:
 
 - Base run ID,
 - action-set ID/version,
@@ -405,100 +386,85 @@ Required audit information for WHAT_IF remains:
 
 ## Honeycomb language
 
-The honeycomb reference is adopted as a restrained structural motif.
+The honeycomb/panal reference is a restrained structural motif.
 
-Use cases:
+Use it for:
 
-- subtle background texture inside DECISION/model regions,
-- separators or edge ornament around model-state sections,
-- small diagrammatic motif connecting Base / alternatives,
-- intro-card or empty/loading states.
+- low-opacity DECISION/model backgrounds,
+- separators/edge ornament,
+- a small Base → alternatives systems motif,
+- intro/loading states.
 
 Rules:
 
-- never place a high-contrast honeycomb texture across the central map,
+- never cover the central map with a high-contrast honeycomb,
 - keep opacity low,
-- do not use honeycomb cells as arbitrary containers for every KPI,
-- the motif must signal model/system structure, not crypto branding.
+- do not turn every KPI into a hexagon,
+- the motif communicates system/model structure, not crypto branding,
+- prefer CSS gradients or lightweight inline SVG.
 
-Implementation should prefer CSS gradients or lightweight inline SVG.
+## Globe / territory motif
 
-## Globe / world motif
-
-The globe/territory reference may appear as a secondary line-art symbol in:
+A secondary line-art globe/territory symbol may appear in:
 
 - opening card,
 - provenance/context region,
-- product identity mark.
+- identity mark.
 
-It must remain subordinate to the actual map.
-
-No heavy WebGL globe or second 3D world is added to FleetFlow V0.7.
+It stays subordinate to the real map. No second WebGL globe is added.
 
 ## Borders and surfaces
-
-Panels should feel attached to the interface frame.
-
-Rules:
 
 - thin 1px borders,
 - dark translucent surfaces,
 - minimal radius,
-- subtle backdrop blur only where map readability requires it,
-- no repeated heavy shadows around every panel,
-- use stronger border/metallic treatment for hierarchy rather than larger card size.
+- backdrop blur only where map readability needs it,
+- no heavy shadow around every region,
+- stronger border/metallic treatment communicates hierarchy before larger card size.
 
-## Motion system for V0.7
+## Motion budget
 
-V0.7 uses a motion budget, not an animation showcase.
+V0.7 is not an animation showcase.
 
-### Initial implementation
-
-Prefer:
+Initial implementation preference:
 
 1. CSS transitions,
 2. browser-native behavior,
-3. inline SVG animation only where needed.
+3. inline SVG where justified.
 
-Do not add Anime.js, Motion, AutoAnimate or another animation dependency in the first V0.7 implementation unless an approved component demonstrably cannot meet the interaction requirement with existing primitives.
-
-### Motion purposes
+Anime.js, Motion, AutoAnimate or another animation dependency is not added in the first V0.7 implementation unless an approved interaction cannot meet its requirement with existing primitives.
 
 Motion may communicate:
 
-- opening-card dismissal into the instrument frame,
-- DECISION comparison becoming available,
-- selection changing from Base to an alternative,
-- metric delta change,
-- compact panel expansion/collapse,
+- intro dismissal,
+- DECISION loading → available,
+- Base → alternative selection,
+- metric delta changes,
+- compact disclosure expansion,
 - loading → validated state.
 
-Motion must not animate the map DOM to fake geospatial movement. Map/vehicle motion stays under the existing map/simulation logic.
+Map/vehicle movement remains owned by the existing simulation/map logic.
 
-## Interaction architecture references
+## Upstream references
 
-The following upstream projects are reference material, not automatic dependencies:
+Study as interaction references:
 
-### Study / likely patterns
-
-- Radix primitives / shadcn interaction architecture: collapsible, tooltip, scroll-area semantics.
-- `react-resizable-panels`: potential future dock behavior if a later iteration needs user-controlled vertical space.
-- FormKit AutoAnimate: potential future low-cost reflow animation.
-- Anime.js v4: future expressive SVG/motion-path work.
+- Radix/shadcn: collapsible, tooltip, scroll-area semantics,
+- `react-resizable-panels`: possible future user-controlled dock,
+- FormKit AutoAnimate: possible future low-cost reflow animation,
+- Anime.js v4: future SVG/motion-path work,
 - `motion/mini`: future minimal DOM/SVG animation.
 
-### Visual study only
+Study visually only:
 
-- kepler.gl: map/tool separation, filters, progressive disclosure, dense geo UI.
-- deck.gl / vis.gl: layer/time visualization patterns and animated spatial data.
+- kepler.gl: map/tool separation, filters, progressive disclosure, dense geo UI,
+- deck.gl / vis.gl: layer/time visualization and moving spatial-data patterns.
 
-V0.7 does not embed kepler.gl or deck.gl into FleetFlow.
+V0.7 embeds neither kepler.gl nor deck.gl.
 
 ## Epistemic visual semantics
 
-FleetFlow must visually reinforce its existing evidence contract.
-
-The interface should distinguish:
+FleetFlow must visually distinguish:
 
 ```text
 BASE operational model
@@ -508,9 +474,9 @@ context available/unavailable/omitted
 observed data (only if it actually exists in a future version)
 ```
 
-Current FleetFlow must not visually imply observed live Córdoba operations.
+Current FleetFlow must not imply observed live Córdoba operations.
 
-Examples:
+Compact labels may include:
 
 ```text
 SYNTHETIC DEMAND
@@ -520,71 +486,69 @@ WHAT_IF · deterministic model output
 BASE CONTEXT · unavailable
 ```
 
-These are compact labels, not disclaimers hidden in a footer.
+These semantics belong in the visible instrument, not a hidden footer.
 
 ## Responsive behavior
 
 ### Desktop >= 1180px
 
-- full connected frame,
+- connected frame,
 - top TIME/playback rail,
-- right operation/provenance rail,
-- compact bottom DECISION/outcome rail,
-- map remains central dominant surface.
+- right OPERATION/EVIDENCE rail,
+- shallow bottom DECISION/OUTCOME rail,
+- map remains dominant.
 
 ### Tablet 700–1179px
 
 - top rail may wrap to two rows,
 - right rail stays bounded,
-- decision region becomes a shallower horizontally scrollable dock,
-- audit details may collapse behind one explicit `Detalles del modelo` disclosure,
-- primary outcome microcharts remain visible.
+- DECISION becomes a shallower horizontally scrollable dock,
+- audit content may collapse under one `Detalles del modelo` disclosure,
+- primary microcharts remain visible.
 
 ### Mobile < 700px
-
-The requirement to expose maximum information must not make the map unusable.
 
 Priority becomes:
 
 1. map,
-2. selected operational date/state,
+2. selected date/state,
 3. selected decision,
 4. 3–4 core KPIs/deltas,
-5. fleet/detail content in vertical scroll/disclosures.
+5. fleet/audit content through vertical scroll/disclosures.
 
-The opening card must fit without clipped text at approximately 390×844.
+The intro must fit and remain usable at approximately 390×844.
 
 ## Accessibility
 
-V0.7 must preserve or improve:
+V0.7 preserves or improves:
 
-- keyboard access for opening-card controls,
+- keyboard access for intro controls,
 - visible focus states,
 - semantic buttons for decision selection,
-- `aria-pressed` for selected scenario decisions,
-- text equivalents for visual bars,
-- table/detail values available independently of chart shape,
+- `aria-pressed` for selected decisions,
+- textual equivalents for visual bars,
+- table/detail values independent of chart shape,
 - sufficient contrast for muted labels,
-- reduced-motion behavior through `prefers-reduced-motion`.
+- `prefers-reduced-motion` behavior.
 
-No meaning is encoded only through color or animation.
+No meaning is encoded only by color or animation.
 
 ## Component direction
 
-Likely implementation units:
+Likely units:
 
 ```text
 IntroCard
-ProductIdentity / compact brand header
+ProductIdentity
 DecisionDock
 DecisionSummary
-OutcomeMicroChart / OutcomeMetricRow
+OutcomeMetricRow / OutcomeMicroChart
 ModelStateBadge
 ContextProvenanceSummary
 ScenarioComparisonDetails
 ```
 
-Existing components should be reused where their responsibilities already fit:
+Reuse existing responsibilities where valid:
 
 ```text
 OperationalDateRail
@@ -597,11 +561,11 @@ ScenarioComparisonPanel
 ScenarioProvenance
 ```
 
-The implementation may split `ScenarioComparisonPanel` so visual summary and audit detail are independently understandable/testable. It must not move outcome derivation into visual components in a way that duplicates domain logic.
+`ScenarioComparisonPanel` may be split so summary and audit detail are independently understandable/testable. Outcome derivation must remain in domain logic rather than being duplicated in presentation components.
 
-## State/data-flow constraint
+## Data-flow constraint
 
-Visual refactoring must preserve:
+Preserve:
 
 ```text
 OperationalBundle
@@ -623,86 +587,76 @@ deriveScenarioDelta
 visual comparison components
 ```
 
-The UI does not invent or recalculate a parallel metric model.
+The UI does not invent a parallel metric model.
 
-## Failure states
-
-Failures remain local and legible.
+## Failure semantics
 
 ### Base/run failure
 
-Base run failure may block the operational experience as it does today.
+May block the operational experience as today.
 
 ### Comparison failure
 
-Comparison failure must never remove the valid Base map.
+Never removes a valid Base map. It stays local to DECISION.
 
-It appears in the DECISION region with concise copy and no modal.
+### Missing optional metric
 
-### Missing optional outcome
-
-Use `—` / unavailable and explanatory labels where needed.
-
-Missing values must not render as zero-length bars that imply zero.
+Render `—` / unavailable. Never render a missing value as a zero-length bar that implies zero.
 
 ## Performance constraints
 
-V0.7 should remain lightweight.
-
-- no general charting library for the first microcharts,
+- no chart library for first microcharts,
 - no new mapping stack,
 - no animation framework by default,
-- no eager loading that blocks Base rendering,
-- What-If alternatives may background-load only after the Base bundle is usable,
-- honeycomb/globe decoration must be CSS/SVG-scale rather than image-heavy or WebGL-heavy.
+- no alternative loading that blocks Base,
+- automatic alternative loading starts only after Base is usable,
+- honeycomb/globe decoration remains CSS/SVG-scale rather than image/WebGL heavy.
 
 ## Testing strategy
 
 Implementation follows TDD for behavior changes.
 
-Required coverage should include:
-
 ### Intro
 
-- opening card renders under the correct first-entry condition,
-- dismiss action works,
-- persisted dismissal is versioned,
-- reopen action works,
-- keyboard dismissal is supported.
+- intro renders under the correct first-entry condition,
+- primary/close/Escape dismissal works,
+- `fleetflow:intro:v0.7:dismissed` persists dismissal,
+- reopen affordance works,
+- Legacy does not independently retrigger the Córdoba intro.
 
-### Decision discoverability/loading
+### DECISION discoverability/loading
 
-- comparison-capable Base shows DECISION without requiring `Compare scenarios`,
-- Base remains rendered while alternatives load,
+- comparison-capable Base shows DECISION without `Compare scenarios`,
+- Base remains rendered while alternatives auto-load,
 - validated comparison becomes selectable atomically,
 - failure leaves Base usable,
-- date change resets comparison selection correctly.
+- date changes reset comparison selection correctly.
 
-### Comparison visualization
+### Outcome visualization
 
-- summary uses existing `ScenarioOutcome` / `ScenarioDelta`,
-- unavailable metrics render as unavailable rather than zero,
-- Early Start is not labelled “faster”,
-- no winner/recommendation language is introduced,
-- detailed audit/provenance remains present.
+- summary consumes existing `ScenarioOutcome` / `ScenarioDelta`,
+- unavailable metrics remain unavailable rather than zero,
+- Early Start is never labelled `faster`,
+- no winner/recommendation wording is introduced,
+- audit/provenance remains present.
 
-### Layout/accessibility semantic checks
+### Accessibility/structure
 
-- expected structural regions and labels render,
+- structural regions and labels render,
 - decision buttons retain semantic pressed state,
 - visual charts expose textual values,
-- reduced-motion CSS path exists.
+- reduced-motion path exists.
 
-### Build/regression
+### Regression
 
-- full existing test suite passes,
+- full existing suite passes,
 - production build passes,
-- V0.6 artifacts and What-If artifacts remain unchanged unless a separately approved implementation task explicitly requires otherwise,
-- simulation engine and clock behavior remain unchanged.
+- V0.6 and What-If published artifacts remain unchanged,
+- simulation engine and clock semantics remain unchanged.
 
 ## Visual acceptance review
 
-In addition to automated tests, implementation review must inspect at least:
+Review at least:
 
 ```text
 1440 × 900
@@ -711,24 +665,24 @@ In addition to automated tests, implementation review must inspect at least:
 390 × 844
 ```
 
-Review criteria:
+Require:
 
 - no clipped important text,
 - no overlapping rails,
-- no panel visually swallowing the map,
-- opening card readable without scrolling at common desktop sizes,
-- mobile opening card usable,
-- primary decision deltas visible on desktop without opening another modal,
+- no panel swallowing the map,
+- desktop intro readable without scrolling,
+- mobile intro usable,
+- primary decision deltas visible on desktop without another modal,
 - map remains visually dominant after onboarding,
-- decorative honeycomb/globe treatment stays subordinate to data.
+- honeycomb/globe remains subordinate to data.
 
 ## Implementation sequence boundary
 
-The likely implementation sequence is intentionally incremental:
+Likely incremental sequence:
 
 ```text
-1. Intro + visual tokens / shell hierarchy
-2. Always-discoverable DECISION region + background comparison loading
+1. Intro + tokens / shell hierarchy
+2. Always-visible DECISION + automatic background comparison loading
 3. Outcome microcharts + compact deltas
 4. Audit/provenance re-layout
 5. Honeycomb/globe ornament + restrained motion
@@ -741,15 +695,15 @@ This is a design sequence only. The implementation plan is written after final a
 
 V0.7 is successful when:
 
-1. A first-time visitor can explain what FleetFlow does after reading one short opening card.
+1. A first-time visitor can explain FleetFlow after one short intro card.
 2. After dismissal, the map is immediately the dominant surface.
-3. TIME, OPERATION and DECISION are visually distinct concepts.
-4. A comparison-capable Base exposes What-If availability without a hidden `Compare scenarios` discovery step.
-5. Base operation remains usable while alternatives load or if comparison fails.
-6. Base / Early Start / Balanced Load trade-offs are understandable from compact graphics and deltas without reading a large table first.
-7. Full audit/provenance information remains accessible.
-8. No visual treatment implies a winner, prediction certainty, live telemetry, or observed Córdoba operation.
+3. TIME, OPERATION, DECISION, OUTCOME and EVIDENCE are visually distinct.
+4. A comparison-capable Base exposes What-If without a hidden comparison launcher.
+5. Base remains usable while alternatives auto-load or if comparison fails.
+6. Base / Early Start / Balanced Load trade-offs are understandable from compact graphics and deltas before reading a large table.
+7. Full audit/provenance remains accessible.
+8. No visual treatment implies a winner, prediction certainty, live telemetry or observed Córdoba operation.
 9. Honeycomb/globe/NFT-inspired language adds identity without competing with the map.
-10. The existing V0.6 + What-If domain contracts and simulation engine remain intact.
-11. The design is usable at the defined desktop/tablet/mobile review sizes.
-12. The full test suite and production build pass after implementation.
+10. Existing V0.6 + What-If domain contracts and the simulation engine remain intact.
+11. The defined desktop/tablet/mobile review sizes are usable without clipping/overlap.
+12. Full tests and production build pass after implementation.
