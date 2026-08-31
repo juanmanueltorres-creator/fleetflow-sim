@@ -1,5 +1,6 @@
 import type { FleetScenario } from '../../domain/types'
 import type { ScenarioId } from '../scenarioRegistry'
+import type { WhatIfProvenance } from '../whatIf/contracts'
 
 export const OPERATIONAL_RUN_MODES = ['FORECAST', 'SIMULATED', 'OBSERVED', 'WHAT_IF'] as const
 export type OperationalRunMode = (typeof OPERATIONAL_RUN_MODES)[number]
@@ -29,6 +30,7 @@ export interface OperationalRunProvenance {
   notes: string[]
   operationalProfile?: OperationalProfileProvenance
   spatialDemand?: OperationalSpatialDemandProvenance
+  whatIf?: WhatIfProvenance
 }
 
 export interface OperationalRun {
