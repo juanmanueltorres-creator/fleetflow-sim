@@ -157,7 +157,9 @@ async function main() {
   }
   writeJsonExclusive(paths.catalogPath, generated.catalog)
 
-  console.log(`Published WHAT_IF V0 comparison for Base ${generated.base.run.id}`)
+  console.log(`Selected Base: ${generated.base.run.id}`)
+  console.log(`Early: ${generated.alternatives[0].run.id}`)
+  console.log(`Balanced: ${generated.alternatives[1].run.id}`)
   console.log(`Catalog: ${paths.catalogPath}`)
 }
 
