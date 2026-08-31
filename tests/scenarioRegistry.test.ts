@@ -18,6 +18,7 @@ describe('scenario registry', () => {
     expect(calibrated.routeAsset).toBe('./data/cordoba-calibrated-routes.geojson')
     expect(calibrated.operationalRuns).toEqual({
       manifestUrl: './data/operational-runs/manifest-v0-6.json',
+      comparisonCatalogUrl: './data/operational-runs/what-if-comparisons.json',
     })
     expect(calibrated.provenance.mode).toBe('CALIBRATED')
     expect(calibrated.provenance.summary).toBe(
