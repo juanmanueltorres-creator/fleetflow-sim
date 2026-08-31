@@ -1,6 +1,7 @@
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import baseRunJson from '../public/data/operational-runs/generated/cordoba-2026-08-27-v3.json'
-import baseRoutesJson from '../public/data/operational-runs/generated/cordoba-2026-08-27-v3.routes.geojson'
 import calibrationProfile from '../src/scenario/calibration/amazon-last-mile-v1.json'
 import {
   assertDerivedWhatIfArtifact,
@@ -11,13 +12,16 @@ import {
 } from '../scripts/lib/what-if-derivation.mjs'
 
 const ISSUED_AT = '2026-08-30T21:05:00-03:00'
+const BASE_ROUTES_PATH = resolve(
+  'public/data/operational-runs/generated/cordoba-2026-08-27-v3.routes.geojson',
+)
 
 function baseRun() {
   return structuredClone(baseRunJson)
 }
 
 function baseRoutes() {
-  return structuredClone(baseRoutesJson)
+  return JSON.parse(readFileSync(BASE_ROUTES_PATH, 'utf8'))
 }
 
 function earlyActionSet(baseRunId = baseRunJson.id) {
