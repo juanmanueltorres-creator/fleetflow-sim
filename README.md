@@ -137,8 +137,6 @@ The simulation engine is reused by Base and What-If runs. Decision alternatives 
 
 ## Run locally
 
-Requirements: Node.js 20+.
-
 ```bash
 npm install
 npm test -- --run
