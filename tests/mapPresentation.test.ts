@@ -46,6 +46,30 @@ describe('FleetFlow map presentation', () => {
     expect(mapSource).toContain("map.on('click', 'fleet-depot-point'")
   })
 
+  it('keeps compact truck and depot labels persistently mounted on the map', () => {
+    const mapSource = read('src/map/FleetMap.tsx')
+    const css = read('src/app.css')
+
+    expect(mapSource).toContain('persistentTruckLabelsRef')
+    expect(mapSource).toContain('persistentDepotLabelRef')
+    expect(mapSource).toContain('fleet-map-label fleet-map-label-truck')
+    expect(mapSource).toContain('fleet-map-label fleet-map-label-depot')
+    expect(css).toContain('.fleet-map-label')
+    expect(css).toContain('.fleet-map-label-truck')
+    expect(css).toContain('.fleet-map-label-depot')
+  })
+
+  it('degrades overlapping truck labels instead of hiding vehicle identity', () => {
+    const mapSource = read('src/map/FleetMap.tsx')
+    const css = read('src/app.css')
+
+    expect(mapSource).toContain('updatePersistentLabelOverlap')
+    expect(mapSource).toContain("classList.toggle('is-overlapping'")
+    expect(mapSource).toContain("classList.toggle('is-overlap-focus'")
+    expect(css).toContain('.fleet-map-label.is-overlapping')
+    expect(css).toContain('.fleet-map-label.is-overlap-focus')
+  })
+
   it('mounts the top rail and right operations rail as one connected interface frame', () => {
     const app = read('src/App.tsx')
     const css = read('src/app.css')
