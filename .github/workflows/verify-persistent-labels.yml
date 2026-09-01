@@ -1,0 +1,18 @@
+name: Verify persistent fleet labels
+
+on:
+  push:
+    branches:
+      - feat/persistent-fleet-labels
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install --no-audit --no-fund
+      - run: npm test -- tests/mapPresentation.test.ts
+      - run: npm run build
