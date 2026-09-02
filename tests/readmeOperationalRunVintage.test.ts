@@ -2,12 +2,12 @@ import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
-describe('README operational run regeneration', () => {
-  it('documents the active v2 artifact vintage', () => {
+describe('README reproducibility documentation', () => {
+  it('keeps detailed generation commands in docs instead of the front-page README', () => {
     const readme = readFileSync(resolve(process.cwd(), 'README.md'), 'utf8')
-    const command = readme.match(/npm run generate:operational-runs --[\s\S]*?```/)?.[0]
 
-    expect(command).toBeDefined()
-    expect(command).toContain('--run-suffix v2')
+    expect(readme).toContain('Detailed generation commands')
+    expect(readme).toContain('[`docs/superpowers`](docs/superpowers)')
+    expect(readme).not.toContain('npm run generate:operational-runs --')
   })
 })

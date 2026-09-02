@@ -3,13 +3,14 @@ import {
   AttributionControl,
   LngLatBounds,
   Map as MapLibreMap,
+  Marker,
   NavigationControl,
   Popup,
   type ExpressionSpecification,
   type GeoJSONSource,
 } from 'maplibre-gl'
 import type { FeatureCollection, Point } from 'geojson'
-import type { FleetScenario, FleetSnapshot } from '../domain/types'
+import type { FleetScenario, FleetSnapshot, TruckStatus } from '../domain/types'
 import { fleetSnapshotToGeoJson } from './fleetGeoJson'
 import {
   getDepotPointDetails,
@@ -34,6 +35,14 @@ interface FleetMapProps {
   snapshot: FleetSnapshot
 }
 
+interface PersistentMapLabel {
+  id: string
+  marker: Marker
+  element: HTMLButtonElement
+  title: HTMLSpanElement
+  meta: HTMLSpanElement
+}
+
 const ROUTE_COLOR_EXPRESSION: ExpressionSpecification = [
   'match',
   ['get', 'truckId'],
@@ -51,6 +60,31 @@ const ROUTE_COLOR_EXPRESSION: ExpressionSpecification = [
   'vehicle-07', '#9f86c0',
   'vehicle-08', '#d48665',
   '#8f8171',
+]
+
+const TRUCK_LABEL_COLORS: Record<string, string> = {
+  'truck-01': '#72c7e8',
+  'truck-02': '#d2b173',
+  'truck-03': '#efe4d0',
+  'truck-04': '#b9874d',
+  'truck-05': '#8f2d2d',
+  'vehicle-01': '#72c7e8',
+  'vehicle-02': '#d2b173',
+  'vehicle-03': '#efe4d0',
+  'vehicle-04': '#b9874d',
+  'vehicle-05': '#8f2d2d',
+  'vehicle-06': '#b7c9a8',
+  'vehicle-07': '#9f86c0',
+  'vehicle-08': '#d48665',
+}
+
+const LABEL_STACK_OFFSETS: Array<[number, number]> = [
+  [0, 0],
+  [7, -5],
+  [-7, -5],
+  [11, -10],
+  [-11, -10],
+  [0, -14],
 ]
 
 function storeGeoJson(scenario: FleetScenario): FeatureCollection<Point> {
@@ -147,11 +181,97 @@ function showPopup(map: MapLibreMap, lngLat: { lng: number; lat: number }, detai
     .addTo(map)
 }
 
+function shortTruckStatus(status: TruckStatus): string {
+  switch (status) {
+    case 'AT_DEPOT':
+      return 'BASE'
+    case 'EN_ROUTE':
+      return 'EN RUTA'
+    case 'UNLOADING':
+      return 'PARADA'
+    case 'RETURNING':
+      return 'REGRESO'
+    case 'DONE':
+      return 'LISTO'
+  }
+}
+
+function createPersistentLabel(
+  className: string,
+  titleText: string,
+  metaText: string,
+  accent: string,
+): { anchor: HTMLDivElement; element: HTMLButtonElement; title: HTMLSpanElement; meta: HTMLSpanElement } {
+  const anchor = document.createElement('div')
+  anchor.className = 'fleet-map-label-anchor'
+
+  const element = document.createElement('button')
+  element.type = 'button'
+  element.className = className
+  element.style.setProperty('--fleet-label-accent', accent)
+
+  const title = document.createElement('span')
+  title.className = 'fleet-map-label-title'
+  title.textContent = titleText
+
+  const meta = document.createElement('span')
+  meta.className = 'fleet-map-label-meta'
+  meta.textContent = metaText
+
+  element.append(title, meta)
+  anchor.appendChild(element)
+
+  return { anchor, element, title, meta }
+}
+
+function updatePersistentLabelOverlap(
+  map: MapLibreMap,
+  labels: PersistentMapLabel[],
+  focusedLabelId: string | null,
+) {
+  const points = labels.map((label) => ({ label, point: map.project(label.marker.getLngLat()) }))
+  const overlappingIds = new Set<string>()
+
+  for (let leftIndex = 0; leftIndex < points.length; leftIndex += 1) {
+    for (let rightIndex = leftIndex + 1; rightIndex < points.length; rightIndex += 1) {
+      const left = points[leftIndex]
+      const right = points[rightIndex]
+      const overlapsHorizontally = Math.abs(left.point.x - right.point.x) < 82
+      const overlapsVertically = Math.abs(left.point.y - right.point.y) < 34
+
+      if (overlapsHorizontally && overlapsVertically) {
+        overlappingIds.add(left.label.id)
+        overlappingIds.add(right.label.id)
+      }
+    }
+  }
+
+  let overlapIndex = 0
+  for (const label of labels) {
+    const isOverlapping = overlappingIds.has(label.id)
+    const isFocused = isOverlapping && focusedLabelId === label.id
+    const [stackX, stackY] = isOverlapping
+      ? LABEL_STACK_OFFSETS[overlapIndex % LABEL_STACK_OFFSETS.length]
+      : [0, 0]
+
+    if (isOverlapping) overlapIndex += 1
+
+    label.element.classList.toggle('is-overlapping', isOverlapping)
+    label.element.classList.toggle('is-overlap-focus', isFocused)
+    label.element.style.setProperty('--fleet-label-stack-x', `${stackX}px`)
+    label.element.style.setProperty('--fleet-label-stack-y', `${stackY}px`)
+    label.marker.getElement().style.zIndex = isFocused ? '8' : isOverlapping ? '4' : '2'
+  }
+}
+
 export function FleetMap({ scenario, routes, snapshot }: FleetMapProps) {
   const containerRef = useRef<HTMLDivElement | null>(null)
   const mapRef = useRef<MapLibreMap | null>(null)
   const initialSnapshotRef = useRef(snapshot)
   const latestSnapshotRef = useRef(snapshot)
+  const persistentTruckLabelsRef = useRef(new Map<string, PersistentMapLabel>())
+  const persistentDepotLabelRef = useRef<PersistentMapLabel | null>(null)
+  const focusedPersistentLabelRef = useRef<string | null>(null)
   const [mapReady, setMapReady] = useState(false)
   const [mapError, setMapError] = useState(false)
 
@@ -170,6 +290,18 @@ export function FleetMap({ scenario, routes, snapshot }: FleetMapProps) {
       zoom: MAP_ZOOM,
       attributionControl: false,
     })
+
+    const persistentLabels = () => [
+      ...persistentTruckLabelsRef.current.values(),
+      ...(persistentDepotLabelRef.current ? [persistentDepotLabelRef.current] : []),
+    ]
+    const updateLabelLayout = () => {
+      updatePersistentLabelOverlap(map, persistentLabels(), focusedPersistentLabelRef.current)
+    }
+    const focusLabel = (labelId: string | null) => {
+      focusedPersistentLabelRef.current = labelId
+      updateLabelLayout()
+    }
 
     mapRef.current = map
     map.addControl(new NavigationControl({ showCompass: false }), 'bottom-left')
@@ -261,6 +393,68 @@ export function FleetMap({ scenario, routes, snapshot }: FleetMapProps) {
         },
       })
 
+      for (const truck of scenario.trucks) {
+        const truckSnapshot = latestSnapshotRef.current.trucks.find((candidate) => candidate.truckId === truck.id)
+        const route = scenario.routes.find((candidate) => candidate.truckId === truck.id)
+        if (!truckSnapshot || !route) continue
+
+        const labelParts = createPersistentLabel(
+          'fleet-map-label fleet-map-label-truck',
+          truck.label,
+          `${shortTruckStatus(truckSnapshot.status)} · ${truckSnapshot.completedDeliveries}/${route.stops.length}`,
+          TRUCK_LABEL_COLORS[truck.id] ?? '#8f8171',
+        )
+        labelParts.element.setAttribute('aria-label', `Abrir detalle de ${truck.label}`)
+
+        const marker = new Marker({ element: labelParts.anchor, anchor: 'bottom', offset: [0, -12] })
+          .setLngLat(truckSnapshot.position)
+          .addTo(map)
+        const persistentLabel: PersistentMapLabel = {
+          id: truck.id,
+          marker,
+          element: labelParts.element,
+          title: labelParts.title,
+          meta: labelParts.meta,
+        }
+
+        persistentTruckLabelsRef.current.set(truck.id, persistentLabel)
+        labelParts.element.addEventListener('mouseenter', () => focusLabel(truck.id))
+        labelParts.element.addEventListener('mouseleave', () => focusLabel(null))
+        labelParts.element.addEventListener('focus', () => focusLabel(truck.id))
+        labelParts.element.addEventListener('blur', () => focusLabel(null))
+        labelParts.element.addEventListener('click', (event) => {
+          event.stopPropagation()
+          showPopup(map, marker.getLngLat(), getTruckPointDetails(scenario, latestSnapshotRef.current, truck.id))
+        })
+      }
+
+      const depotLabelParts = createPersistentLabel(
+        'fleet-map-label fleet-map-label-depot',
+        'DEPOT',
+        `${scenario.trucks.length} VEH`,
+        '#d2b173',
+      )
+      depotLabelParts.element.title = scenario.depot.name
+      depotLabelParts.element.setAttribute('aria-label', `Abrir detalle de ${scenario.depot.name}`)
+      const depotMarker = new Marker({ element: depotLabelParts.anchor, anchor: 'bottom', offset: [0, -14] })
+        .setLngLat(scenario.depot.position)
+        .addTo(map)
+      persistentDepotLabelRef.current = {
+        id: `depot:${scenario.depot.id}`,
+        marker: depotMarker,
+        element: depotLabelParts.element,
+        title: depotLabelParts.title,
+        meta: depotLabelParts.meta,
+      }
+      depotLabelParts.element.addEventListener('mouseenter', () => focusLabel(`depot:${scenario.depot.id}`))
+      depotLabelParts.element.addEventListener('mouseleave', () => focusLabel(null))
+      depotLabelParts.element.addEventListener('focus', () => focusLabel(`depot:${scenario.depot.id}`))
+      depotLabelParts.element.addEventListener('blur', () => focusLabel(null))
+      depotLabelParts.element.addEventListener('click', (event) => {
+        event.stopPropagation()
+        showPopup(map, depotMarker.getLngLat(), getDepotPointDetails(scenario))
+      })
+
       map.on('click', 'fleet-store-points', (event) => {
         const storeId = event.features?.[0]?.properties?.id
         if (!storeId) return
@@ -294,12 +488,14 @@ export function FleetMap({ scenario, routes, snapshot }: FleetMapProps) {
         })
       }
 
+      map.on('move', updateLabelLayout)
       map.resize()
       map.fitBounds(routeBounds(routes), {
         padding: fitPadding(),
         maxZoom: 13.2,
         duration: 0,
       })
+      updateLabelLayout()
 
       setMapReady(true)
     })
@@ -309,6 +505,12 @@ export function FleetMap({ scenario, routes, snapshot }: FleetMapProps) {
     })
 
     return () => {
+      map.off('move', updateLabelLayout)
+      for (const label of persistentTruckLabelsRef.current.values()) label.marker.remove()
+      persistentTruckLabelsRef.current.clear()
+      persistentDepotLabelRef.current?.marker.remove()
+      persistentDepotLabelRef.current = null
+      focusedPersistentLabelRef.current = null
       mapRef.current = null
       map.remove()
     }
@@ -316,9 +518,29 @@ export function FleetMap({ scenario, routes, snapshot }: FleetMapProps) {
 
   useEffect(() => {
     if (!mapReady || !mapRef.current) return
-    const source = mapRef.current.getSource(SOURCE_TRUCKS) as GeoJSONSource | undefined
+    const map = mapRef.current
+    const source = map.getSource(SOURCE_TRUCKS) as GeoJSONSource | undefined
     source?.setData(fleetSnapshotToGeoJson(snapshot))
-  }, [mapReady, snapshot])
+
+    for (const truckSnapshot of snapshot.trucks) {
+      const label = persistentTruckLabelsRef.current.get(truckSnapshot.truckId)
+      if (!label) continue
+      const route = scenario.routes.find((candidate) => candidate.truckId === truckSnapshot.truckId)
+      if (!route) continue
+
+      label.marker.setLngLat(truckSnapshot.position)
+      label.meta.textContent = `${shortTruckStatus(truckSnapshot.status)} · ${truckSnapshot.completedDeliveries}/${route.stops.length}`
+    }
+
+    updatePersistentLabelOverlap(
+      map,
+      [
+        ...persistentTruckLabelsRef.current.values(),
+        ...(persistentDepotLabelRef.current ? [persistentDepotLabelRef.current] : []),
+      ],
+      focusedPersistentLabelRef.current,
+    )
+  }, [mapReady, scenario, snapshot])
 
   return (
     <section className="map-stage" aria-label={`Mapa de ${scenario.label}`}>
