@@ -59,6 +59,15 @@ describe('FleetFlow map presentation', () => {
     expect(css).toContain('.fleet-map-label-depot')
   })
 
+  it('abbreviates persistent vehicle identity so truck cards stay map-first', () => {
+    const mapSource = read('src/map/FleetMap.tsx')
+    const css = read('src/app.css')
+
+    expect(mapSource).toContain('compactTruckLabel')
+    expect(mapSource).toContain("return `V${match[1]}`")
+    expect(css).toContain('max-width: 72px')
+  })
+
   it('degrades overlapping truck labels instead of hiding vehicle identity', () => {
     const mapSource = read('src/map/FleetMap.tsx')
     const css = read('src/app.css')
@@ -68,6 +77,17 @@ describe('FleetFlow map presentation', () => {
     expect(mapSource).toContain("classList.toggle('is-overlap-focus'")
     expect(css).toContain('.fleet-map-label.is-overlapping')
     expect(css).toContain('.fleet-map-label.is-overlap-focus')
+  })
+
+  it('keeps the next delivery of every active route labeled from snapshot.nextStopId', () => {
+    const mapSource = read('src/map/FleetMap.tsx')
+    const css = read('src/app.css')
+
+    expect(mapSource).toContain('persistentNextStopLabelsRef')
+    expect(mapSource).toContain('truckSnapshot.nextStopId')
+    expect(mapSource).toContain('syncNextStopLabel')
+    expect(mapSource).toContain('fleet-next-stop-label')
+    expect(css).toContain('.fleet-next-stop-label')
   })
 
   it('mounts the top rail and right operations rail as one connected interface frame', () => {
