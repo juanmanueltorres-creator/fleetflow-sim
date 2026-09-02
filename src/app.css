@@ -419,17 +419,17 @@ button:disabled {
   --fleet-label-stack-y: 0px;
   position: relative;
   display: grid;
-  grid-template-columns: auto auto;
+  grid-template-columns: 1fr;
   align-items: center;
-  gap: 0.16rem 0.32rem;
+  gap: 0.08rem;
   min-width: 0;
-  padding: 0.22rem 0.34rem;
-  border: 1px solid rgba(95, 66, 38, 0.9);
+  padding: 0.18rem 0.26rem;
+  border: 1px solid rgba(95, 66, 38, 0.86);
   border-left: 2px solid var(--fleet-label-accent);
   border-radius: 4px;
-  background: rgba(13, 11, 8, 0.88);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.34);
-  backdrop-filter: blur(7px);
+  background: rgba(13, 11, 8, 0.9);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.34);
+  backdrop-filter: blur(6px);
   pointer-events: auto;
   white-space: nowrap;
   transform: translate(var(--fleet-label-stack-x), var(--fleet-label-stack-y)) scale(1);
@@ -440,37 +440,53 @@ button:disabled {
 .fleet-map-label-title,
 .fleet-map-label-meta {
   display: block;
+  min-width: 0;
   margin: 0;
+  overflow: hidden;
   font-family: "Courier New", Courier, monospace;
   line-height: 1;
+  text-overflow: ellipsis;
 }
 
 .fleet-map-label-title {
   color: var(--color-bone-bright);
-  font-size: 0.59rem;
+  font-size: 0.56rem;
   font-weight: 700;
-  letter-spacing: 0.035em;
+  letter-spacing: 0.025em;
 }
 
 .fleet-map-label-meta {
   color: #b7aa96;
-  font-size: 0.48rem;
-  letter-spacing: 0.04em;
+  font-size: 0.43rem;
+  letter-spacing: 0.035em;
   text-transform: uppercase;
 }
 
 .fleet-map-label-truck {
-  max-width: 128px;
+  max-width: 72px;
 }
 
 .fleet-map-label-depot {
+  max-width: 72px;
   border-color: rgba(210, 177, 115, 0.72);
   background: rgba(20, 16, 11, 0.94);
 }
 
+.fleet-next-stop-label {
+  max-width: 86px;
+  border-style: dashed;
+  border-color: rgba(143, 129, 113, 0.72);
+  border-left-style: solid;
+  background: rgba(9, 9, 8, 0.84);
+}
+
+.fleet-next-stop-label .fleet-map-label-title {
+  color: var(--fleet-label-accent);
+}
+
 .fleet-map-label.is-overlapping {
   opacity: 0.82;
-  transform: translate(var(--fleet-label-stack-x), var(--fleet-label-stack-y)) scale(0.88);
+  transform: translate(var(--fleet-label-stack-x), var(--fleet-label-stack-y)) scale(0.9);
 }
 
 .fleet-map-label.is-overlapping .fleet-map-label-meta {
@@ -484,7 +500,7 @@ button:disabled {
   opacity: 1;
   border-color: var(--fleet-label-accent);
   background: rgba(13, 11, 8, 0.98);
-  transform: translate(var(--fleet-label-stack-x), var(--fleet-label-stack-y)) scale(1.06);
+  transform: translate(var(--fleet-label-stack-x), var(--fleet-label-stack-y)) scale(1.04);
 }
 
 .fleet-map-label.is-overlap-focus .fleet-map-label-meta,
