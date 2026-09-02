@@ -10,7 +10,7 @@ import {
   type GeoJSONSource,
 } from 'maplibre-gl'
 import type { FeatureCollection, Point } from 'geojson'
-import type { FleetScenario, FleetSnapshot, TruckStatus } from '../domain/types'
+import type { FleetScenario, FleetSnapshot, TruckSnapshot, TruckStatus } from '../domain/types'
 import { fleetSnapshotToGeoJson } from './fleetGeoJson'
 import {
   getDepotPointDetails,
@@ -196,6 +196,13 @@ function shortTruckStatus(status: TruckStatus): string {
   }
 }
 
+function compactTruckLabel(label: string): string {
+  const match = label.match(/(\d+)\s*$/)
+  if (match) return `V${match[1]}`
+  const compact = label.replace(/^Veh[ií]culo\s*/i, 'V').trim()
+  return compact.length > 8 ? compact.slice(0, 8) : compact
+}
+
 function createPersistentLabel(
   className: string,
   titleText: string,
@@ -224,20 +231,51 @@ function createPersistentLabel(
   return { anchor, element, title, meta }
 }
 
+function syncNextStopLabel(
+  scenario: FleetScenario,
+  truckSnapshot: TruckSnapshot,
+  label: PersistentMapLabel,
+) {
+  const isActive = truckSnapshot.status === 'EN_ROUTE' || truckSnapshot.status === 'UNLOADING'
+  const nextStopId = truckSnapshot.nextStopId
+
+  if (!isActive || !nextStopId) {
+    label.element.hidden = true
+    delete label.element.dataset.storeId
+    return
+  }
+
+  const store = scenario.stores.find((candidate) => candidate.id === nextStopId)
+  const truck = scenario.trucks.find((candidate) => candidate.id === truckSnapshot.truckId)
+  if (!store || !truck) {
+    label.element.hidden = true
+    delete label.element.dataset.storeId
+    return
+  }
+
+  label.element.hidden = false
+  label.marker.setLngLat(store.position)
+  label.title.textContent = `${compactTruckLabel(truck.label)} →`
+  label.meta.textContent = store.name
+  label.element.dataset.storeId = store.id
+  label.element.setAttribute('aria-label', `Próxima entrega de ${truck.label}: ${store.name}`)
+}
+
 function updatePersistentLabelOverlap(
   map: MapLibreMap,
   labels: PersistentMapLabel[],
   focusedLabelId: string | null,
 ) {
-  const points = labels.map((label) => ({ label, point: map.project(label.marker.getLngLat()) }))
+  const visibleLabels = labels.filter((label) => !label.element.hidden)
+  const points = visibleLabels.map((label) => ({ label, point: map.project(label.marker.getLngLat()) }))
   const overlappingIds = new Set<string>()
 
   for (let leftIndex = 0; leftIndex < points.length; leftIndex += 1) {
     for (let rightIndex = leftIndex + 1; rightIndex < points.length; rightIndex += 1) {
       const left = points[leftIndex]
       const right = points[rightIndex]
-      const overlapsHorizontally = Math.abs(left.point.x - right.point.x) < 82
-      const overlapsVertically = Math.abs(left.point.y - right.point.y) < 34
+      const overlapsHorizontally = Math.abs(left.point.x - right.point.x) < 72
+      const overlapsVertically = Math.abs(left.point.y - right.point.y) < 30
 
       if (overlapsHorizontally && overlapsVertically) {
         overlappingIds.add(left.label.id)
@@ -248,7 +286,7 @@ function updatePersistentLabelOverlap(
 
   let overlapIndex = 0
   for (const label of labels) {
-    const isOverlapping = overlappingIds.has(label.id)
+    const isOverlapping = !label.element.hidden && overlappingIds.has(label.id)
     const isFocused = isOverlapping && focusedLabelId === label.id
     const [stackX, stackY] = isOverlapping
       ? LABEL_STACK_OFFSETS[overlapIndex % LABEL_STACK_OFFSETS.length]
@@ -270,6 +308,7 @@ export function FleetMap({ scenario, routes, snapshot }: FleetMapProps) {
   const initialSnapshotRef = useRef(snapshot)
   const latestSnapshotRef = useRef(snapshot)
   const persistentTruckLabelsRef = useRef(new Map<string, PersistentMapLabel>())
+  const persistentNextStopLabelsRef = useRef(new Map<string, PersistentMapLabel>())
   const persistentDepotLabelRef = useRef<PersistentMapLabel | null>(null)
   const focusedPersistentLabelRef = useRef<string | null>(null)
   const [mapReady, setMapReady] = useState(false)
@@ -293,6 +332,7 @@ export function FleetMap({ scenario, routes, snapshot }: FleetMapProps) {
 
     const persistentLabels = () => [
       ...persistentTruckLabelsRef.current.values(),
+      ...persistentNextStopLabelsRef.current.values(),
       ...(persistentDepotLabelRef.current ? [persistentDepotLabelRef.current] : []),
     ]
     const updateLabelLayout = () => {
@@ -398,11 +438,12 @@ export function FleetMap({ scenario, routes, snapshot }: FleetMapProps) {
         const route = scenario.routes.find((candidate) => candidate.truckId === truck.id)
         if (!truckSnapshot || !route) continue
 
+        const accent = TRUCK_LABEL_COLORS[truck.id] ?? '#8f8171'
         const labelParts = createPersistentLabel(
           'fleet-map-label fleet-map-label-truck',
-          truck.label,
-          `${shortTruckStatus(truckSnapshot.status)} · ${truckSnapshot.completedDeliveries}/${route.stops.length}`,
-          TRUCK_LABEL_COLORS[truck.id] ?? '#8f8171',
+          `${compactTruckLabel(truck.label)} ${truckSnapshot.completedDeliveries}/${route.stops.length}`,
+          shortTruckStatus(truckSnapshot.status),
+          accent,
         )
         labelParts.element.setAttribute('aria-label', `Abrir detalle de ${truck.label}`)
 
@@ -426,11 +467,46 @@ export function FleetMap({ scenario, routes, snapshot }: FleetMapProps) {
           event.stopPropagation()
           showPopup(map, marker.getLngLat(), getTruckPointDetails(scenario, latestSnapshotRef.current, truck.id))
         })
+
+        const initialNextStore = scenario.stores.find((store) => store.id === route.stops[0]?.storeId)
+        const nextStopParts = createPersistentLabel(
+          'fleet-map-label fleet-next-stop-label',
+          `${compactTruckLabel(truck.label)} →`,
+          initialNextStore?.name ?? 'PRÓXIMA',
+          accent,
+        )
+        const nextStopMarker = new Marker({ element: nextStopParts.anchor, anchor: 'bottom', offset: [0, -9] })
+          .setLngLat(initialNextStore?.position ?? scenario.depot.position)
+          .addTo(map)
+        const nextStopLabel: PersistentMapLabel = {
+          id: `next:${truck.id}`,
+          marker: nextStopMarker,
+          element: nextStopParts.element,
+          title: nextStopParts.title,
+          meta: nextStopParts.meta,
+        }
+
+        persistentNextStopLabelsRef.current.set(truck.id, nextStopLabel)
+        syncNextStopLabel(scenario, truckSnapshot, nextStopLabel)
+        nextStopParts.element.addEventListener('mouseenter', () => focusLabel(`next:${truck.id}`))
+        nextStopParts.element.addEventListener('mouseleave', () => focusLabel(null))
+        nextStopParts.element.addEventListener('focus', () => focusLabel(`next:${truck.id}`))
+        nextStopParts.element.addEventListener('blur', () => focusLabel(null))
+        nextStopParts.element.addEventListener('click', (event) => {
+          event.stopPropagation()
+          const storeId = nextStopParts.element.dataset.storeId
+          if (!storeId) return
+          showPopup(
+            map,
+            nextStopMarker.getLngLat(),
+            getStorePointDetails(scenario, latestSnapshotRef.current, storeId),
+          )
+        })
       }
 
       const depotLabelParts = createPersistentLabel(
         'fleet-map-label fleet-map-label-depot',
-        'DEPOT',
+        '◆ BASE',
         `${scenario.trucks.length} VEH`,
         '#d2b173',
       )
@@ -508,6 +584,8 @@ export function FleetMap({ scenario, routes, snapshot }: FleetMapProps) {
       map.off('move', updateLabelLayout)
       for (const label of persistentTruckLabelsRef.current.values()) label.marker.remove()
       persistentTruckLabelsRef.current.clear()
+      for (const label of persistentNextStopLabelsRef.current.values()) label.marker.remove()
+      persistentNextStopLabelsRef.current.clear()
       persistentDepotLabelRef.current?.marker.remove()
       persistentDepotLabelRef.current = null
       focusedPersistentLabelRef.current = null
@@ -524,18 +602,23 @@ export function FleetMap({ scenario, routes, snapshot }: FleetMapProps) {
 
     for (const truckSnapshot of snapshot.trucks) {
       const label = persistentTruckLabelsRef.current.get(truckSnapshot.truckId)
-      if (!label) continue
+      const nextStopLabel = persistentNextStopLabelsRef.current.get(truckSnapshot.truckId)
       const route = scenario.routes.find((candidate) => candidate.truckId === truckSnapshot.truckId)
-      if (!route) continue
+      const truck = scenario.trucks.find((candidate) => candidate.id === truckSnapshot.truckId)
+      if (!label || !route || !truck) continue
 
       label.marker.setLngLat(truckSnapshot.position)
-      label.meta.textContent = `${shortTruckStatus(truckSnapshot.status)} · ${truckSnapshot.completedDeliveries}/${route.stops.length}`
+      label.title.textContent = `${compactTruckLabel(truck.label)} ${truckSnapshot.completedDeliveries}/${route.stops.length}`
+      label.meta.textContent = shortTruckStatus(truckSnapshot.status)
+
+      if (nextStopLabel) syncNextStopLabel(scenario, truckSnapshot, nextStopLabel)
     }
 
     updatePersistentLabelOverlap(
       map,
       [
         ...persistentTruckLabelsRef.current.values(),
+        ...persistentNextStopLabelsRef.current.values(),
         ...(persistentDepotLabelRef.current ? [persistentDepotLabelRef.current] : []),
       ],
       focusedPersistentLabelRef.current,
