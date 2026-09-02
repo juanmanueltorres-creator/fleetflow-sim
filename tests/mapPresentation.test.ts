@@ -90,6 +90,14 @@ describe('FleetFlow map presentation', () => {
     expect(css).toContain('.fleet-next-stop-label')
   })
 
+  it('keeps the first next-stop card visible while a newly selected day starts at the depot', () => {
+    const mapSource = read('src/map/FleetMap.tsx')
+
+    expect(mapSource).toContain('const nextStopId = truckSnapshot.nextStopId')
+    expect(mapSource).toContain('if (!nextStopId)')
+    expect(mapSource).not.toContain("const isActive = truckSnapshot.status === 'EN_ROUTE' || truckSnapshot.status === 'UNLOADING'")
+  })
+
   it('mounts the top rail and right operations rail as one connected interface frame', () => {
     const app = read('src/App.tsx')
     const css = read('src/app.css')
