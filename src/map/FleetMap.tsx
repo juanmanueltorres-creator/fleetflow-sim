@@ -236,10 +236,9 @@ function syncNextStopLabel(
   truckSnapshot: TruckSnapshot,
   label: PersistentMapLabel,
 ) {
-  const isActive = truckSnapshot.status === 'EN_ROUTE' || truckSnapshot.status === 'UNLOADING'
   const nextStopId = truckSnapshot.nextStopId
 
-  if (!isActive || !nextStopId) {
+  if (!nextStopId) {
     label.element.hidden = true
     delete label.element.dataset.storeId
     return
